@@ -1,0 +1,498 @@
+\labeledsection{Probability Theory}{sec:probth}
+\definition{Sample Space}{
+We say that a \linkterm{set}{def:set} $\Omega$ is a \textbf{sample space} of a random experiment, iff $\Omega$ contains all possible outcomes of that experiment. Each individual outcome $\omega \in \Omega$ is called a \textbf{sample point} or an \textbf{elementary outcome}.
+}{def:sample_space}
+
+\Example{
+Throwing two dice $\leadsto \Omega = \set{\tuple{1,1}, \tuple{1,2}, \cdots, \tuple{6,6}}$ with $\setsize{\Omega}=36$    
+}{sample_space_example}
+
+\Example{
+Number of tosses until the first head $\leadsto \Omega=\set{1,2,3, \cdots} = \NN$ with $\setsize{\Omega} = \aleph_0$
+}{sample_space_example_2}
+
+\Example{
+A random point in the interval $[0,1] \leadsto \Omega=[0,1]$ with $\setsize{\Omega}=\fc$
+}{sample_space_example_3}
+
+\definition{Event}{
+Given a sample space $\Omega$, we say that $E$ is an \defemph{event} iff $E \subseteq \Omega$. That is, an event is a \linkterm{subset}{subset} of the sample space. We say an event $E$ occurs iff the outcome $\omega$ of the experiment satisfies $\omega \in E$.
+}{def:event}
+
+\commandnote{
+Because \linkterm{events}{def:event} are \linkterm{sets}{def:set}, we use Set Theory to describe relations between them:
+\begin{itemize}
+    \item Complement $\bar{E}$: the \linkterm{event}{def:event} $E$ that does not occur
+    \item \linkterm{Union}{set_union} $\union{A,B}$: the \linkterm{event}{def:event} that $A$ or $B$ or both occurs
+    \item \linkterm{Intersection}{set_intersection} $\intersection{A,B}$: the \linkterm{event}{def:event} that both $A$ and $B$ occur 
+    \item \linkterm{Disjoint}{disjoint} / Mutually Exclusive: two \linkterm{events}{def:event} $A$ and $B$ are \linkterm{disjoint}{disjoint} iff $\intersection{A,B}=\emptyset$
+\end{itemize}
+}
+
+
+\Example{
+The \linkterm{sample space}{def:sample_space} for rolling one die is $\Omega = \set{1,2, \cdots, 6}$, \tabref{tab:event_example} shows some \linkterm{events}{def:event} of interest.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5} % Adjusts row spacing for readability
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Event Description} & \textbf{Set Representation} \\ \hline
+$A$: Even Number & $\{2, 4, 6\}$  \\ \hline
+$B$: Prime Number & $\{2, 3, 5\}$  \\ \hline
+$A \cap B$ (Even and Prime) & $\{2\}$\\ \hline
+$A \cup B$ (Even or Prime) & $\{2, 3, 4, 5, 6\}$  \\ \hline
+$\bar{A}$ (Not Even) & $\{1, 3, 5\}$ \\ \hline
+\end{tabular}
+\caption{Examples of Events}
+\label{tab:event_example}
+\end{table}
+}{event_example}
+
+
+\definition{$\sigma$-algebra}{
+Given a \linkterm{sample space}{def:sample_space} $\Omega$, a collection of \linkterm{subsets}{subset} $\mathcal{F} \subseteq \mathcal{P}(\Omega)$ is called a \textbf{$\sigma$-algebra} iff it satisfies the following three axioms:
+\begin{enumerate}
+\item \textbf{Non-emptiness:} The sample space is included: $\Omega \in \mathcal{F}$. \hfill (which implies $\emptyset \in \mathcal{F}$ via complementation)
+\item \textbf{Closure under complementation:} If $A \in \mathcal{F}$, then $\bar{A} \in \mathcal{F}$.
+\item \textbf{Closure under countable unions:} If $A_1, A_2, \dots \in \mathcal{F}$ is a sequence of events, then $\bigcup_{i=1}^{\infty} A_i \in \mathcal{F}$.
+\end{enumerate}
+The pair $(\Omega, \mathcal{F})$ is called a \textbf{measurable space}.
+}{def:sigma_algebra}
+
+\Example{
+Let the \linkterm{sample space}{def:sample_space} be $\Omega = \{1, 2, 3\}$.
+
+\textbf{1. }
+Consider the collection $\mathcal{F} = \{ \emptyset, \{1\}, \{2, 3\}, \Omega \}$.
+This is a \linkterm{$\sigma$-algebra}{def:sigma_algebra} because:
+\begin{itemize}
+    \item $\Omega \in \mathcal{F}$ (and $\emptyset \in \mathcal{F}$).
+    \item It is closed under complements: $\bar{\{1\}} = \{2, 3\} \in \mathcal{F}$ and $\bar{\emptyset} = \Omega \in \mathcal{F}$.
+    \item It is closed under unions: $\{1\} \cup \{2, 3\} = \Omega \in \mathcal{F}$.
+\end{itemize}
+
+\textbf{2.}
+Consider the collection $\mathcal{G} = \{ \emptyset, \Omega, \{1\}, \{2\} \}$.
+This fails to be a \linkterm{$\sigma$-algebra}{def:sigma_algebra} for two reasons:
+\begin{itemize}
+    \item No closure under Complements: $\{1\} \in \mathcal{G}$, but its complement $\bar{\{1\}} = \{2, 3\}$ is not in $\mathcal{G}$.
+    \item No closure under Unions: $\{1\} \in \mathcal{G}$ and $\{2\} \in \mathcal{G}$, but their union $\{1, 2\}$ is not in $\mathcal{G}$.
+\end{itemize}
+}{sigma_algebra_example}
+
+
+
+\definition{Probability Measure}{
+A \textbf{probability measure} $P$ is a function $P: \mathcal{F} \to [0, 1]$ that assigns a real number to every \linkterm{event}{def:event} $A \in \mathcal{F}$, satisfying the following \textbf{Kolmogorov Axioms}:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $P(A) \ge 0$ for all $A \in \mathcal{F}$.
+    \item \textbf{Normalization:} $P(\Omega) = 1$.
+    \item \textbf{Countable Additivity:} For any sequence of \linkterm{disjoint}{disjoint} \linkterm{events}{def:event} $A_1, A_2, \dots \in \mathcal{F}$:
+    \[ P\left(\bigcup_{i=1}^{\infty} A_i\right) = \sum_{i=1}^{\infty} P(A_i) \]
+\end{enumerate}
+}{def:prob_measure}
+
+\definition{Probability Space}{
+A \textbf{probability space} is the triplet $\tuple{\Omega, \mathcal{F}, P}$, where:
+\begin{itemize}
+    \item $\Omega$ is the \linkterm{sample space}{def:sample_space}.
+    \item $\mathcal{F}$ is a \linkterm{$\sigma$-algebra}{def:sigma_algebra} on $\Omega$.
+    \item $P$ is a \linkterm{probability measure}{def:prob_measure} defined on $(\Omega, \mathcal{F})$.
+\end{itemize}
+}{def:prob_space}
+
+\Example{
+For a fair 6-sided die roll, the \linkterm{probability space}{def:prob_space} is defined as follows:
+\begin{itemize}
+    \item $\Omega = \{1, 2, 3, 4, 5, 6\}$
+    \item $\mathcal{F} = \mathcal{P}(\Omega)$ (the power set)
+    \item $P(A) = \frac{\setsize{A}}{\setsize{\Omega}} = \frac{\setsize{A}}{6}$
+\end{itemize}
+}{prob_space_example}
+
+\commandnote{
+From the \linkterm{Kolmogorov Axioms}{def:prob_measure}, we can derive the following fundamental properties of \linkterm{probability measures}{def:prob_measure}:
+\begin{itemize}
+    \item \textbf{Complement Rule:} For any \linkterm{event}{def:event} $A$, $P(\bar{A}) = 1 - P(A)$.
+
+    \item \textbf{Monotonicity:} If $A \subseteq B$, then $P(A) \leq P(B)$.
+    
+    \item \textbf{Inclusion-Exclusion Principle:} For any two \linkterm{events}{def:event} $A$ and $B$:
+    \[ P(A \cup B) = P(A) + P(B) - P(A \cap B) \]
+    
+    \item \textbf{Set Partition Identity:} For any two \linkterm{events}{def:event} $A$ and $B$, $B$ can be split into parts that are in $A$ and parts that are not:
+    \[ P(B) = P(A \cap B) + P(\bar{A} \cap B) \]
+    
+    \item \textbf{Impossible Event:} $P(\emptyset) = 0$.
+\end{itemize}
+}
+
+\definition{Random Variable}{
+Given a \linkterm{probability space}{def:prob_space} $\tuple{\Omega, \mathcal{F}, P}$, a \textbf{random variable} $X$ is a \linkterm{function}{function} $\func{X}{\Omega}{D}$ that maps each \linkterm{sample point}{def:sample_space} $\omega \in \Omega$ to a numerical value in a \linkterm{set}{def:set} $D \subseteq \mathbb{R}$. We call $D$ the \textbf{domain} of $X$, denoted by $\text{dom}(X)$. 
+}{def:random_variable}
+
+\Example{
+In a coin flip experiment where $\Omega = \set{\text{Head}, \text{Tail}}$, we can define a \linkterm{random variable}{def:random_variable} $X$ such that:
+\begin{itemize}
+    \item $X(\text{Head}) = 1$
+    \item $X(\text{Tail}) = 0$
+\end{itemize}
+In this case, $\text{dom}(X) = \set{0, 1}$.
+}{random_variable_example}
+
+\definition{Probability of a Random Variable}{
+For a \linkterm{random variable}{def:random_variable} $X$ and a specific value $x \in \text{dom}(X)$, the probability that $X$ takes the value $x$ is defined as the measure of the \linkterm{event}{def:event} consisting of all outcomes $\omega$ that map to $x$:
+\[
+P(X=x) := P\left(\set{\omega \in \Omega \mid X(\omega)=x}\right)
+\]
+}{def:prob_rv}
+
+\Example{
+Consider rolling a fair die where $\Omega = \set{1, 2, \dots, 6}$. If I define a \linkterm{random variable}{def:random_variable} $Y$ as the square of the outcome, then the probability of the \linkterm{event}{def:event} $Y=4$ is:
+\[
+P(Y=4) = P\left(\set{\omega \in \Omega \mid \omega^2=4}\right) = P\left(\set{2}\right) = \frac{1}{6}
+\]
+}{prob_rv_example}
+
+\definition{Probability of Negation}{
+For a \linkterm{random variable}{def:random_variable} $X$ and $x \in \text{dom}(X)$, we define the probability of the logical negation as:
+\[
+P(X \neq x) := P(\set{\omega \in \Omega \mid X(\omega) \neq x}) = 1 - P(X = x)
+\]
+}{def:prob_negation}
+
+\definition{Probability of Disjunction}{
+For \linkterm{random variables}{def:random_variable} $X_1, X_2$, we define the probability of the logical disjunction ("or") as:
+\[
+P(X_1 = x_1 \lor X_2 = x_2) := P(\set{\omega \in \Omega \mid X_1(\omega)=x_1} \cup \set{\omega \in \Omega \mid X_2(\omega)=x_2})
+\]
+}{def:prob_disjunction}
+
+\definition{Joint Probability}{
+Given two \linkterm{random variables}{def:random_variable} $X$ and $Y$ defined on the same \linkterm{sample space}{def:sample_space} $\Omega$, the \textbf{joint probability} of $x \in \text{dom}(X)$ and $y \in \text{dom}(Y)$ is defined as the \linkterm{probability}{def:prob_measure} of the \linkterm{intersection}{set_intersection} of their individual \linkterm{events}{def:event}:
+\[
+P(X=x, Y=y) := P(\{ \omega \in \Omega \mid X(\omega)=x \} \cap \{ \omega \in \Omega \mid Y(\omega)=y \})
+\]
+}{def:joint_prob}
+
+\Example{
+In a roll of two dice where $X$ is the first die and $Y$ is the second die:
+The joint probability $P(X=3, Y=4)$ is the probability of the \linkterm{sample point}{def:sample_space} $(3,4) \in \Omega$:
+\[
+P(X=3, Y=4) := P(\{(3,4)\}) := \frac{1}{36}
+\]
+}{joint_prob_example}
+
+\Example{
+To find the probability that the sum of two dice is 7 but neither is 3, we define the following \linkterm{random variables}{def:random_variable} on the \linkterm{sample space}{def:sample_space} $\Omega = \set{1, \dots, 6}^2$:
+\begin{itemize}
+    \item $X_1, X_2$: outcomes of the first and second die respectively.
+    \item $S$: the sum, where $S(\omega) = X_1(\omega) + X_2(\omega)$.
+\end{itemize}
+
+We are interested in the \linkterm{event}{def:event} $E$:
+\[ E = \set{\omega \in \Omega \mid S(\omega)=7} \cap \set{\omega \in \Omega \mid X_1(\omega) \neq 3} \cap \set{\omega \in \Omega \mid X_2(\omega) \neq 3} \]
+
+Step 1: Identify outcomes where $S=7$:
+\[ A = \set{(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)} \]
+
+Step 2: Apply the constraints $X_1 \neq 3$ and $X_2 \neq 3$:
+\begin{itemize}
+    \item $\omega \in A$ and $X_1(\omega) = 3 \implies \omega = (3,4)$
+    \item $\omega \in A$ and $X_2(\omega) = 3 \implies \omega = (4,3)$
+\end{itemize}
+
+Step 3: Calculate the \linkterm{cardinality}{set_cardinality} of the filtered set:
+\[ E = A \setminus \set{(3,4), (4,3)} = \set{(1,6), (2,5), (5,2), (6,1)} \implies \setsize{E} = 4 \]
+
+Step 4: Use the \linkterm{probability measure}{def:prob_measure}:
+\[ P(E) = \frac{\setsize{E}}{\setsize{\Omega}} = \frac{4}{36} = \frac{1}{9} \]
+}{dice_sum_example}
+
+\definition{Marginalization}{
+For two \linkterm{random variables}{def:random_variable} $X$ and $Y$, the \textbf{marginal probability} of $X$ is calculated by summing the \linkterm{joint probabilities}{def:joint_prob} over all $y \in \text{dom}(Y)$:
+\[
+P(X=x) := \sum_{y \in \text{dom}(Y)} P(X=x, Y=y)
+\]
+This is a direct application of the axiom of countable additivity to the \linkterm{partition}{def:disjoint} of the \linkterm{event}{def:event} $\{X=x\}$ into smaller, mutually exclusive joint events.
+}{def:marginalization}
+
+\Example{
+Suppose I have a \linkterm{joint probability}{def:joint_prob} table for two \linkterm{random variables}{def:random_variable} $X$ and $Y$ representing a simplified weather/activity model:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|r|}
+\hline
+& $Y=0$ (Stay) & $Y=1$ (Walk) & \textbf{Total} \\ \hline
+$X=0$ (Rain) & $0.3$ & $0.1$ & $P(X=0) = \mathbf{0.4}$ \\ \hline
+$X=1$ (Sun) & $0.1$ & $0.5$ & $P(X=1) = \mathbf{0.6}$ \\ \hline
+\end{tabular}
+\caption{Marginalization Example}
+\end{table}
+
+To find $P(X=0)$, I marginalize over $Y$:
+\[ P(X=0) = P(X=0, Y=0) + P(X=0, Y=1) = 0.3 + 0.1 = 0.4 \]
+}{marginalization_example}
+
+
+\definition{Conditional Probability}{
+Let $A$ and $B$ be \linkterm{events}{def:event} in a \linkterm{probability space}{def:prob_space} where $P(B) > 0$. The \textbf{conditional probability} of $A$ given $B$ is defined as:
+\[
+P(A \mid B) := \frac{P(A \cap B)}{P(B)}
+\]
+In this context, we refer to:
+\begin{itemize}
+    \item $P(A)$ as the \textbf{prior} probability.
+    \item $P(B)$ as the \textbf{evidence}.
+    \item $P(A \mid B)$ as the \textbf{posterior} probability.
+\end{itemize}
+}{def:conditional_prob}
+
+\Example{
+Suppose I roll a fair 6-sided die, so $\Omega = \{1, 2, 3, 4, 5, 6\}$. 
+Let $A$ be the \linkterm{event}{def:event} that the outcome is 2, and $B$ be the event that the outcome is even.
+\begin{itemize}
+    \item $P(A) = P(\{2\}) = 1/6$
+    \item $P(B) = P(\{2, 4, 6\}) = 3/6 = 1/2$
+    \item $P(A \cap B) = P(\{2\}) = 1/6$
+\end{itemize}
+The probability that I roll a 2 \textbf{given} I know the result is even is:
+\[ P(A \mid B) = \frac{P(A \cap B)}{P(B)} = \frac{1/6}{1/2} = \frac{1}{3} \]
+}{conditional_prob_example}
+
+
+
+
+
+
+\Theorem{$P(A \mid C) = 1-P(\bar{A} \mid C)$}{}
+\Proof{
+\begin{enumerate}
+    \item Partition: $C = (A \cap C) \cup (\bar{A} \cap C)$.
+    \item Note that $(A \cap C)$ and $(\bar{A} \cap C)$ are \linkterm{disjoint}{disjoint} because $A \cap \bar{A} = \emptyset$.
+    \item Apply the \linkterm{Axiom of Additivity}{def:prob_measure}: $P(C) = P(A \cap C) + P(\bar{A} \cap C)$.
+    \item Rearrange: $P(\bar{A} \cap C) = P(C) - P(A \cap C)$.
+    \item \linkterm{Conditional probability}{def:conditional_prob}:
+    \[ P(\bar{A} \mid C) = \frac{P(\bar{A} \cap C)}{P(C)} \]
+    \item Substitute:
+    \[ P(\bar{A} \mid C) = \frac{P(C) - P(A \cap C)}{P(C)} \]
+    \item Simplify:
+    \[ P(\bar{A} \mid C) = \frac{P(C)}{P(C)} - \frac{P(A \cap C)}{P(C)} = 1 - P(A \mid C) \]
+    \item Rearrange the terms:
+    \[ P(A \mid C) = 1 - P(\bar{A} \mid C) \]
+\end{enumerate}
+}
+
+\Theorem{$P(A \mid C) = P(A \cap B \mid C) + P(A \cap \bar{B} \mid C)$}{}
+\Proof{
+\begin{enumerate}
+    \item Partition: $(A \cap C) = (A \cap C \cap B) \cup (A \cap C \cap \bar{B})$ 
+    \item Note that $(A \cap C \cap B)$ and $(A \cap C \cap \bar{B})$ are \linkterm{disjoint}{disjoint} because $B \cap \bar{B} = \emptyset$.
+    \item \linkterm{Axiom of Additivity}{def:prob_measure}: $P(A \cap C) = P(A \cap B \cap C) + P(A \cap \bar{B} \cap C)$
+    \item \linkterm{Conditional probability}{def:conditional_prob}: 
+    \[ P(A \mid C) = \frac{P(A \cap C)}{P(C)} \]
+    \item Substitute:
+    \[ P(A \mid C) = \frac{P(A \cap B \cap C) + P(A \cap \bar{B} \cap C)}{P(C)} \]
+    \item Distribute:
+    \[ P(A \mid C) = \frac{P(A \cap B \cap C)}{P(C)} + \frac{P(A \cap \bar{B} \cap C)}{P(C)} \]
+    \item Finally:
+    \[ P(A \mid C) = P(A \cap B \mid C) + P(A \cap \bar{B} \mid C) \]
+\end{enumerate}
+}
+
+
+\Theorem{$P(A \cup B \mid C) = P(A \mid C) + P(B \mid C) - P(A \cap B \mid C)$}{}
+\Proof{
+\begin{enumerate}
+    \item \linkterm{Conditional probability}{def:conditional_prob}
+    \[ P(A \cup B \mid C) = \frac{P((A \cup B) \cap C)}{P(C)} \]
+    \item Distribute: $(A \cup B) \cap C = (A \cap C) \cup (B \cap C)$
+    \item Inclusion-Exclusion:
+    \[ P((A \cap C) \cup (B \cap C)) = P(A \cap C) + P(B \cap C) - P((A \cap C) \cap (B \cap C)) \]
+    \item Simplify: $(A \cap C) \cap (B \cap C) = A \cap B \cap C$
+    \item Substitute:
+    \[ P(A \cup B \mid C) = \frac{P(A \cap C) + P(B \cap C) - P(A \cap B \cap C)}{P(C)} \]
+    \item Simplify:
+    \[ P(A \cup B \mid C) = \frac{P(A \cap C)}{P(C)} + \frac{P(B \cap C)}{P(C)} - \frac{P(A \cap B \cap C)}{P(C)} \]
+    \item Finally:
+    \[ P(A \cup B \mid C) = P(A \mid C) + P(B \mid C) - P(A \cap B \mid C) \]
+\end{enumerate}
+}
+
+
+\Theorem{
+\[
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)} \tag*{\textbf{(Bayes' Theorem)}}
+\]
+}{thm:bayes}
+\Proof{
+\begin{enumerate}
+    \item \linkterm{conditional probability}{def:conditional_prob}:
+    \[ P(A \mid B) = \frac{P(A \cap B)}{P(B)} \]
+    
+    \item Multiply both sides by $P(B)$ to express the \linkterm{joint probability}{def:joint_prob}:
+    \[ P(A \cap B) = P(A \mid B) \cdot P(B) \]
+    
+    \item \linkterm{conditional probability}{def:conditional_prob}:
+    \[ P(B \mid A) = \frac{P(B \cap A)}{P(A)} \]
+    
+    \item Multiply both sides by $P(A)$ to get a second expression for the \linkterm{joint probability}{def:joint_prob}:
+    \[ P(B \cap A) = P(B \mid A) \cdot P(A) \]
+    
+    \item \linkterm{intersection}{set_intersection} is commutative $\leadsto P(A \cap B) = P(B \cap A)$
+    \item Equate the right-hand sides of the expressions from Step 2 and Step 4:
+    \[ P(A \mid B) \cdot P(B) = P(B \mid A) \cdot P(A) \]
+    
+    \item Divide both sides by $P(B)$ (assuming $P(B) > 0$) to isolate the \textbf{posterior} probability:
+    \[ P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)} \]
+\end{enumerate}
+}
+
+\definition{Bayesian Terminology}{
+Within the context of \linkterm{Bayes' Theorem}{thm:bayes}, we define the following nomenclature:
+\begin{itemize}
+    \item \textbf{Posterior:} $P(A \mid B)$ is the probability of the hypothesis $A$ after observing the evidence $B$.
+    \item \textbf{Likelihood:} $P(B \mid A)$ is the probability that the evidence $B$ would be observed if the hypothesis $A$ were true.
+    \item \textbf{Prior:} $P(A)$ is the probability of the hypothesis $A$ before the evidence $B$ is taken into account.
+    \item \textbf{Evidence:} $P(B)$ is the total probability of observing the evidence under all possible hypotheses.
+\end{itemize}
+}{def:bayesian_terms}
+
+\definition{The Product Rule}{
+For any two \linkterm{events}{def:event} $A$ and $B$ where the \linkterm{conditional probabilities}{def:conditional_prob} are well-defined ($P(A)>0, P(B)>0$), the probability of their \linkterm{joint occurrence}{def:joint_prob} is:
+\begin{align*}
+P(A \cap B) &= P(A \mid B)P(B) \\
+P(A \cap B) &= P(B \mid A)P(A)
+\end{align*}
+This rule establishes that the probability of "A and B" is the probability of one event, scaled by the probability of the other event occurring given that the first has occurred.
+}{def:product_rule}
+
+\Example{
+Suppose I draw two cards from a deck without replacement. Let $A$ be the event the first card is an Ace, and $B$ be the event the second card is an Ace.
+\begin{itemize}
+    \item $P(A) = 4/52$
+    \item $P(B \mid A) = 3/51$ (since one Ace is gone)
+\end{itemize}
+The probability of drawing two Aces is:
+\[ P(A \cap B) = P(B \mid A)P(A) = \frac{3}{51} \cdot \frac{4}{52} \]
+}{product_rule_example}
+
+\definition{Independence}{
+Two \linkterm{events}{def:event} $A$ and $B$ are \textbf{independent} iff $P(A \cap B) = P(A) \cdot P(B)$
+}{def:independence}
+
+\Theorem{
+If $A$ and $B$ are \linkterm{independent}{def:independence}, then the \linkterm{posterior}{def:bayesian_terms} equals the \linkterm{prior}{def:bayesian_terms}:
+\[ P(A \mid B) = P(A) \quad \text{and} \quad P(B \mid A) = P(B) \]
+}{thm:cond_indep}
+
+\Proof{
+\begin{enumerate}
+    \item \linkterm{Conditional probability}{def:conditional_prob}:
+    \[ P(A \mid B) = \frac{P(A \cap B)}{P(B)} \]
+    \item \linkterm{Independence}{def:independence}:
+    \[ P(A \mid B) = \frac{P(A) \cdot P(B)}{P(B)} = P(A) \]
+    \item The proof for $P(B \mid A) = P(B)$ follows identical logic by symmetry.
+\end{enumerate}
+}
+
+\definition{Pairwise Independence}{
+A collection of \linkterm{events}{def:event} $A_1, A_2, \dots, A_n$ is \textbf{pairwise independent} iff every pair of distinct events is \linkterm{independent}{def:independence}. That is, for all $i \neq j$:
+\[ P(A_i \cap A_j) = P(A_i) \cdot P(A_j) \]
+}{def:pairwise_independence}
+
+\definition{Mutual Independence}{
+A collection of \linkterm{events}{def:event} $A_1, A_2, \dots, A_n$ is \textbf{mutually independent} iff for every finite subset of indices $I \subseteq \set{1, 2, \dots, n}$, the probability of their \linkterm{intersection}{set_intersection} is the product of their individual probabilities:
+\[ P\left(\bigcap_{i \in I} A_i\right) = \prod_{i \in I} P(A_i) \]
+}{def:mutual_independence}
+
+\commandnote{
+\linkterm{Mutual independence}{def:mutual_independence} strictly implies \linkterm{pairwise independence}{def:pairwise_independence}, but \linkterm{pairwise independence}{def:pairwise_independence} does not guarantee \linkterm{mutual independence}{def:mutual_independence}.
+}
+
+\definition{Conditional Independence}{
+Given events $A,B,C$ with $P(C) \neq 0$, then $A$ and $B$ are \defemph{conditionally independent} given $C$ iff $P(A \mid B \cap C) := P(A \mid C)$, or $P(B \mid A \cap C) := P(B \mid C)$:
+}{def:cond_independence}
+
+
+\Theorem{
+If $A$ and $B$ are \linkterm{conditionally independent}{def:cond_independence} given $C$, then:
+\[
+P(A \cap B \mid C) := P(A \mid C) \cdot P(B \mid C)
+\]
+}{}
+
+\Proof{
+\begin{enumerate}
+    \item By \linkterm{definition}{def:conditional_prob}:
+    \[ P(A \cap B \mid C) = \frac{P(A \cap B \cap C)}{P(C)} \]
+    \item By the \linkterm{product rule}{def:product_rule}:
+    \[ P(A \cap B \cap C) = P(A \mid B \cap C) \cdot P(B \cap C) \]
+    \item Expanding $P(B \cap C)$ further:
+    \[ P(A \cap B \cap C) = P(A \mid B \cap C) \cdot P(B \mid C) \cdot P(C) \]
+    \item Substituting Step 3 into Step 1:
+    \[ P(A \cap B \mid C) = \frac{P(A \mid B \cap C) \cdot P(B \mid C) \cdot P(C)}{P(C)} \]
+    \item Simplifying:
+    \[ P(A \cap B \mid C) = P(A \mid B \cap C) \cdot P(B \mid C) \]
+    \item Since $A$ and $B$ are \linkterm{conditionally independent}{def:cond_independence} given $C$, $P(A \mid B \cap C) = P(A \mid C)$, yielding:
+    \[ P(A \cap B \mid C) = P(A \mid C) \cdot P(B \mid C) \]
+\end{enumerate}
+}
+
+\definition{Probability Distribution}{
+A \textbf{probability distribution} is a vector $v$ with values in $[0,1]$ such that $\sum_i v_i = 1$.
+}{def:prob_distribution}
+
+\commandnote{
+The \textbf{probability distribution} of a \linkterm{random variable}{def:random_variable} $X$ is a complete description of the \linkterm{probabilities}{def:prob_rv} $P(X=x)$ for all values $x \in \text{dom}(X)$. It completely characterizes the behavior of the random variable by mapping each possible outcome to its corresponding probability, effectively describing how the total probability of 1 (from the \linkterm{Normalization axiom}{def:prob_measure}) is distributed across the domain of $X$.
+}
+
+
+\definition{Full Joint Probability Distribution}{
+Given a set of \linkterm{random variables}{def:random_variable} $X_1, X_2, \dots, X_n$, a \textbf{full joint probability distribution} is a \linkterm{probability distribution}{def:prob_distribution} that assigns a probability to every possible, mutually exclusive \linkterm{joint probability}{def:joint_prob} assignment for all variables. It can be represented as an $n$-dimensional tensor where each entry $P(X_1=x_1, X_2=x_2, \dots, X_n=x_n) \in [0,1]$ corresponds to a single atomic event, and the sum over all possible combinations of values is $1$:
+\[ \sum_{x_1 \in \text{dom}(X_1)} \dots \sum_{x_n \in \text{dom}(X_n)} P(X_1=x_1, \dots, X_n=x_n) = 1 \]
+}{def:full_joint_prob_distribution}
+
+\Example{
+Consider two boolean \linkterm{random variables}{def:random_variable}: $W$ (Weather: Sunny=1, Rainy=0) and $C$ (Commute: Walk=1, Drive=0). The \linkterm{full joint probability distribution}{def:full_joint_prob_distribution} is given by the table:
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|l|c|c|c|}
+\hline
+& $C = \text{Walk}$ & $C = \text{Drive}$ & \textbf{Total} \\ \hline
+$W = \text{Sunny}$ & $0.6$ & $0.1$ & $0.7$ \\ \hline
+$W = \text{Rainy}$ & $0.05$ & $0.25$ & $0.3$ \\ \hline
+\textbf{Total} & $0.65$ & $0.35$ & $\mathbf{1.0}$ \\ \hline
+\end{tabular}
+\end{table}
+Note that the sum of all internal cells ($0.6 + 0.1 + 0.05 + 0.25 = 1.0$) satisfies the normalization requirement.
+}{full_joint_example}
+
+\definition{Conditional Probability Distribution}{
+Given \linkterm{random variables}{def:random_variable} $X$ and $Y$, the \textbf{conditional probability distribution} $\textbf{P}(X \mid Y)$ represents a complete table or matrix of \linkterm{probabilities}{def:prob_distribution}, providing the distribution of $X$ for every possible observed value $y \in \text{dom}(Y)$. It consists of the \linkterm{conditional probabilities}{def:conditional_prob} $P(X=x \mid Y=y)$ for all $x \in \text{dom}(X)$ and all $y \in \text{dom}(Y)$. For any fixed $y$, the distribution over $X$ satisfies the normalization constraint:
+\[ \sum_{x \in \text{dom}(X)} P(X=x \mid Y=y) = 1 \]
+}{def:cond_prob_distribution}
+
+\Example{
+Continuing from the previous example, we can form the \linkterm{conditional probability distribution}{def:cond_prob_distribution} $\textbf{P}(C \mid W)$ by dividing each joint probability by the marginal probability of $W$. Note that for any fixed value of $W$ (each column), the probabilities sum to $1$:
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|l|c|c|}
+\hline
+$\textbf{P}(C \mid W)$ & $W = \text{Sunny}$ & $W = \text{Rainy}$ \\ \hline
+$C = \text{Walk}$ & $0.6 / 0.7 = 6/7$ & $0.05 / 0.3 = 1/6$ \\ \hline
+$C = \text{Drive}$ & $0.1 / 0.7 = 1/7$ & $0.25 / 0.3 = 5/6$ \\ \hline
+\textbf{Total} & $\mathbf{1.0}$ & $\mathbf{1.0}$ \\ \hline
+\end{tabular}
+\end{table}
+}{cond_prob_example}
+
+
+
+
+

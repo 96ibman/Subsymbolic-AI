@@ -1,0 +1,471 @@
+% ===================================================================
+% CORE DOCUMENT UTILITIES
+% ===================================================================
+\usepackage[margin=0.5in]{geometry}   
+\usepackage{graphicx}                 
+\usepackage{float}                   
+\usepackage{booktabs}                 
+\usepackage{array}                    
+\usepackage{multicol}                 
+\usepackage{parskip}                  
+\usepackage{titling}                  
+\setlength{\droptitle}{-1cm}          
+
+
+% --- Blank Page Command ---
+\newcommand*{\blankpage}{
+  \begingroup
+    \setlength{\topskip}{0pt}
+    \setlength{\parskip}{0pt}
+    \vspace*{\fill}
+    \centering
+    \nointerlineskip 
+    This page would was intentionally left blank. \par
+    \vspace{\fill}
+  \endgroup
+}
+
+% --- TODO ---
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% ===================================================================
+% COLORS, TEXT, AND LISTS
+% ===================================================================
+\usepackage[svgnames]{xcolor}
+\usepackage{soul}             
+\usepackage[inline]{enumitem}         
+\usepackage{gensymb}                  
+\usepackage{xspace}                  
+
+% ===================================================================
+% MATHEMATICS, LOGIC, AND SEMANTICS
+% ===================================================================
+\usepackage{proof}             
+\usepackage{amsmath, amssymb, mathtools} 
+\usepackage{mathrsfs}                   
+\usepackage{stmaryrd}                    
+\usepackage{mathpartir}                  
+\usepackage{semantic}                    
+%\usepackage{proofpack}             
+\usepackage{empheq}      
+
+% --- Paired delimiters ---
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\paren}[1]{\left( #1 \right)}
+\newcommand{\brak}[1]{[#1]}
+\newcommand{\floor}[1]{\left\lfloor#1\right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil#1\right\rceil}
+
+% --- Logic and Semantics ---
+\newcommand{\Iof}[1]{\mathcal{I}(#1)}
+\newcommand{\Ivof}[1]{\mathcal{I}_{\varphi}(#1)}
+\newcommand{\sat}{\vDash}
+\newcommand{\unsat}{\nvDash}
+\newcommand{\satphi}{\vDash^{\varphi}}
+\newcommand{\unsatphi}{\nvDash^{\varphi}}
+\newcommand{\der}{\vdash}
+\newcommand{\derC}{\vdash_{\cC}}
+\newcommand{\notder}{\nvdash}
+
+
+% --- Calligraphic uppercase letter ---
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cJ}{\mathcal{J}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cV}{\mathcal{V}}
+\newcommand{\cW}{\mathcal{W}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cZ}{\mathcal{Z}}
+
+
+
+
+% --- Common sets ---
+\newcommand{\BA}{\mathbb{A}} % predefined for Ångström symbol 
+\newcommand{\BB}{\mathbb{B}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\DD}{\mathbb{D}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\GG}{\mathbb{G}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\II}{\mathbb{I}}
+\newcommand{\JJ}{\mathbb{J}}
+\newcommand{\KK}{\mathbb{K}}
+\newcommand{\LL}{\mathbb{L}}
+\newcommand{\MM}{\mathbb{M}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\OO}{\mathbb{O}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\BS}{\mathbb{S}} % predefined for German esszet
+\newcommand{\TT}{\mathbb{T}}
+\newcommand{\UU}{\mathbb{U}}
+\newcommand{\VV}{\mathbb{V}}
+\newcommand{\WW}{\mathbb{W}}
+\newcommand{\XX}{\mathbb{X}}
+\newcommand{\YY}{\mathbb{Y}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\fa}{\mathfrak{a}}
+\newcommand{\fb}{\mathfrak{b}}
+\newcommand{\fc}{\mathfrak{c}}
+\newcommand{\fd}{\mathfrak{d}}
+\newcommand{\fe}{\mathfrak{e}}
+\newcommand{\ff}{\mathfrak{f}}
+\newcommand{\fg}{\mathfrak{g}}
+\newcommand{\fh}{\mathfrak{h}}
+\newcommand{\fii}{\mathfrak{i}} % Replaced \fi to avoid breaking TeX
+\newcommand{\fj}{\mathfrak{j}}
+\newcommand{\fk}{\mathfrak{k}}
+\newcommand{\fl}{\mathfrak{l}}
+\newcommand{\fm}{\mathfrak{m}}
+\newcommand{\fn}{\mathfrak{n}}
+\newcommand{\fo}{\mathfrak{o}}
+\newcommand{\fp}{\mathfrak{p}}
+\newcommand{\fq}{\mathfrak{q}}
+\newcommand{\fr}{\mathfrak{r}}
+\newcommand{\fs}{\mathfrak{s}}
+\newcommand{\ft}{\mathfrak{t}}
+\newcommand{\fu}{\mathfrak{u}}
+\newcommand{\fv}{\mathfrak{v}}
+\newcommand{\fw}{\mathfrak{w}}
+\newcommand{\fx}{\mathfrak{x}}
+\newcommand{\fy}{\mathfrak{y}}
+\newcommand{\fz}{\mathfrak{z}}
+
+
+
+\newcommand{\fA}{\mathfrak{A}}
+\newcommand{\fB}{\mathfrak{B}}
+\newcommand{\fC}{\mathfrak{C}}
+\newcommand{\fD}{\mathfrak{D}}
+\newcommand{\fE}{\mathfrak{E}}
+\newcommand{\fF}{\mathfrak{F}}
+\newcommand{\fG}{\mathfrak{G}}
+\newcommand{\fH}{\mathfrak{H}}
+\newcommand{\fI}{\mathfrak{I}}
+\newcommand{\fJ}{\mathfrak{J}}
+\newcommand{\fK}{\mathfrak{K}}
+\newcommand{\fL}{\mathfrak{L}}
+\newcommand{\fM}{\mathfrak{M}}
+\newcommand{\fN}{\mathfrak{N}}
+\newcommand{\fO}{\mathfrak{O}}
+\newcommand{\fP}{\mathfrak{P}}
+\newcommand{\fQ}{\mathfrak{Q}}
+\newcommand{\fR}{\mathfrak{R}}
+\newcommand{\fS}{\mathfrak{S}}
+\newcommand{\fT}{\mathfrak{T}}
+\newcommand{\fU}{\mathfrak{U}}
+\newcommand{\fV}{\mathfrak{V}}
+\newcommand{\fW}{\mathfrak{W}}
+\newcommand{\fX}{\mathfrak{X}}
+\newcommand{\fY}{\mathfrak{Y}}
+\newcommand{\fZ}{\mathfrak{Z}}
+
+
+% --- Math operators ---
+\newcommand{\argmax}[1]{\mathop{\mathrm{arg\,max}}_{#1}\,}
+\newcommand{\argmin}[1]{\mathop{\mathrm{arg\,min}}_{#1}\,}
+
+% --- Set and tuple utilities ---
+\newcommand{\tuple}[1]{\left\langle #1 \right\rangle}
+\newcommand{\restr}[2]{#1\!\upharpoonright_{#2}} 
+\newcommand{\sint}[1]{\llbracket #1 \rrbracket}  
+\newcommand{\setsize}[1]{\Gamma (#1)}            
+\newcommand{\inverse}[1]{\ensuremath{{#1}^{-1}}} 
+\newcommand{\powerset}[1]{\ensuremath{\mathcal{P}(#1)}} 
+\newcommand{\setbuilder}[2]{\ensuremath{\{\,#1 \mid #2\,\}}}
+
+% --- LaTeX3 function syntax macros ---
+\ExplSyntaxOn
+\NewDocumentCommand{\union}{m}{\ensuremath{\clist_use:nn {#1} { \mathbin{\cup} }}}
+\NewDocumentCommand{\intersection}{m}{\ensuremath{\clist_use:nn {#1} { \mathbin{\cap} }}}
+\NewDocumentCommand{\compose}{m}{\ensuremath{\clist_use:nn {#1} { \mathbin{\circ} }}}
+\NewDocumentCommand{\cartprod}{m}{\ensuremath{\clist_use:nn {#1} { \mathbin{\times} }}}
+\ExplSyntaxOff
+
+% --- Total and Partial Functions ---
+\newcommand{\func}[3]{\ensuremath{#1 : #2 \to #3}}
+\newcommand{\pfunc}[3]{\ensuremath{#1 : #2 \rightharpoonup #3}}
+
+% --- Indexed set operations ---
+\newcommand{\bigunion}[1]{\ensuremath{\bigcup_{i \in I} {#1}_{i}}}
+\newcommand{\bigintersection}[1]{\ensuremath{\bigcap_{i \in I} {#1}_{i}}}
+
+% --- Common math helpers ---
+\newcommand{\identity}[1]{\ensuremath{\operatorname{Id}_{#1}}}
+\newcommand{\bigo}[1]{\mathcal{O}(#1)}
+\newcommand{\diff}{\mathop{}\!\mathrm{d}}
+
+% ===================================================================
+% TIKZ AND DIAGRAMS
+% ===================================================================
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, trees, shapes, matrix, calc}
+\tikzset{
+  vertex/.style={circle, draw, minimum size=18pt, inner sep=0pt},
+  edge/.style={-},
+  arc/.style={->, >=Stealth}
+}
+
+% ===================================================================
+% CODE, ALGORITHMS, AND BOXES
+% ===================================================================
+\usepackage{tcolorbox}
+\tcbuselibrary{listingsutf8, skins, fitting, theorems, raster, magazine, breakable, xparse}
+\usepackage{lipsum,lmodern}
+
+
+\usepackage{algorithm, algorithmicx, algpseudocode} % Algorithm support
+
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+
+% --- Note boxes ---
+\newcommand{\commandnote}[1]{%
+  \begin{tcolorbox}[standard jigsaw, title=Note]
+    #1
+  \end{tcolorbox}
+}
+
+% --- Highlighted inline text ---
+\newcommand{\hltext}[1]{\sethlcolor{gray!10}\hl{#1}}
+
+% --- Code block environment ---
+\newtcblisting{codeblock}{
+  colback=gray!10,
+  colframe=black!40,
+  listing only,
+  boxrule=0.1pt,
+  arc=2pt,
+  left=0pt, right=0pt, top=0pt, bottom=0pt,
+  listing options={
+    breaklines=true,
+    basicstyle=\ttfamily,
+    literate={\$}{{\textdollar}}1
+  }
+}
+
+% --- Code block with title ---
+\newtcblisting{codeblocktitle}[1][]{
+  colback=gray!10,
+  colframe=black!40,
+  colbacktitle=gray!30,
+  coltitle=black,
+  listing only,
+  boxrule=0.1pt,
+  arc=2pt,
+  left=0pt, right=0pt, top=0pt, bottom=0pt,
+  #1,
+  listing options={
+    breaklines=true,
+    basicstyle=\ttfamily,
+    literate={\$}{{\textdollar}}1
+  }
+}
+
+% --- Captioned code block environment ---
+\lstnewenvironment{codeblocklst}[1][]
+{
+  \lstset{
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    rulecolor=\color{black!10},
+    framerule=0.1pt,
+    breaklines=true,
+    basicstyle=\ttfamily,
+    literate={\$}{{\textdollar}}1,
+    captionpos=b,
+    #1
+  }
+}{}
+
+% --- Inline code snippet ---
+\newcommand{\inlinecode}[1]{%
+  \tcbox[on line, fontupper=\ttfamily, size=small, boxrule=0.1pt, colframe=gray!50!black, colback=gray!10!white]{\detokenize{#1}}%
+}
+
+
+% ===================================================================
+% BIBLIOGRAPHY AND HYPERLINKS
+% ===================================================================
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{refs.bib}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks,
+  citecolor=teal,
+  linkcolor=blue,
+  urlcolor=magenta
+}
+\usepackage[nameinlink,capitalize]{cleveref}
+% ===================================================================
+% CUSTOM STRUCTURES AND LABELS
+% ===================================================================
+% --- Section titles ---
+\newcommand{\labeledsection}[2]{\section{#1}\label{#2}}
+\newcommand{\minititle}[1]{\subsubsection*{#1}}
+
+% --- Anchors and references ---
+\newcommand{\refterm}[2]{\phantomsection \label{#2}{\textbf{#1}}}
+\newcommand{\linkterm}[2]{\hyperref[#2]{#1}}
+
+% ===================================================================
+% DEFINITIONS AND THEOREMS
+% ===================================================================
+% --- Definition emphasizer ---
+\newcommand{\defemph}[1]{\textbf{#1}}
+
+% --- Section-scoped definitions ---
+\newcounter{definition}[section]
+\renewcommand{\thedefinition}{\thesection.\arabic{definition}}
+\newcommand{\definition}[3]{
+  \refstepcounter{definition}
+  \phantomsection
+  \par\noindent\textbf{Def~\thedefinition.} \textbf{#1: }#2
+  \label{#3}\par
+}
+
+% --- Section-scoped definition (Numbered, No defineiendum) ---
+\newcommand{\anondefinition}[2]{
+  \refstepcounter{definition}
+  \phantomsection
+  \par\noindent\textbf{Def~\thedefinition.} #1
+  \label{#2}\par
+}
+
+% --- Subsection-scoped definitions ---
+\newcounter{subdefinition}[subsection]
+\renewcommand{\thesubdefinition}{\thesubsection.\arabic{subdefinition}}
+\newcommand{\subdefinition}[3]{
+  \refstepcounter{subdefinition}
+  \phantomsection
+  \par\noindent\textbf{Def~\thesubdefinition.} \textbf{#1: }#2
+  \label{#3}\par
+}
+
+% --- Subsection-scoped definition (Numbered, No defineiendum) ---
+\newcommand{\anonsubdefinition}[2]{
+  \refstepcounter{subdefinition}
+  \phantomsection
+  \par\noindent\textbf{Def~\thesubdefinition.} #1
+  \label{#2}\par
+}
+
+% --- Shared theorem counter per section ---
+\newcounter{statement}[section]
+\renewcommand{\thestatement}{\thesection.\arabic{statement}}
+
+% --- Linked theorem-type counters ---
+\newcounter{theorem}
+\renewcommand{\thetheorem}{\thestatement}
+\newcounter{lemma}
+\renewcommand{\thelemma}{\thestatement}
+\newcounter{corollary}
+\renewcommand{\thecorollary}{\thestatement}
+
+% --- Independent example counter ---
+\newcounter{example}[section]
+\renewcommand{\theexample}{\thesection.\arabic{example}}
+
+% --- Statement macros ---
+\newcommand{\Theorem}[2]{
+  \stepcounter{statement}\refstepcounter{theorem}
+  \phantomsection
+  \par\noindent\textbf{Theorem~\thetheorem.} #1
+  \label{#2}\par
+}
+\newcommand{\Lemma}[2]{
+  \stepcounter{statement}\refstepcounter{lemma}
+  \phantomsection
+  \par\noindent\textbf{Lemma~\thelemma.} #1
+  \label{#2}\par
+}
+\newcommand{\Corollary}[2]{
+  \stepcounter{statement}\refstepcounter{corollary}
+  \phantomsection
+  \par\noindent\textbf{Corollary~\thecorollary.} #1
+  \label{#2}\par
+}
+\newcommand{\Example}[2]{
+  \refstepcounter{example}
+  \phantomsection
+  \par\noindent\textbf{Example~\theexample.} #1
+  \label{#2}\par
+}
+\newcommand{\Proof}[1]{
+  \par\noindent\textit{Proof.} #1\hfill$\square$\par
+}
+
+% ===================================================================
+% CLEVEREF CONFIGURATION
+% ===================================================================
+\crefname{section}{section}{sections}
+\Crefname{section}{Section}{Sections}
+\crefname{subsection}{section}{sections}
+\Crefname{subsection}{Section}{Sections}
+\crefname{figure}{figure}{figures}
+\Crefname{figure}{Figure}{Figures}
+\crefname{table}{table}{tables}
+\Crefname{table}{Table}{Tables}
+\crefname{equation}{equation}{equations}
+\Crefname{equation}{Equation}{Equations}
+\crefname{algorithm}{algorithm}{algorithms}
+\Crefname{algorithm}{Algorithm}{Algorithms}
+\crefname{theorem}{theorem}{theorems}
+\Crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{lemma}{lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{corollary}{corollary}{corollaries}
+\Crefname{corollary}{Corollary}{Corollaries}
+\crefname{example}{example}{examples}
+\Crefname{example}{Example}{Examples}
+\crefname{codeblock}{listing}{listings}
+\Crefname{codeblock}{Listing}{Listings}
+\crefname{appendix}{appendix}{appendices}
+\Crefname{appendix}{Appendix}{Appendices}
+\Crefname{definition}{Def}{Defs}
+\Crefname{subdefinition}{Def}{Defs}
+
+% --- Reference shorthands ---
+\newcommand{\secref}[1]{\cref{#1}}   \newcommand{\Secref}[1]{\Cref{#1}}
+\newcommand{\figref}[1]{\cref{#1}}   \newcommand{\Figref}[1]{\Cref{#1}}
+\newcommand{\tabref}[1]{\cref{#1}}   \newcommand{\Tabref}[1]{\Cref{#1}}
+\newcommand{\eqrefc}[1]{\cref{#1}}   \newcommand{\Eqref}[1]{\Cref{#1}}
+\newcommand{\defref}[1]{\cref{#1}}  \newcommand{\Defref}[1]{\Cref{#1}} 
+\newcommand{\subdefref}[1]{\cref{#1}} \newcommand{\Subdefref}[1]{\Cref{#1}}
+\newcommand{\thmref}[1]{\cref{#1}}   \newcommand{\Thmref}[1]{\Cref{#1}}
+\newcommand{\lemref}[1]{\cref{#1}}   \newcommand{\Lemref}[1]{\Cref{#1}}
+\newcommand{\corref}[1]{\cref{#1}}   \newcommand{\Corref}[1]{\Cref{#1}}
+\newcommand{\exampleref}[1]{\cref{#1}} \newcommand{\Exampleref}[1]{\Cref{#1}}
+\newcommand{\lstref}[1]{\cref{#1}}   \newcommand{\Lstref}[1]{\Cref{#1}}  
+\newcommand{\appref}[1]{\cref{#1}}   \newcommand{\Appref}[1]{\Cref{#1}}
+\newcommand{\Algref}[1]{\Cref{#1}}
