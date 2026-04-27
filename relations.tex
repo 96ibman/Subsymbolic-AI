@@ -1,5 +1,4 @@
-\labeledsection{Relations}{sec:relations}
-
+\subsection{Relations}\label{sec:relations}
 \definition{Relation}{
 $R \subseteq A \times B$ is a (binary) relation between $A$ and $B$
 }{relation}
@@ -98,6 +97,60 @@ Which of the following binary \linkterm{relations}{relation_on} on integers are 
 \end{itemize}
 \item $m \mid n$. It is \linkterm{reflexive}{reflexive} but not \linkterm{symmetric}{symmetric}. $\to$ NO.
 \end{enumerate}
+
+\definition{Reflexive Closure}{
+The \defemph{reflexive closure} of a \linkterm{relation}{relation_on} $R$ on a \linkterm{set}{def:set} $A$ is the \linkterm{relation}{relation} $\union{R,\Delta}$ where $\Delta=\set{\tuple{a,a} \mid a \in A}$ is the identity relation. It is defined as:
+\[
+R_r = R \cup \set{\tuple{a,a}\mid a \in A}
+\]
+}{reflexive_closure}
+
+\commandnote{
+Alternative notation: $R_r = R \cup R^0$. Since $R^n$ is the \linkterm{set}{def:set} of pairs that are connected by a chain of exactly $n$ hops "reachable in $n$ steps", we can think of $R^0$ as pairs that are connected by a chain of exactly $0$ hops "reachable in $0$ steps", i.e. the identity relation.
+}
+
+For example, let $A=\set{1,2,3}, R=\set{\tuple{1,2}, \tuple{2,3}}$, then $R_r = \set{\tuple{1,2}, \tuple{2,3}, \tuple{1,1}, \tuple{2,2}, \tuple{3,3}}$
+
+\definition{Symmetric Closure}{
+The \defemph{symmetric closure} of a \linkterm{relation}{relation_on} $R$ on a \linkterm{set}{def:set} $A$ is the \linkterm{union}{set_union} of $R$ and its inverse \linkterm{relation}{relation} $\inverse{R}$. It is defined as:
+\[
+R_s = \union{R,\inverse{R}} = \union{R, \set{\tuple{b,a} \mid \tuple{a,b} \in R}}
+\]
+e.g. $R_s = \set{\tuple{1,2}, \tuple{2,3}, \tuple{2,1}, \tuple{3,2}}$
+}{symmetric_closure}
+
+\definition{Transitive Closure}{
+The \defemph{transitive closure} $R^{+}$ of a \linkterm{relation}{relation_on} $R$ on a \linkterm{set}{def:set} $A$ is the \textbf{smallest} \linkterm{transitive relation}{transitive_relation} containing $R$. It is defined as:
+\[
+R^{+} = \bigcup_{n=1}^{\infty} R^n
+\]
+}{transitive_closure}
+
+For example, let $A=\set{1,2,3,4}, R=\set{\tuple{1,2}, \tuple{2,3}, \tuple{3,4}}$
+\begin{itemize}
+    \item $R^1 = R$
+    \item $R^2 = \compose{R,R} = \set{\tuple{1,3}, \tuple{2,4}}$
+    \item $R^3 = \compose{R,R,R} = \set{1,4}$
+    \item No further compositions yields new pairs. 
+\end{itemize}
+$\leadsto R^{+} = \union{R,R^2, R^3} = \set{\tuple{1,2}, \tuple{2,3}, \tuple{3,4}, \tuple{1,3}, \tuple{2,4}, \set{1,4}}$
+
+\definition{Reflexive Transitive Closure}{
+The \defemph{reflexive transitive closure} (A.K.A \defref{Kleene closure}) of a \linkterm{relation}{relation_on} $R$ on a \linkterm{set}{def:set} $A$ is the \textbf{smallest} \linkterm{relation}{relation} that is both \linkterm{reflexive}{reflexive} and \linkterm{transitive}{transitive_relation}. It is defined as:
+\[
+R^{*} = \union{R^0, R^{+}} = \bigcup_{n=0}^{\infty} R^n
+\]
+}{reflexive_transitive_closure}
+
+Example: let $A = \set{1,2,3}, R=\set{\tuple{1,2}, \tuple{2,3}}$.
+\begin{itemize}
+    \item $R^0$ is the identity \linkterm{relation on}{relation_on} $A = \set{\tuple{1,1}, \tuple{2,2}, \tuple{3,3}}$
+    \item $R^1 = R$
+    \item $R^2 = \set{\tuple{1,3}}$
+    \item No new pairs can be introduced
+\end{itemize}
+$\leadsto R^{*} = \union{\set{\tuple{1,1}, \tuple{2,2}, \tuple{3,3}}, \set{\tuple{1,2}, \tuple{2,3}}, \set{\tuple{1,3}}} = \set{\tuple{1,1}, \tuple{2,2}, \tuple{3,3},\tuple{1,2}, \tuple{2,3},\tuple{1,3}}$
+
 
 \definition{Parital Ordering (non-strict)}{
 A \linkterm{relation}{relation_on} $R \subseteq A \times A$ is called a \textbf{partial ordering} on $A$, iff $R$ is \linkterm{reflexive}{reflexive}, \linkterm{antisymmetric}{antisymmetric}, and \linkterm{transitive}{transitive_relation} on $A$.

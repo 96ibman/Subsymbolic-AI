@@ -29,6 +29,17 @@ Because \linkterm{events}{def:event} are \linkterm{sets}{def:set}, we use Set Th
 \end{itemize}
 }
 
+\commandnote{
+We usually borrow \linkterm{propositional logic}{def:pl0_as_ls} syntax to express \linkterm{union}{set_union} and \linkterm{intersection}{set_intersection}:
+\[
+P(\union{A,B}) \leadsto P(A \lor B) \qquad P(\intersection{A,B}) \leadsto P(A \land B)
+\]
+We also use "$,$" to express \linkterm{joint probability}{def:joint_prob} 
+\[
+P(\intersection{A,B}) \leadsto P(A \land B) \leadsto P(A,B)
+\]
+}
+
 
 \Example{
 The \linkterm{sample space}{def:sample_space} for rolling one die is $\Omega = \set{1,2, \cdots, 6}$, \tabref{tab:event_example} shows some \linkterm{events}{def:event} of interest.
@@ -364,8 +375,8 @@ Within the context of \linkterm{Bayes' Theorem}{thm:bayes}, we define the follow
 \definition{The Product Rule}{
 For any two \linkterm{events}{def:event} $A$ and $B$ where the \linkterm{conditional probabilities}{def:conditional_prob} are well-defined ($P(A)>0, P(B)>0$), the probability of their \linkterm{joint occurrence}{def:joint_prob} is:
 \begin{align*}
-P(A \cap B) &= P(A \mid B)P(B) \\
-P(A \cap B) &= P(B \mid A)P(A)
+P(A \cap B) &= P(A \mid B) \cdot P(B) \\
+P(A \cap B) &= P(B \mid A) \cdot P(A)
 \end{align*}
 This rule establishes that the probability of "A and B" is the probability of one event, scaled by the probability of the other event occurring given that the first has occurred.
 }{def:product_rule}
@@ -377,7 +388,7 @@ Suppose I draw two cards from a deck without replacement. Let $A$ be the event t
     \item $P(B \mid A) = 3/51$ (since one Ace is gone)
 \end{itemize}
 The probability of drawing two Aces is:
-\[ P(A \cap B) = P(B \mid A)P(A) = \frac{3}{51} \cdot \frac{4}{52} \]
+\[ P(A \cap B) = P(B \mid A) \cdot P(A) = \frac{3}{51} \cdot \frac{4}{52} \]
 }{product_rule_example}
 
 \definition{Independence}{
@@ -447,12 +458,12 @@ A \textbf{probability distribution} is a vector $v$ with values in $[0,1]$ such 
 }{def:prob_distribution}
 
 \commandnote{
-The \textbf{probability distribution} of a \linkterm{random variable}{def:random_variable} $X$ is a complete description of the \linkterm{probabilities}{def:prob_rv} $P(X=x)$ for all values $x \in \text{dom}(X)$. It completely characterizes the behavior of the random variable by mapping each possible outcome to its corresponding probability, effectively describing how the total probability of 1 (from the \linkterm{Normalization axiom}{def:prob_measure}) is distributed across the domain of $X$.
+The \textbf{probability distribution} of a \linkterm{random variable}{def:random_variable} $X$ (written as $\textbf{P}(X)$) is a complete description of the \linkterm{probabilities}{def:prob_rv} $P(X=x)$ for all values $x \in \text{dom}(X)$. It completely characterizes the behavior of the random variable by mapping each possible outcome to its corresponding probability, effectively describing how the total probability of 1 (from the \linkterm{Normalization axiom}{def:prob_measure}) is distributed across the domain of $X$.
 }
 
 
-\definition{Full Joint Probability Distribution}{
-Given a set of \linkterm{random variables}{def:random_variable} $X_1, X_2, \dots, X_n$, a \textbf{full joint probability distribution} is a \linkterm{probability distribution}{def:prob_distribution} that assigns a probability to every possible, mutually exclusive \linkterm{joint probability}{def:joint_prob} assignment for all variables. It can be represented as an $n$-dimensional tensor where each entry $P(X_1=x_1, X_2=x_2, \dots, X_n=x_n) \in [0,1]$ corresponds to a single atomic event, and the sum over all possible combinations of values is $1$:
+\definition{Full Joint Probability Distribution (JPD)}{
+Given a set of \linkterm{random variables}{def:random_variable} $X_1, X_2, \dots, X_n$, a \textbf{full joint probability distribution} $\textbf{P}(X_1, X_2, \dots, X_n)$ is a \linkterm{probability distribution}{def:prob_distribution} that assigns a probability to every possible, mutually exclusive \linkterm{joint probability}{def:joint_prob} assignment for all variables. It can be represented as an $n$-dimensional tensor where each entry $P(X_1=x_1, X_2=x_2, \dots, X_n=x_n) \in [0,1]$ corresponds to a single atomic event, and the sum over all possible combinations of values is $1$:
 \[ \sum_{x_1 \in \text{dom}(X_1)} \dots \sum_{x_n \in \text{dom}(X_n)} P(X_1=x_1, \dots, X_n=x_n) = 1 \]
 }{def:full_joint_prob_distribution}
 
@@ -472,7 +483,7 @@ $W = \text{Rainy}$ & $0.05$ & $0.25$ & $0.3$ \\ \hline
 Note that the sum of all internal cells ($0.6 + 0.1 + 0.05 + 0.25 = 1.0$) satisfies the normalization requirement.
 }{full_joint_example}
 
-\definition{Conditional Probability Distribution}{
+\definition{Conditional Probability Distribution (CPD)}{
 Given \linkterm{random variables}{def:random_variable} $X$ and $Y$, the \textbf{conditional probability distribution} $\textbf{P}(X \mid Y)$ represents a complete table or matrix of \linkterm{probabilities}{def:prob_distribution}, providing the distribution of $X$ for every possible observed value $y \in \text{dom}(Y)$. It consists of the \linkterm{conditional probabilities}{def:conditional_prob} $P(X=x \mid Y=y)$ for all $x \in \text{dom}(X)$ and all $y \in \text{dom}(Y)$. For any fixed $y$, the distribution over $X$ satisfies the normalization constraint:
 \[ \sum_{x \in \text{dom}(X)} P(X=x \mid Y=y) = 1 \]
 }{def:cond_prob_distribution}
@@ -493,6 +504,241 @@ $C = \text{Drive}$ & $0.1 / 0.7 = 1/7$ & $0.25 / 0.3 = 5/6$ \\ \hline
 }{cond_prob_example}
 
 
+\anondefinition{
+A \defemph{Naive Bayes Model} (Bayesian Classifier) consists of:
+\begin{itemize}
+    \item \linkterm{Random variables}{def:random_variable} $E_1 \cdots E_n$ \hfill (effects)
+    \item \linkterm{Random variable}{def:random_variable} $C$ \hfill (the cause)
+    \item The \linkterm{probability distribution}{def:prob_distribution} $\probd{C}$
+    \item The \linkterm{CPD}{def:cond_prob_distribution} $\probd{E_i \mid C}$
+\end{itemize}
+Where all $E_1, \cdots E_n$ are \linkterm{conditionally independent}{def:cond_independence} given $C$.
+}{nb_model}
 
 
+\Lemma{
+\textbf{Chain Rule}:
+\[
+\probd{X_1, \cdots, X_n} = \probd{X_1 \mid X_2, \cdots X_n} \cdot \probd{X_2 \mid X_3 \cdots X_n}  \cdots \probd{X_{n-1} \mid X_n} \cdot \probd{X_n}
+\]
+}{lem:chain_rule}
+\Proof{
+via generalization of the \linkterm{product rule}{def:product_rule} for e.g. $X_1, \cdots X_4$:
+\begin{itemize}
+\item $\probd{X_1, X_2, X_3, X_4} = \probd{X_1 \mid X_2, X_3, X_4} \cdot \probd{X_2, X_3, X_4}$
+\item $\probd{X_2, X_3, X_4} =  \probd{X_2 \mid X_3, X_4} \cdot \probd{X_3, X_4}$
+\item $\probd{X_3, X_4} =  \probd{X_3 \mid X_4} \cdot \probd{X_4}$
+\item Hence, $\probd{X_1, X_2, X_3, X_4} = \probd{X_1 \mid X_2, X_3, X_4} \cdot \probd{X_2 \mid X_3, X_4} \cdot \probd{X_3 \mid X_4} \cdot \probd{X_4}$
+\end{itemize}
+}
 
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+Given a \linkterm{Naive Bayes Model}{nb_model}, can we compute the Full \linkterm{JPD}{def:full_joint_prob_distribution} $\probd{C,E_1, \cdots, E_n}$ using only $\probd{C}$ and $\probd{E_i \mid C}$ ?
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      % Changed: Light green background
+    colframe=green!40!black,    % Changed: Dark green border
+    colbacktitle=red!80!black,  % Kept: Same red title background
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} % Kept: Same title border
+]
+\textbf{Yes.} Because of the \linkterm{conditional independence}{def:cond_independence} assumption in a \linkterm{Naive Bayes Model}{nb_model}, the \linkterm{JPD}{def:full_joint_prob_distribution} simplifies to:
+$$\probd{C, E_1, \dots, E_n} = \probd{C} \prod_{i=1}^{n} \probd{E_i \mid C}$$
+\end{tcolorbox}
+
+\Proof{
+\begin{itemize}
+\item \linkterm{Chain rule}{lem:chain_rule}: $\probd{E_1, \cdots, E_n, C} = \probd{E_1 \mid E_2, \cdots E_n,C} \cdots \probd{E_n \mid C} \cdot \probd{C}$
+\item All $E_1, \cdots E_n$ are \linkterm{conditionally independent}{def:cond_independence} given $C$
+\item $\probd{E_1 \mid E_2, \cdots E_n,C} = \probd{E_1 \mid C}$ and  $\probd{E_2 \mid E_3, \cdots E_n,C} = \probd{E_2 \mid C}$ and so on $\cdots$
+\item Hence, $\probd{C, E_1, \dots, E_n} = \probd{C} \prod_{i=1}^{n} \probd{E_i \mid C}$
+\end{itemize}
+}
+
+
+\definition{Marginalization Generalized}{
+Given \linkterm{random variables}{def:random_variable} $X_1, \cdots X_n$ and $Y_1, \cdots, Y_m$, we have 
+\[
+\probd{X_1, \cdots, X_n} = \sum_{y_1 \in \text{dom}(Y_1), \cdots, y_m \in \text{dom}(Y_m)} \probd{X_1, \cdots,X_n, Y_1=y_1, \cdots Y_m=y_m}
+\]
+}{marginalization_general}
+
+\anondefinition{
+Given a \linkterm{Naive Bayes Model}{nb_model} with a set of effects $E=\set{E_1, \cdots, E_n}$, we refer to the \defemph{observable} effect as $O=\set{O_1, \cdots, O_{no}}$ and the set of \defemph{unobservable} (unknown) effects as $U=\set{U_1, \cdots, U_{nu}}$ where $E=\union{O,U}$
+}{}
+
+
+\begin{tcolorbox}[
+    colback=blue!3!white,
+    colframe=blue!70!white,
+    title=Notation Understanding]
+Assume we have two unknown effects ($nu=2$): \textit{Headache} ($U_1$) where $D_H=\set{\text{yes}, \text{no}}$ and \textit{Fever} ($U_2$) where $D_F=\set{\text{high}, \text{low}}$
+
+We define $D_u = \cartprod{\text{dom}(U_1), \cdots, \text{dom}(U_{nu})} = \set{(y, h), (y, l), (n, h), (n, l)}$
+
+We can sum all \linkterm{joint probabilities}{def:joint_prob} of the unknown effects as :
+\[
+\sum_{u \in D_u} P(U_1=u_1,\cdots, U_{nu}=u_{nu}) = 1
+\]
+
+\begin{itemize}
+    \item For $u=(y,h)$, we have $P(U_1=y, U_{2}=h)$
+    \item For $u=(y,l)$, we have $P(U_1=y, U_{2}=l)$
+    \item For $u=(n,h)$, we have $P(U_1=n, U_{2}=h)$
+    \item For $u=(n,l)$, we have $P(U_1=n, U_{2}=l)$
+\end{itemize}
+
+For a specific tuple $u=\tuple{u_1, u_2} \in D_u$, assuming \textit{Headache} and \textit{Fever} are \linkterm{independent}{def:independence}, the \linkterm{joint probability}{def:joint_prob} of $P(H=u_1, F=u_2)$ can be also computed from the product:
+\[
+\prod_{j=1}^{nu} P(U_j=u_{u_j}) \qquad \text{where }u_{u_j}\text{ means the value little u at index j given the tuple u}
+\]  
+
+Let's take the tuple $\tuple{n,h}$ and we are iterating over $U= \set{H (U_1),F (U_2)}$
+\[
+\prod_{j=1}^{nu} P(U_j=u_{u_j}) = P(H=n) \cdot P(F=h)
+\]
+
+If we want to sum all the \linkterm{joint probabilities}{def:joint_prob} for all values, we write:
+\[
+\sum_{u \in D_u} \prod_{j=1}^{nu}  P(U_j=u_{u_j})
+\]
+Which will evaluate to $1$ too (assuming \linkterm{independence}{def:independence}).
+\end{tcolorbox}
+
+
+Let $D_u = \cartprod{\text{dom}(U_1), \cdots, \text{dom}(U_{nu})}$, then:
+\[
+\probd{C \mid O_1, \cdots, O_{no}} = \frac{\probd{C,O_1, \cdots, O_{no}}}{\probd{O_1, \cdots, O_{no}}}
+\]
+
+We \linkterm{marginalize}{marginalization_general} over the unknowns to compute the numerator:
+
+\[
+\probd{C,O_1, \cdots, O_{no}} = \sum_{u \in D_u} \probd{C,O_1,\cdots, O_{no},U_1=u_1,\cdots, U_{nu}=u_{nu}}
+\]
+
+\[
+\probd{C,O_1, \cdots, O_{no}} = \sum_{u \in D_u} \probd{C} \prod_{i=1}^{no} \probd{O_i \mid C} \prod_{j=1}^{nu} \probd{U_j=u_{u_j} \mid C}
+\]
+
+
+\[
+\probd{C,O_1, \cdots, O_{no}} = \probd{C} \prod_{i=1}^{no} \probd{O_i \mid C} \sum_{u \in D_u} \prod_{j=1}^{nu}  \probd{U_j=u_{u_j} \mid C}
+\]
+
+Also, for the denominator, we have: 
+\[
+\probd{O_1, \cdots, O_{no}} = \sum_{c \in \text{dom}(C)} \sum_{u \in D_u} \probd{O_1,\cdots, O_{no}, C=c, U_1 = u_1, \cdots, U_{nu}=u_{nu}}
+\]
+
+\[
+\probd{O_1, \cdots, O_{no}} = \sum_{c \in \text{dom}(C)} \sum_{u \in D_u} P(C=c) \prod_{i=1}^{no}\probd{O_i \mid C=c} \prod_{j=1}^{nu} P(U_j=u_{u_j} \mid C=c)
+\]
+
+\[
+\probd{O_1, \cdots, O_{no}} = \sum_{c \in \text{dom}(C)} P(C=c) \prod_{i=1}^{no}\probd{O_i \mid C=c} \sum_{u \in D_u} \prod_{j=1}^{nu} P(U_j=u_{u_j} \mid C=c)
+\]
+
+Therefore, 
+\[
+\probd{C \mid O_1, \cdots, O_{no}} =
+\frac{\probd{C} \prod_{i=1}^{no} \probd{O_i \mid C} \sum_{u \in D_u} \prod_{j=1}^{nu}  \probd{U_j=u_{u_j} \mid C}}
+{\sum_{c \in \text{dom}(C)} P(C=c) \prod_{i=1}^{no}\probd{O_i \mid C=c} \sum_{u \in D_u} \prod_{j=1}^{nu} P(U_j=u_{u_j} \mid C=c)}
+\]
+
+\commandnote{
+$\sum_{u \in D_u} \prod_{j=1}^{nu} P(U_j=u_{u_j} \mid C=c) = 1$
+}
+
+Hence,
+\[
+\probd{C \mid O_1, \cdots, O_{no}} =
+\frac{\probd{C} \prod_{i=1}^{no} \probd{O_i \mid C}}
+{\sum_{c \in \text{dom}(C)} P(C=c) \prod_{i=1}^{no}\probd{O_i \mid C=c}}
+\]
+
+\commandnote{
+The denominator is 
+\begin{itemize}
+\item the same for any given observations $O_1, \cdots, O_{no}$ independent of the value of $C$
+\item the sum over all numerators
+\end{itemize}
+}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+The denominator acts as a \textbf{normalizing constant}. It scales the product in the numerator so that the resulting values for $\probd{C \mid O_1, \dots, O_{no}}$ sum to $1$. This process is called \defemph{Normalization}.
+\end{tcolorbox}
+
+\definition{Normalization}{
+Given a vector $w := \tuple{w_1, \dots, w_k}$ where each entry $w_i \in [0,1]$ and $\sum_{i=1}^{k} w_i \leq 1$, we define a \linkterm{function}{function} $\alpha(w)$ that normalizes the vector by dividing each entry by the sum of all its components.
+
+\[
+(\alpha(w))_i = \frac{w_i}{\sum_{j=1}^{k} w_j}
+\]
+
+By construction, $\sum_{i=1}^{k} (\alpha(w))_i = 1$, which ensures that $\alpha(w)$ is a valid \linkterm{probability distribution}{def:prob_distribution}.
+}{normalization}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top center={yshift=-3mm,yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Inference Theorem in a Naive Bayes Model,
+    fonttitle=\bfseries,
+    boxed title style={size=small,colframe=red!50!black}
+]
+\[
+\probd{C \mid O_1, \cdots, O_{no}} = \alpha \left( \probd{C} \prod_{i=1}^{no} \probd{O_i \mid C} \right)
+\]
+\end{tcolorbox}
+
+\Example{
+Consider we are modeling \textit{cavity} ($C$) and \textit{toothache} ($T$) with Boolean domains $\set{T,F}$ and we know the following probabilities:
+\begin{itemize}
+\item $P(C=T) = 0.1 \quad P(T=T \mid C=T)=0.8 \quad P(T=T \mid C=F) = 0.05$ 
+\end{itemize}
+What is the probability distribution for a patient having \textit{cavity} given they have \textit{toothache}?
+\begin{align*}
+\probd{C \mid t=T} &:= \alpha(\probd{C} \cdot \probd{T=T \mid C}) \\ 
+\probd{C} &:= \tuple{P(C=T), P(C=F)} \\ 
+\probd{T=T \mid C} &:= \tuple{P(T=T \mid C=T), P(T=T \mid C=F)} \\ 
+\probd{C \mid t=T} &:= \alpha(\tuple{P(C=T), P(C=F)} \cdot \tuple{P(T=T \mid C=T), P(T=T \mid C=F)}) \\
+&:= \alpha \left( \tuple{P(C=T) \cdot P(T=T \mid C=T) , P(C=F) \cdot P(T=T \mid C=F)} \right) \\
+&:= \alpha \left( \tuple{0.1 \cdot 0.8 , 1-P(C=T) \cdot 0.05} \right) \\
+&:= \alpha \left( \tuple{0.1 \cdot 0.8 , 0.9 \cdot 0.05} \right) \\
+&:= \alpha \left( \tuple{0.08 , 0.045} \right) \\
+&:= \tuple{0.64 , 0.36} \\
+\end{align*}
+}{}
+
+\Theorem{
+Let $Q ,E_1, \cdots , E_{ne}, U_1, \cdots, U_{nu}$ be \linkterm{random variables}{def:random_variable} and $D_u = \cartprod{\text{dom}(U_1), \cdots, \text{dom}(U_{nu})}$. Then:
+\[
+\probd{Q \mid E_1=e_1, \cdots E_{ne} = e_{ne}} = \alpha \left( \sum_{u \in D_u} \probd{Q, E_1=e_1, \cdots E_{ne} = e_{ne}, U_1=u_1, \cdots, U_{nu} = u_{n_u}} \right)
+\]
+We call $Q$ the \defemph{query variable}, $E_1, \cdots, E_{ne}$ the \defemph{evidence}, and $U_1 , \cdots, U_{nu}$ the \defemph{unknown} (or \defemph{hidden}) \defemph{variables}, and computing a \linkterm{conditional probability}{def:conditional_prob} this way \defemph{enumeration}
+}{enumeration}
+
+
+\commandnote{
+\textbf{General Law of Inference by Enumeration: } "To find out what you care about ($Q$), you must look at every possible world ($U$) that could exist alongside what you already saw ($E$)." concretely:
+\begin{itemize}
+    \item sum over all relevant entries of the \linkterm{JPD}{def:full_joint_prob_distribution} of the variables, and
+    \item normalize the results to yield a \linkterm{probability distribution}{def:prob_distribution}
+\end{itemize}
+}

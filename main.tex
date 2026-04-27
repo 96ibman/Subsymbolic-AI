@@ -16,16 +16,26 @@
 \pagenumbering{arabic}
 \setcounter{page}{1}
 \include{intro}
-\include{mathlanguage}
+\include{probability_theory}
+\include{bayes_nets}
+
+
+\clearpage
+\appendix
+\addcontentsline{toc}{part}{Appendices}
+\section{Mathematical Vernacular and Induction}
+\input{mathlanguage}
 \include{unarynatnums}
-\include{sets}
+
+\newpage
+\section{Set Theory}
+\input{sets}
 \include{relations}
 \include{functions}
 \include{equiv}
 \include{graphs_trees}
 \include{math_structures}
-\include{complexity_analysis}
 \include{formal_langs_grammars}
-\include{probability_theory}
+
 \printbibliography
 \end{document}

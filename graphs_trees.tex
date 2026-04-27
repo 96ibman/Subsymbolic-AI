@@ -252,195 +252,35 @@ We call $v$ the \textbf{parent} of $w$, iff $(v,w) \in E$ ($w$ is a child of $v$
 For any node $v \in V$ except the root $v_r$, there is exactly one \linkterm{path}{path_graph} $p \in \Pi(G)$ with $\operatorname{start}(p) = v_r$ and $\operatorname{end}(p)=v$.
 }{lemma_tree}
 
-\textbf{Observation: }We often deal with \textbf{well-bracketed structures} in Computer Science, e.g. \linkterm{mathematical}{mathematics} expressions, Markup languages like \texttt{HTML}, programming languages like \texttt{python}, etc. A common approach to scaling in computer science is to come up with a common data structure that allows to program the same algorithm for all of these structures, that where \linkterm{trees}{tree} come in. For example (\texttt{HTML}):
+\definition{Non-Descendants}{
+Let $\tuple{X,E}$ be a \linkterm{DAG}{dag}, $x \in X$, and $E^{*}$ the \linkterm{reflexive transitive closure}{reflexive_transitive_closure} of $E$. The \defemph{non-descendants} of $x$ are the \linkterm{elements}{def:set} of the \linkterm{set}{def:set} $\text{NonDesc}(x) := \set{y \mid (x,y) \notin E^{*}} \setminus \text{Parents}(x)$
+}{non_descendants}
 
-\begin{minipage}[t]{0.45\textwidth}
-\vspace{25pt}
-\begin{verbatim}
-<html>
-  <head>
-    <script>.emph {color:red}</script>
-  </head>
-  <body>
-    <p>Hello SMAI</p>
-  </body>
-</html>
-\end{verbatim}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.5\textwidth}
-\vspace{0pt}
-\begin{tikzpicture}[>=stealth, node distance=1cm]
-  % styles
-  \tikzstyle{tag}=[inner sep=1pt]
-  \tikzstyle{box}=[draw, rectangle, rounded corners=2pt, inner sep=3pt]
+\textbf{Example: }Consider the following \linkterm{DAG}{dag} $G = \tuple{X,E}$ where:
+\begin{itemize}
+    \item $X = \set{A, B, C, D, E}$
+    \item $E = \set{(A,B), (A,C), (B,D), (C,D), (C,E)}$
+    \item $E^{*} = \set{(A,A), (B,B), (C,C), (D,D), (E,E), (A,B), (A,C), (A,D), (A,E), (B,D), (C,D), (C,E)}$
+\end{itemize}
 
-  % nodes
-  \node[tag] (html) {$\langle$html$\rangle$};
+\begin{tikzpicture}[>=stealth]
+  \node[vertex] (A) at (2,2) {A};
+  \node[vertex] (B) at (1,1) {B};
+  \node[vertex] (C) at (3,1) {C};
+  \node[vertex] (D) at (2,0) {D};
+  \node[vertex] (E) at (4,0) {E};
 
-  \node[tag, below left=1.2cm and 1.6cm of html] (head) {$\langle$head$\rangle$};
-  \node[tag, below right=1.2cm and 1.6cm of html] (body) {$\langle$body$\rangle$};
-
-  \node[tag, below=of head] (script) {$\langle$script$\rangle$};
-  \node[tag, below=of body] (p) {$\langle$p$\rangle$};
-
-  \node[box, below=1.0cm of script] (css) {.emph \{color:red\}};
-  \node[box, below=1.0cm of p] (text) {Hello SMAI};
-
-  % edges
-  \draw[->] (html) -- (head);
-  \draw[->] (html) -- (body);
-
-  \draw[->] (head) -- (script);
-  \draw[->] (body) -- (p);
-
-  \draw[->] (script) -- (css);
-  \draw[->] (p) -- (text);
+  \draw[->] (A) -- (B);
+  \draw[->] (A) -- (C);
+  \draw[->] (B) -- (D);
+  \draw[->] (C) -- (D);
+  \draw[->] (C) -- (E);
 \end{tikzpicture}
-\end{minipage}
 
-\textbf{Observation: }\linkterm{functional programming}{functional_programming} languages like \linkterm{SML}{def:sml} are ideal for computing with \linkterm{labeled}{labeled_graph} \linkterm{trees}{tree}. 
-
-\textbf{Example: } data types for node \linkterm{labeled}{labeled_graph} \linkterm{trees}{tree} (binary and general):
-\begin{verbatim}
-datatype lbt = leaf of int |t of int * lbt * lbt
-\end{verbatim}
-
-\begin{verbatim}
-datatype ltree = leaf of int | t of int * ltree list
-\end{verbatim}
-
-We can compute e.g. the weight (sum of all labels) recursively:
-\begin{verbatim}
-fun wt (leaf n) = n | wt (t n l r) = n + wt l + wt r
-\end{verbatim}
-
-\begin{verbatim}
-fun wt (leaf n) = n
-  | wt (t n ts) = n + wtl ts
-and wtl (nil) = 0
-  | wtl (h::ts) = wt h + wtl ts
-\end{verbatim}
-
-\textbf{Observation: }often, \linkterm{DAGs}{dag} are better representations of \linkterm{trees}{tree} (\linkterm{trees}{tree} with sharing):
-
-\begin{minipage}[t]{0.50\textwidth}
-\vspace{0pt}
-\begin{verbatim}
- f
- |
-( )
- |
- f
- |
-( )
- |
- f
- |
-( )
- |
- a
-\end{verbatim}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.50\textwidth}
-\vspace{0pt}
-\begin{verbatim}
-           f
-         /   \
-       f       f
-     /  \    /   \
-    f    f  f     f
-   / \  / \ / \   / \
-  a  a a  a a  a a   a
-\end{verbatim}
-\end{minipage}
-
-Here, we assume that the constant symbol $a$ represent a leaf and the function symbol $f$ represents a parent node with two children which can be $f$ or $a$. Hence, the full tree is represented as:
-\[
-f(f(f(a,a),f(a,a)),f(f(a,a),f(a,a)))
-\]
-The \linkterm{DAG}{dag} compresses the same structure by reusing subterms. It internally does not duplicate all the $f(a,a)$ pieces, it stores them once and reuses them by reference. For example, define a base piece: $t_1 = f(a,a)$, then reuse it: $t_2 = f(t_1, t_1)$ and finally $t_3 = f(t_2,t_2)$
-
-\textbf{Idea: }We want to represent a \linkterm{DAG}{dag} in \linkterm{SML}{def:sml}, and then be able to \textit{explode} it into a \linkterm{tree}{tree}. A \linkterm{DAG}{dag} can share subtrees via references and save memory, but a \linkterm{tree}{tree} has no sharing and every reference is copied. \textit{Exploding} is the process of removing and duplicating the structure.
-
-\minititle{Datatype Definition}
-
-\begin{verbatim}
-type id = int
-type label = string
-
-datatype DAG = 
-   leaf of id * label
- | ref of id
- | dag of id * label * DAG list 
-\end{verbatim}
-
-Example:
-
-\begin{verbatim}
-ex1 = 
-  dag 1 "f" [
-    dag 2 "f" [
-      dag 3 "f" [leaf 4 "a", ref 4], ref 3
-    ],
-    ref 2
-  ]
-\end{verbatim}
-
-Notice that the innermost part is \inlinecode{dag 3 "f" [leaf 4 "a", ref 4]}. That is a node with \texttt{id=3}, label "f", and two children: \texttt{leaf 4 "a"} (a leaf node with \texttt{id=4}, label = "a"), and \texttt{ref 4} (a reference back to the same leaf id (4)). So this subtree is $f(a,a)$ but written with sharing.
-
-Next level, we see \inlinecode{dag 2 "f" [(dag 3 ...), ref 3]}. That is a node with id=2, label "f", and two children: one is the whole \texttt{dag 3} subtree ($f(a,a)$), the other one is a reference back to it. So this is $f(f(a,a),f(a,a))$.
-
-Finally, we have \inlinecode{dag 1 "f" [(dag 2 ...), ref 2]}. This is the root node with id=1, label "f", and two children. One is the whole \texttt{dag 2} ($f(f(a,a),f(a,a))$), the other one is a reference back to that node. So this is the full
-\[
-f(f(f(a,a),f(a,a)),f(f(a,a),f(a,a)))
-\]
-
-Now, we want a function \inlinecode{fun explode (dag, dict) = tree} where \texttt{dict} is a dictionary mapping identifiers to already-exploded subtrees, so that references can be looked up.
-
-Case 1: \texttt{explode (leaf (\_, l), \_) = leaf l}, i.e. if we see a leaf, ignore the id, just return a tree leaf with the label.
-
-Case 2: \texttt{explode (ref i, dict) = lookup dict i}, i.e. if we see a reference, we just look up the corresponding tree in the dictionary.
-
-Case 3: internal \linkterm{DAG}{dag} node:
-
-\begin{verbatim}
-explode (dag (_, l) ds, dict) = 
-  let val (ts, _) = explist ds dict
-  in tree l ts
-  end
-\end{verbatim}
-
-i.e. for a node, explode the children \texttt{ds} using \texttt{explist} and build a new tree node with label \texttt{l} and explode children \texttt{ts}
-
-\texttt{explist} is a helper function defined as:
-\begin{verbatim}
-and explist [] dict = ([], dict)
-  | explist (h::t) dict =
-      let val (th, dict1) = explode h dict
-          val (tt, dict2) = explist t dict1
-      in (th::tt, dict2)
-      end
-\end{verbatim}
-It explodes a list of \linkterm{DAG}{dag} children into a list of \linkterm{tree}{tree} children.
-
-And here are some helper functions for completeness: a function that looks up identifiers:
-\begin{verbatim}
-fun did (leaf i _) = i | did (ref _ j) = j | did (dag i _ _) = i
-\end{verbatim}
-
-A dictionary type and a lookup function:
-\begin{verbatim}
-type dict = (id * DAG) list
-
-exception NotFound
-
-fun lookup i [] = raise NotFound
-  | lookup i (h::t) =
-      let 
-        val (k,d) = t
-      in
-        if i = k then d else lookup i t
-      end
-\end{verbatim}
+Let's find the \textbf{non-descendants} of node $B$:
+\begin{itemize}
+    \item First, we find all $y$ such that $(B,y) \in E^{*}$. Looking at $E^{*}$, the only pairs starting with $B$ are $(B,B)$ and $(B,D)$. Thus, the reachable nodes from $B$ are $\set{B, D}$.
+    \item The set of nodes $y$ where $(B,y) \notin E^{*}$ is everything else: $\set{A, C, E}$.
+    \item The parents of $B$ is the set $\text{Parents}(B) = \set{A}$.
+    \item By the definition, we exclude the parents: $\text{NonDesc}(B) = \set{A, C, E} \setminus \set{A} = \set{C, E}$.
+\end{itemize}
