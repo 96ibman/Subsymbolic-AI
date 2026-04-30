@@ -69,7 +69,7 @@ The \linkterm{JPD}{def:full_joint_prob_distribution} of a \linkterm{Bayesian Net
 \[
 \probd{X_1, \cdots, X_n} = \prod_{X_i \in \cX} \probd{X_i \mid \text{Parents}(X_i)}
 \]
-}{}
+}{jpd_BN}
 
 \Proof{
 \begin{enumerate}
@@ -289,3 +289,201 @@ T & T & T & 0.988 & $0.012 = 0.6 \cdot 0.2 \cdot 0.1$ \\
 \hline
 \end{tabular}
 }{}
+
+\definition{John, Mary and the Alarm}{
+This is the well-known \linkterm{Bayesian Network}{def:bayes_net} example found in textbooks. It goes as follows:
+\begin{itemize}
+\item  I got very valuable stuff at home. So I bought an alarm. Unfortunately, the alarm just rings at home,
+doesn't call me on my mobile.
+\item I've got two neighbors, Mary and John, who'll call me if they hear the alarm.
+\item The problem is that, sometimes, the alarm is caused by an earthquake.
+\item Also, John might confuse the alarm with his telephone, and Mary might miss the alarm altogether because
+she typically listens to loud music.
+\end{itemize}
+$\leadsto$ \linkterm{Random variables}{def:random_variable}: $B,E,A,J,M$ for Burglary, Earthquake, Alarm, John, and Mary, respectively.
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+Given that both John and Mary call me, what is the probability of burglary?
+\end{tcolorbox}
+}{Burglary_example}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    % Define the style for the nodes
+    node distance=1.5cm and 1cm,
+    every node/.style={
+        ellipse,
+        draw,
+        minimum width=2.5cm,
+        minimum height=1cm,
+        font=\ttfamily\large,
+        text=blue!70!black % Matching the blueish hue of the text
+    },
+    % Define the style for the arrows
+    arrow/.style={
+        ->,
+        >={Stealth[round]},
+        semithick
+    }
+]
+
+    % Nodes
+    \node (alarm) {Alarm};
+    
+    % Positioning top nodes relative to Alarm
+    \node (burglary) [above left=of alarm] {Burglary};
+    \node (earthquake) [above right=of alarm] {Earthquake};
+    
+    % Positioning bottom nodes relative to Alarm
+    \node (john) [below left=of alarm] {John};
+    \node (mary) [below right=of alarm] {Mary};
+
+    % Edges
+    \draw [arrow] (burglary) -- (alarm);
+    \draw [arrow] (earthquake) -- (alarm);
+    \draw [arrow] (alarm) -- (john);
+    \draw [arrow] (alarm) -- (mary);
+
+\end{tikzpicture}
+\caption{Burglary-Earthquake Example}
+\end{figure}
+
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+How to calculate $\probd{B \mid J,M}$ ?
+\end{tcolorbox}
+
+Let's use Enumeration (\Thmref{enumeration}):
+\[
+\probd{Q \mid E_1=e_1, \cdots E_{ne} = e_{ne}} = \alpha \left( \sum_{u \in D_u} \probd{Q, E_1=e_1, \cdots E_{ne} = e_{ne}, U_1=u_1, \cdots, U_{nu} = u_{n_u}} \right)
+\]
+with $Q=B, E=\set{J,M}, U=\set{A,E}$
+
+\[
+\probd{B \mid J, M} = \alpha \left( \sum_{b_a, b_e \in \set{T,F}} \probd{B, J,M, A=b_a, E=b_e}\right)
+\]
+
+Let's exploit \Thmref{jpd_BN}
+\[
+\probd{X_1, \cdots, X_n} = \prod_{X_i \in \cX} \probd{X_i \mid \text{Parents}(X_i)}
+\]
+
+\[
+\probd{B \mid J, M} = \alpha \left( \sum_{b_a, b_e \in \set{T,F}} P(J \mid A=b_a) \cdot P(M \mid A=b_a) \cdot \probd{A=b_a \mid E=b_e, B} \cdot P(E=b_e) \cdot \probd{B} \right)
+\]
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+These are $5$ factors in $4$ summands over two cases for Burglary $\leadsto 38$ arithmetic operations $+3$ for $\alpha$ $\leadsto$ General worst case: $\bigo{n \cdot 2^n}$
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+Can we do better?
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      
+    colframe=green!40!black,    
+    colbacktitle=red!80!black,  
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black}
+]
+We can optimize a little bit:
+\[
+\probd{B \mid J, M} = \alpha \left(
+\probd{B} \cdot \left(
+\sum_{b_a, b_e \in \set{T,F}}
+P(J \mid A=b_a) \cdot
+P(M \mid A=b_a) \cdot
+\probd{A=b_a \mid E=b_e, B}
+\cdot P(E=b_e)
+\right)
+\right)
+\]
+
+\[
+\probd{B \mid J, M} = \alpha \left(
+\probd{B} \cdot \left(
+\sum_{b_e \in \set{T,F}} 
+P(E=b_e) \cdot
+\sum_{b_a \in \set{T,F}}
+\probd{A=b_a \mid E=b_e, B} \cdot
+P(J \mid A=b_a) \cdot
+P(M \mid A=b_a) 
+\right)
+\right)
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+This way, we have $3$ factors in $2$ summands $+$ two factors in the outer product, over two cases $\leadsto 28$ arithmetic operations $+3$ for $\alpha$
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+Can we do better?
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      
+    colframe=green!40!black,    
+    colbacktitle=red!80!black,  
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black}
+]
+Yes! $\leadsto$ \textbf{Variable Elimination}
+\end{tcolorbox}
+
+Notice that enumeration corresponds to a depth-first traversal of an arithmetic expression tree, here is an example with some example probabilities:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\linewidth]{images/arithmetic_tree.png}
+\end{figure}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+Notice the redundancies!
+\begin{itemize}
+\item $P(e)$ and $P(\neg e)$ (No need for both!)
+\item $P(j \mid \neg a), P(j \mid a), P(m \mid \neg a), P(m \mid a)$ each is being computed twice! That is because $P(J \mid A=b_a)$ and $P(M \mid A=b_a)$ only depends on $A$, but they are trapped behind the summation over $E$, hence computed twice.
+\end{itemize}
+We can precompute these and store them (trading time complexity by space complexity) $\leadsto$ Variable Elimination. 
+
+The idea is, instead of left-to-right (top-down DFS), we operate right-to-left (bottom-up) and store intermediate \textit{factors} (\textit{functions}) along with their \textit{dependencies}
+\end{tcolorbox}
+
+\Lemma{
+Given a query $\probd{Q_1, \cdots, Q_{n_Q} \mid E_1 = e_1, \cdots, E_{n_E}=e_{n_e}}$, we can ignore and remove all hidden vavriables that are not ancestors of any of the $Q_1, \cdots, Q_{n_Q}$ or $E_1, \cdots, E_{n_E}$
+}{}
+
