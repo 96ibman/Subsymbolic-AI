@@ -322,7 +322,7 @@ Our umbrella example (\exampleref{umbrella_example}) is a \linkterm{HMM}{hmm} wi
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[node distance=5cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
+\begin{tikzpicture}[node distance=7cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
   % Left ellipsis
   \node at (-2, 4) {$\cdots$};
   
@@ -332,9 +332,9 @@ Our umbrella example (\exampleref{umbrella_example}) is a \linkterm{HMM}{hmm} wi
   \node[vertex] (rain_t1) at (10, 4) {$\text{Rain}_{t+1}$};
   
   % Arrows between rain nodes
-  \draw[arc] (rain_t_1) -- node[above=0.2cm] {
+  \draw[arc] (rain_t_1) -- node[above=0.7cm] {
     \begin{tabular}{|c|c|} \hline
-        $R_{t-1}$ & $P(R_t)$ \\ \hline 
+        $R_{t-1}$ & $P(R_t = T \mid R_{t-1})$ \\ \hline 
         $T$ & $0.7$ \\ \hline
         $F$ & $0.3$ \\ \hline
     \end{tabular}
@@ -353,7 +353,7 @@ Our umbrella example (\exampleref{umbrella_example}) is a \linkterm{HMM}{hmm} wi
   \draw[arc] (rain_t_1) -- (umb_t_1);
   \draw[arc] (rain_t) -- node[right=0.2cm] {
     \begin{tabular}{|c|c|} \hline
-        $R_{t}$ & $P(U_t)$ \\ \hline 
+        $R_{t}$ & $P(U_t = T \mid R_t)$ \\ \hline 
         $T$ & $0.9$ \\ \hline
         $F$ & $0.2$ \\ \hline
     \end{tabular}
@@ -383,3 +383,209 @@ T = \begin{pmatrix}
 \]
 }
 
+
+\definition{Markov Inference Tasks}{
+Gievn a \linkterm{Markov chain}{markov_chain} with state variables $X_t$ and \linkterm{evidence}{def:bayesian_terms} variables $E_t$, we are interested in the following \defemph{Markov inference tasks}:
+\begin{itemize}
+\item \defemph{Filtering (Monitoring)}: The task of tracking / updating the \linkterm{probability distribution}{def:prob_distribution} $B_t (X) = \probd{X_t \mid E_{1:t}^{=e}}$ (\defemph{belief state}) over time. i.e. given sequence $e_1, \cdots, e_t$ of observations up until time $t$, we compute the likely state of the world at current time $t$.
+\item \defemph{Prediction (State Estimation)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the likely \textit{future} state of the world at time $t+k$ for $k > 0$. i.e. calculating the \linkterm{probability distribution}{def:prob_distribution} $\probd{X_{t+k} \mid E_{1:t}^{=e}}$.
+\item \defemph{Smoothing (Hindsight)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the likely \textit{past} state of the world at time $t-k$ for $0 < k < t$. i.e. calculate the \linkterm{probability distribution}{def:prob_distribution} $\probd{X_{t-k} \mid E_{1:t}^{=e}}$
+\item \defemph{Most Likely Explanation (MLE)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, copmute the most likely sequence of states that led to these observations, i.e. calculate:
+\[
+\argmax{x} P(X_{1:t}^{=x} \mid E_{1:t}^{=e})
+\]
+\end{itemize}
+}{markov_inference}
+
+\commandnote{
+The most likely sequence of states is \textit{not} (necessarily) the sequence of most likely states
+}
+
+
+\anondefinition{
+Given a \linkterm{Markov chain}{markov_chain} $X$ and \linkterm{evidence}{def:bayesian_terms} variables $E$, let $\probd{X_0}$ be the initial \linkterm{prior}{def:bayesian_terms} (initial belief), then we can compute the full \linkterm{JPD}{def:full_joint_prob_distribution} as:
+\[
+\probd{X_{0:t}, E_{1:t}} = \probd{X_0} \cdot \left( \prod_{i=1}^{t} \probd{X_i \mid X_{i-1}} \cdot \probd{E_i \mid X_i} \right)
+\]
+}{jpd_hmm}
+
+\titledbox{Explanation}{
+This is a \linkterm{Bayesian Network}{def:bayes_net} (recall \thmref{jpd_BN}):
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2cm, vertex/.style={ellipse, draw, minimum width=30pt, minimum height=30pt, inner sep=2pt}]
+  % Nodes for X (top)
+  \node[vertex, label=above:{\small initial belief}] (x0) at (0, 2) {$X_0$};
+  \node[vertex] (x1) at (2, 2) {$X_1$};
+  \node[vertex] (x2) at (4, 2) {$X_2$};
+  \node[vertex] (x3) at (6, 2) {$X_3$};
+  \node (xdots) at (8, 2) {$\cdots$};
+  
+  % Nodes for E (bottom)
+  \node[vertex] (e1) at (2, 0) {$E_1$};
+  \node[vertex] (e2) at (4, 0) {$E_2$};
+  \node[vertex] (e3) at (6, 0) {$E_3$};
+  \node (edots) at (8, 0) {$\cdots$};
+  
+  % Horizontal arrows for states
+  \draw[arc] (x0) -- (x1);
+  \draw[arc] (x1) -- (x2);
+  \draw[arc] (x2) -- (x3);
+  \draw[arc] (x3) -- (xdots);
+  
+  % Vertical arrows for evidence
+  \draw[arc] (x1) -- (e1);
+  \draw[arc] (x2) -- (e2);
+  \draw[arc] (x3) -- (e3);
+\end{tikzpicture}
+\end{figure}
+}
+
+\titledbox{Filtering Base Case}{
+We want to compute the belief state at $t=1$, which is $B(X_1) = \probd{X_1 \mid E_1}$. We can derive this in two steps as follows:
+
+By Bayes' theorem, we incorporate the new evidence to update our belief:
+\begin{align*}
+\probd{X_1 \mid E_1} &= \frac{\probd{E_1 \mid X_1} \cdot \probd{X_1}}{\probd{E_1}} \\
+&= \alpha (\probd{E_1 \mid X_1} \cdot \probd{X_1})
+\end{align*}
+Here $\probd{E_1 \mid X_1}$ is our \linkterm{sensor model}{sensor_model_hmm}.
+
+Next, we expand the prior prediction $\probd{X_1}$ by \linkterm{marginalizing}{def:marginalization} over the initial state $X_0$:
+\begin{align*}
+\probd{X_1} &= \sum_{x_0} \probd{X_1, X_0 = x_0} \\
+&= \sum_{x_0} \probd{X_1 \mid X_0 = x_0} \cdot \probd{X_0 = x_0}
+\end{align*}
+Here, $\probd{X_1 \mid X_0}$ is the \linkterm{transition model}{transition_model_hmm}, and $\probd{X_0}$ is the initial belief prior.
+
+Combining these gives the complete filtering formula for $t=1$:
+\[
+\probd{X_1 \mid E_1} = \alpha \left( \probd{E_1 \mid X_1} \sum_{x_0} \probd{X_1 \mid x_0} \cdot \probd{x_0} \right)
+\]
+}
+
+\titledbox{Prediction Base Case}{
+If we know the initial belief distribution $\probd{X_0}$ and want to compute the distribution of the next state $\probd{X_1}$ prior to any observations, we perform a 1-step prediction.
+
+We can compute this by \linkterm{marginalizing}{def:marginalization} over all possible values of the initial state $X_0$:
+\begin{align*}
+\probd{X_1} &= \sum_{x_0 \in \text{dom}(X_0)} \probd{X_1, X_0 = x_0}
+\end{align*}
+
+Using the chain rule of probability, we split the joint probability into the \linkterm{transition model}{transition_model_hmm} and the initial \linkterm{prior}{def:bayesian_terms}:
+\begin{align*}
+\probd{X_1} &= \sum_{x_0} \probd{X_1 \mid X_0 = x_0} \cdot \probd{X_0 = x_0}
+\end{align*}
+
+This equation tells us that the probability of being in a state at $t=1$ is the sum of the probabilities of transitioning to it from every possible previous state, weighted by how likely those previous states were.
+}
+
+\minititle{Filtering Derivation}
+
+To compute the belief state at time $t$ given all evidence up to time $t$, we want to find $\probd{X_t \mid E_{1:t}}$. We split the evidence into the current observation $E_t$ and all past observations $E_{1:t-1}$.
+
+\textbf{Step 1: Update (Bayes' Rule / Product Rule)} \\
+We want to find $P(X_t \mid E_t, E_{1:t-1})$. By definition of conditional probability:
+\begin{align*}
+\probd{X_t \mid E_{1:t}} &= \probd{X_t \mid E_t, E_{1:t-1}} \\
+&= \frac{\probd{X_t, E_t, E_{1:t-1}}}{\probd{E_t, E_{1:t-1}}}
+\end{align*}
+
+We apply the product rule to the numerator ($\probd{A, B, C} = \probd{A \mid B, C} \cdot \probd{B, C}$):
+\begin{align*}
+\probd{X_t, E_t, E_{1:t-1}} &= \probd{E_t \mid X_t, E_{1:t-1}} \cdot \probd{X_t, E_{1:t-1}}
+\end{align*}
+
+And apply the product rule once more to $\probd{X_t, E_{1:t-1}}$:
+\begin{align*}
+\probd{X_t, E_t, E_{1:t-1}} &= \probd{E_t \mid X_t, E_{1:t-1}} \cdot \probd{X_t \mid E_{1:t-1}} \cdot \probd{E_{1:t-1}}
+\end{align*}
+
+We also apply the product rule to the denominator:
+\begin{align*}
+\probd{E_t, E_{1:t-1}} &= \probd{E_t \mid E_{1:t-1}} \cdot \probd{E_{1:t-1}}
+\end{align*}
+
+Now substitute both back into the fraction:
+\begin{align*}
+\probd{X_t \mid E_{1:t}} &= \frac{\probd{E_t \mid X_t, E_{1:t-1}} \cdot \probd{X_t \mid E_{1:t-1}} \cdot \probd{E_{1:t-1}}}{\probd{E_t \mid E_{1:t-1}} \cdot \probd{E_{1:t-1}}}
+\end{align*}
+
+The term $\probd{E_{1:t-1}}$ cancels out:
+\begin{align*}
+\probd{X_t \mid E_{1:t}} &= \frac{\probd{E_t \mid X_t, E_{1:t-1}} \cdot \probd{X_t \mid E_{1:t-1}}}{\probd{E_t \mid E_{1:t-1}}}
+\end{align*}
+
+Since $\frac{1}{\probd{E_t \mid E_{1:t-1}}}$ is just a normalizing constant, we can simplify our equation by replacing it with $\alpha$:
+\begin{align*}
+\probd{X_t \mid E_{1:t}} &= \alpha \Big( \probd{E_t \mid X_t, E_{1:t-1}} \cdot \probd{X_t \mid E_{1:t-1}} \Big)
+\end{align*}
+
+By the \linkterm{Sensor Markov property}{sensor_markov_property}, $E_t$ only depends on $X_t$, simplifying the first term (the \linkterm{sensor model}{sensor_model_hmm}):
+\begin{align*}
+\probd{X_t \mid E_{1:t}} &= \alpha \Big( \probd{E_t \mid X_t} \cdot \probd{X_t \mid E_{1:t-1}} \Big)
+\end{align*}
+
+\textbf{Step 2: Prediction (Law of Total Probability)} \\
+Now we need to compute the 1-step prediction $\probd{X_t \mid E_{1:t-1}}$. We do this by \linkterm{marginalizing}{def:marginalization} over the previous state $X_{t-1}$:
+\begin{align*}
+\probd{X_t \mid E_{1:t-1}} &= \sum_{x} \probd{X_t, X_{t-1} = x \mid E_{1:t-1}}
+\end{align*}
+
+To show how the terms split, we expand the conditional joint probability using the definition of conditional probability:
+\begin{align*}
+\probd{X_t, X_{t-1} \mid E_{1:t-1}} &= \frac{\probd{X_t, X_{t-1}, E_{1:t-1}}}{\probd{E_{1:t-1}}}
+\end{align*}
+
+Applying the product rule to the numerator gives $\probd{X_t, X_{t-1}, E_{1:t-1}} = \probd{X_t \mid X_{t-1}, E_{1:t-1}} \cdot \probd{X_{t-1}, E_{1:t-1}}$:
+\begin{align*}
+\probd{X_t, X_{t-1} \mid E_{1:t-1}} &= \frac{\probd{X_t \mid X_{t-1}, E_{1:t-1}} \cdot \probd{X_{t-1}, E_{1:t-1}}}{\probd{E_{1:t-1}}}
+\end{align*}
+
+Notice that $\frac{\probd{X_{t-1}, E_{1:t-1}}}{\probd{E_{1:t-1}}}$ is simply the definition of conditional probability for $\probd{X_{t-1} \mid E_{1:t-1}}$. Therefore:
+\begin{align*}
+\probd{X_t, X_{t-1} \mid E_{1:t-1}} &= \probd{X_t \mid X_{t-1}, E_{1:t-1}} \cdot \probd{X_{t-1} \mid E_{1:t-1}}
+\end{align*}
+
+Substituting this conditionalized product rule back into our original marginalization sum gives:
+\begin{align*}
+\probd{X_t \mid E_{1:t-1}} &= \sum_{x} \probd{X_t \mid X_{t-1} = x, E_{1:t-1}} \cdot \probd{X_{t-1} = x \mid E_{1:t-1}}
+\end{align*}
+
+By the First-Order \linkterm{Markov property}{markov_chain}, the transition to $X_t$ only depends on $X_{t-1}$, simplifying the first term (the \linkterm{transition model}{transition_model_hmm}):
+\begin{align*}
+\probd{X_t \mid E_{1:t-1}} &= \sum_{x} \probd{X_t \mid X_{t-1} = x} \cdot \probd{X_{t-1} = x \mid E_{1:t-1}}
+\end{align*}
+
+\textbf{Step 3: Combine} \\
+Substituting the prediction back into the update equation gives the recursive filtering formula. 
+\begin{tcolorbox}[ams equation*,colback=yellow!10!white,colframe=red!50!black]
+\probd{X_t \mid E_{1:t}^{=e}} = \alpha \left(
+\probd{E_t = e_t \mid X_t} \cdot
+\left(
+\sum_{x} \probd{X_t \mid X_{t-1} = x} \cdot P(X_{t-1} = x \mid E_{1:t-1}^{=e})  
+\right)
+\right)
+\end{tcolorbox}
+
+\commandnote{Notice that $P(X_{t-1} = x \mid E_{1:t-1}^{=e})$ is simply the filtering result from the \textit{previous} time step. This means we can compute the belief state recursively!}
+
+
+\anondefinition{
+We call the inner part of the above expression the \defemph{forward} algorithm:
+\[
+\probd{X_t \mid E_{1:t}^{=e}} = \alpha \left(
+\text{FORWARD} (e_t, \probd{X_{t-1} \mid E_{1:t-1}^{=e}})
+\right) = f_{1:t}
+\]
+}{}
+
+\centeredtitledbox{Filtering in Matrix Notation}{
+\[
+\probd{X_t \mid E_{1:t}^{=e}} = 
+\alpha \left(
+O_t \cdot T^T \cdot \probd{X_{t-1} \mid E_{1:t-1}^{=e}}
+\right)
+\]
+}
