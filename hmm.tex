@@ -1,0 +1,385 @@
+\labeledsection{Hidden Markov Models}{sec:hmm}
+\titledbox{Motivation}{
+\begin{itemize}
+\item The world changes in \textit{stochastically predictable ways}
+\item For example, the weather changes, but the weather tomorrow is somewhat predictable given today's weather and other factors.
+\item The stock market changes, but the stock price tomorrow is probably related to today's price 
+\item A patient's blood sugar changes, but their blood sugar is related to their blood sugar 10 minutes ago 
+\end{itemize}
+}
+
+\questionbox{
+How can we model this?
+}
+
+\anondefinition{
+Given a \linkterm{probability space}{def:prob_space} $\tuple{\Omega, \mathcal{F}, P}$, and a time structure $S$ with an order $\tuple{S, \preceq}$. Then a \linkterm{sequence}{sequence} of \linkterm{random variables}{def:random_variable} $(X_t)t \in S$ with $\text{dom}(X_t) = D$ is called \defemph{stochastic process} over the \defemph{time strcuture} $S$
+}{stochastic_process}
+
+\commandnote{
+$X_t$ models the outcome of the \linkterm{random variable}{def:random_variable} $X$ at a given time step $t$. The sample sapce $\Omega$ corresponds to the \linkterm{set}{def:set} of all possible \linkterm{sequences}{sequence} of outcomes.
+}
+
+\redbox{
+We will almost exclusively use $\tuple{S, \preceq} = \tuple{\mathbb{N}, \leq}$
+}
+
+\notationbox{
+Given a \linkterm{stochastic process}{stochastic_process} $X_t$ over $S$ and $a,b \in S$ with $a \preceq b$, we write $X_{a:b}$ for the \linkterm{sequence}{sequence} $X_a, X_{a+1}, \cdots, X_{b-1}, X_b$ and $X_{a:b}^{=x}$ for $X_a = x_a, \cdots, X_b = x_b$
+}
+
+
+
+
+
+\ideabox{
+Construct a \linkterm{Bayesian Network}{def:bayes_net} from these variables
+}
+
+\anondefinition{
+Let $(X_t)_{t \in S}$ be a \linkterm{stochastic process}{stochastic_process}. We say that $X$ has \defemph{n-th order Markov property} iff $X_t$ only depends on a bounded subset of $X_{0:t-1}$, i.e. for all $t \in S$ we have $\probd{X_t \mid X_0, \cdots, X_{t-1}} = \probd{X_t \mid X_{t-n}, \cdots , X_{t-1}}$ for some $n \in S$.
+
+A \linkterm{stochastic process}{stochastic_process} with the \textbf{Markov} property for some $n$ is called an \defemph{n-th order Markov process}
+}{markov_property}
+
+\definition{First-Order Markov Property (Markov Chain)}{
+\[
+\probd{X_t \mid X_{0:t-1}} = \probd{X_t \mid X_{t-1}}
+\]
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm]
+  % Left ellipsis
+  \node at (-0.75, 0) {$\cdots$};
+  
+  % Nodes
+  \node[vertex] (xt_2) at (0, 0) {$X_{t-2}$};
+  \node[vertex] (xt_1) at (1.5, 0) {$X_{t-1}$};
+  \node[vertex] (xt) at (3, 0) {$X_t$};
+  \node[vertex] (xt1) at (4.5, 0) {$X_{t+1}$};
+  \node[vertex] (xt2) at (6, 0) {$X_{t+2}$};
+  
+  % Arrows between nodes
+  \draw[arc] (xt_2) -- (xt_1);
+  \draw[arc] (xt_1) -- (xt);
+  \draw[arc] (xt) -- (xt1);
+  \draw[arc] (xt1) -- (xt2);
+  
+  % Right ellipsis
+  \node at (6.75, 0) {$\cdots$};
+\end{tikzpicture}
+\end{figure}
+
+}{markov_chain}
+
+\definition{Second-Order Markov Property}{
+\[
+\probd{X_t \mid X_{0:t-1}} = \probd{X_t \mid X_{t-2}, X_{t-1}}
+\]
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm]
+  % Left ellipsis
+  \node at (-0.75, 0) {$\cdots$};
+  
+  % Nodes
+  \node[vertex] (xt_2) at (0, 0) {$X_{t-2}$};
+  \node[vertex] (xt_1) at (1.5, 0) {$X_{t-1}$};
+  \node[vertex] (xt) at (3, 0) {$X_t$};
+  \node[vertex] (xt1) at (4.5, 0) {$X_{t+1}$};
+  \node[vertex] (xt2) at (6, 0) {$X_{t+2}$};
+  
+  % Main arrows between nodes
+  \draw[arc] (xt_2) -- (xt_1);
+  \draw[arc] (xt_1) -- (xt);
+  \draw[arc] (xt) -- (xt1);
+  \draw[arc] (xt1) -- (xt2);
+  
+  % Arced arrows showing second-order dependencies (above)
+  \draw[arc, bend left=60] (xt_2) to (xt);
+  \draw[arc, bend left=60] (xt_1) to (xt1);
+  \draw[arc, bend left=60] (xt) to (xt2);
+  
+  % Right ellipsis
+  \node at (6.75, 0) {$\cdots$};
+\end{tikzpicture}
+\end{figure}
+}{}
+
+\commandnote{
+Given a \linkterm{Markov chain}{markov_chain}, and we are now at time $t$, then the future is \linkterm{conditionally independent}{def:cond_independence} of the past given the present: 
+\[
+\probd{X_{t+1} \mid X_{0:t}} = \probd{X_{t+1} \mid X_t}
+\]
+}
+
+\anondefinition{
+Let $(X_t)_{t \in S}$ be a \linkterm{stochastic process}{stochastic_process} where $X$ has the \linkterm{Markov property}{markov_property} (for any $n$). We call the \linkterm{probability distribution}{def:prob_distribution} $\probd{X_t \mid X_{0:t-1}}$ the \defemph{transition model} of the \linkterm{stochastic process}{stochastic_process} $(X_t)_{t \in S}$
+}{transition_model_hmm}
+
+\definition{Stationary Assumption}{
+A \linkterm{Markov chain}{markov_chain} is called \defemph{stationary} if the \linkterm{transition model}{transition_model_hmm} is \linkterm{independent}{def:independence} of time, i.e. $\probd{X_t \mid X_{t-1}}$ is the same for all $t$
+}{stationary_hmm}
+
+\Example{
+Consider we represent the weather as a \linkterm{Markov chain}{markov_chain}, we introduce a variable $X$ with domain $\set{\text{sun}, \text{rain}}$ and we fix the initial distribution $\probd{X} = \tuple{1, 0}$ (sunny), and we have a \linkterm{stationary}{stationary_hmm} \linkterm{transition model}{transition_model_hmm} that might be: 
+
+\begin{tabular}{|c|c|c|} \hline
+    $X_{t-1}$ & $X_t$ & $P(X_t \mid X_{t-1})$ \\ \hline
+    sun & sun & 0.9 \\ \hline
+    sun & rain & 0.1 \\ \hline
+    rain & sun & 0.3 \\ \hline
+    rain & rain & 0.7 \\ \hline
+\end{tabular}
+}{weather_example_hmm}
+
+\titledbox{Different ways of representing transition models}{
+If a \linkterm{Markov chain}{markov_chain} $X$ is \linkterm{stationary}{stationary_hmm} and with \linkterm{finite}{set_cardinality} \linkterm{domain}{domain_of_discourse}, we can represent the \linkterm{transition model}{transition_model_hmm} as a matrix $T$ where $T_{ij} := P(X_{t=j} \mid X_{t-1=i})$ 
+
+\[
+T =
+\begin{pmatrix}
+P(\text{sun}\mid \text{sun}) & P(\text{rain}\mid \text{sun}) \\
+P(\text{sun}\mid \text{rain}) & P(\text{rain}\mid \text{rain})
+\end{pmatrix}
+\] 
+
+\[
+\begin{pmatrix}
+0.9 & 0.1 \\
+0.3 & 0.7
+\end{pmatrix}.
+\]
+
+We can also represent it to look like a finite state machine :
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=3.5cm, vertex/.style={ellipse, draw, minimum width=52pt, minimum height=30pt, inner sep=0pt}]
+  \node[vertex] (sun) at (0, 0) {sun};
+  \node[vertex] (rain) at (4, 0) {rain};
+
+  % Initial state
+  \draw[arc] (-2, 0) -- (sun);
+
+  % Transitions
+  \draw[arc] (sun) edge[loop above] node {$0.9$} (sun);
+  \draw[arc] (rain) edge[loop above] node {$0.7$} (rain);
+  \draw[arc] (sun) to[bend left=18] node[above] {$0.1$} (rain);
+  \draw[arc] (rain) to[bend left=18] node[below] {$0.3$} (sun);
+\end{tikzpicture}
+\end{figure}
+}
+
+\questionbox{
+Given our weather example (\exampleref{weather_example_hmm}), what is the probability distribution of $X$ after one time step (knowing it is initially sunny)?
+}
+
+\answerbox{
+\begin{itemize}
+    \item Trivially from the transition model $P(X_2 = sun \mid X_1 = sun) = 0.9$. Hence, $\probd{X_2} = \tuple{0.9, 0.1}$ But let's try to reason about it.
+    \item We know that for $t=1$, $P(\text{sun}) = 1$ and $P(\text{rain}) = 0$, i.e. the initial distribution is $\probd{X_1} = \tuple{1, 0}$. We also have a \linkterm{stationary}{stationary_hmm} \linkterm{transition model}{transition_model_hmm}. We are interested in knowing $\probd{X_2}$.
+\end{itemize}
+
+We compute it for \textit{sun} by \linkterm{marginalization}{def:marginalization} over the different values of $X_{t=1}$:
+\begin{align*}
+P(X_2 = \text{sun}) &= \sum_{x \in \set{\text{sun}, \text{rain}}} P(X_2 = \text{sun}, X_1 = x) \\ 
+&=\sum_{x \in \set{\text{sun}, \text{rain}}} P(X_2 = \text{sun} \mid X_1 = x) \cdot P(X_1 = x) \\
+P(X_2 = \text{sun}) &= P(X_2 = \text{sun} \mid X_1 = \text{sun}) \cdot P(X_1 = \text{sun}) + 
+P(X_2 = \text{sun} \mid X_1 = \text{rain}) \cdot P(X_1 = \text{rain}) \\ 
+&= 0.9 \cdot 1.0 + 0.1 \cdot 0 = 0.9   
+\end{align*}
+}
+
+\redbox{
+What we did is the simplest algorithm for \linkterm{Markov chains}{markov_chain}, it is called \textbf{mini forward}
+}
+
+\definition{Mini Forward Algorithm}{
+Given a \linkterm{stationary}{stationary_hmm} \linkterm{Markov chain}{markov_chain} $X$ with initial distribution $\probd{X_1}$, we the distribution at any time step $t$ by recursively applying:
+
+\[
+\probd{X_n} = \sum_{x_{n-1}} P(X_n \mid X_{n-1} = x_{n-1}) \cdot P(X_{n-1} = x_{n-1})
+\]
+
+for $n = 2, 3, \ldots, t$. At each step, we \linkterm{marginalize}{def:marginalization} out the previous time step by weighting each possible transition by its prior probability.
+}{mini_forward}
+
+\centeredtitledbox{Conversion}{
+If we were to do this for infinitely many time steps, the \linkterm{probability distribution}{def:prob_distribution} $\probd{X}$ of the \linkterm{Markov chain}{markov_chain} $X$ converges.
+
+\[
+\probd{X_1} = \tuple{1.0 , 0.0} \leadsto \probd{X_2} = \tuple{0.9 , 0.1}
+\leadsto \probd{X_3} = \tuple{0.84 , 0.16}
+\leadsto 
+\]
+
+\[
+\probd{X_4} = \tuple{0.804 , 0.196} \leadsto \cdots \leadsto \probd{X_{\infty}} = \tuple{0.75, 0.25}
+\]
+
+This applies to any initial distribution $\probd{X} = \tuple{p, 1-p}$!
+}
+
+\anondefinition{
+As $t \to \infty$, $\probd{X}$ converges towards a fixed point called the \defemph{stationary distribution} of the \linkterm{Markov chain}{markov_chain} $X$
+}{stationary_distribution_hmm}
+
+\redbox{
+In other words, the \linkterm{Markov chain}{markov_chain} essentially ``forgets'' its initial state; the long-term probabilities become completely independent of the starting conditions.
+}
+
+\titledbox{Computing the Stationary Distribution}{
+To compute the \linkterm{stationary distribution}{stationary_distribution_hmm} $S$, we can use the matrix representation of the \linkterm{transition model}{transition_model_hmm} $T$. Because the stationary distribution is a fixed point, passing it through the transition model returns the same distribution.
+
+If we treat the distribution $S$ as a column vector and $T$ is the transition matrix (as defined earlier, where rows sum to 1), then taking the next step involves the transpose of $T$. The stationary distribution satisfies:
+\[
+S = T^T \cdot S
+\]
+\textit{Note: If you were to represent $S$ as a row vector instead, the equation would simply be $S = S \cdot T$.}
+
+To compute $S$ (as a column vector), we solve the system of linear equations:
+\[
+(T^T - I) \cdot S = 0
+\]
+along with the necessary constraint that all probabilities must sum to 1 ($\sum_i S_i = 1$). This means $S$ is an eigenvector of $T^T$ corresponding to the eigenvalue $\lambda = 1$.
+}
+
+\commandnote{
+\linkterm{Markov chains}{markov_chain} are not so useful for most agents, usually we need another ingredient, observations. 
+
+We begin to speak of \textbf{hidden Markov models} (HMMs) when we have an underlying \linkterm{Markov chain}{markov_chain} $X$ that is \textbf{hidden} to us and we \textbf{observe} some \linkterm{evidence}{def:bayesian_terms} $E$ that is affected by that \linkterm{Markov chain}{markov_chain}.
+}
+
+
+\anondefinition{
+We call a \linkterm{stochastic process}{stochastic_process} of \textit{hidden} variables a \defemph{state variable}
+}{state_variable_hmm}
+
+\Example{
+You are a security guard in a secret underground facility, want to know
+it if is raining outside. Your only source of information is whether the director comes in with an umbrella.
+\begin{itemize}
+    \item we have a \linkterm{stochastic process}{stochastic_process} $\text{Rain}_0, \text{Rain}_1, \text{Rain}_2, \cdots$ of \defemph{hidden} variables, and 
+    \item a related \linkterm{stochastic process}{stochastic_process} $\text{Umbrella}_0, \text{Umbrella}_1, \text{Umbrella}_2, \cdots$ of \linkterm{evidence}{def:bayesian_terms} variables.
+\end{itemize}
+And a combined \linkterm{stochastic process}{stochastic_process} $\tuple{\text{Rain}_0, \text{Umbrella}_0}, \tuple{\text{Rain}_1, \text{Umbrella}_1}, \cdots$
+
+\textbf{Note}: $\text{Umbrella}_t$ only depends on $\text{Rain}_t$, not on e.g. $\text{Umbrella}_{t-1}$
+
+We model this as a \linkterm{Bayesian Network}{def:bayes_net}:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2.5cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
+  % Left ellipsis
+  \node at (-1.5, 2) {$\cdots$};
+  
+  % Rain nodes (top row)
+  \node[vertex] (rain_t_1) at (0, 2) {$\text{Rain}_{t-1}$};
+  \node[vertex] (rain_t) at (2.5, 2) {$\text{Rain}_t$};
+  \node[vertex] (rain_t1) at (5, 2) {$\text{Rain}_{t+1}$};
+  
+  % Arrows between rain nodes
+  \draw[arc] (rain_t_1) -- (rain_t);
+  \draw[arc] (rain_t) -- (rain_t1);
+  
+  % Right ellipsis
+  \node at (6.5, 2) {$\cdots$};
+  
+  % Umbrella nodes (bottom row)
+  \node[vertex] (umb_t_1) at (0, 0) {$\text{Umbrella}_{t-1}$};
+  \node[vertex] (umb_t) at (2.5, 0) {$\text{Umbrella}_t$};
+  \node[vertex] (umb_t1) at (5, 0) {$\text{Umbrella}_{t+1}$};
+  
+  % Vertical arrows from rain to umbrella
+  \draw[arc] (rain_t_1) -- (umb_t_1);
+  \draw[arc] (rain_t) -- (umb_t);
+  \draw[arc] (rain_t1) -- (umb_t1);
+\end{tikzpicture}
+\end{figure}
+}{umbrella_example}
+
+\anondefinition{
+We call the \linkterm{conditional probability}{def:conditional_prob} distribution $\probd{E_t \mid X_{0:t}, E_{1:t-1}}$ a \defemph{sensor model}
+}{sensor_model_hmm}
+
+\anondefinition{
+We say that a \linkterm{sensor model}{sensor_model_hmm} has the \defemph{sensor Markov property}, iff $\probd{E_t \mid X_{0:t}, E_{1:t-1}} = \probd{E_t \mid X_t}$, i.e. the \linkterm{sensor model}{sensor_model_hmm} depends only the current state.
+}{sensor_markov_property}
+
+\titledbox{Observation Matrix}{
+If a \linkterm{sensor model}{sensor_model_hmm} has the \linkterm{sensor Markov property}{sensor_markov_property}, we can represent each observation $E_t  =e_t$ at time $t$ as the \textit{diagonal} matrix $O_t$ with $O_{t_{ii}} := P(E_t = e_t \mid X_t = i)$
+}
+
+\anondefinition{
+A pair $\tuple{X,E}$ where $X$ is a \linkterm{stationary}{stationary_hmm} \linkterm{Markov chain}{markov_chain} (hidden state variable), and $E$ has the \linkterm{sensor markov property}{sensor_markov_property} (\linkterm{evidence}{def:bayesian_terms}) is called a (\linkterm{stationary}{stationary_hmm}) \defemph{Hidden Markov Model (HMM)}
+}{hmm}
+
+\Example{
+Our umbrella example (\exampleref{umbrella_example}) is a \linkterm{HMM}{hmm} with the following example \linkterm{transition model}{transition_model_hmm} and \linkterm{sensor model}{sensor_model_hmm}:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
+  % Left ellipsis
+  \node at (-2, 4) {$\cdots$};
+  
+  % Rain nodes (top row)
+  \node[vertex] (rain_t_1) at (0, 4) {$\text{Rain}_{t-1}$};
+  \node[vertex] (rain_t) at (5, 4) {$\text{Rain}_t$};
+  \node[vertex] (rain_t1) at (10, 4) {$\text{Rain}_{t+1}$};
+  
+  % Arrows between rain nodes
+  \draw[arc] (rain_t_1) -- node[above=0.2cm] {
+    \begin{tabular}{|c|c|} \hline
+        $R_{t-1}$ & $P(R_t)$ \\ \hline 
+        $T$ & $0.7$ \\ \hline
+        $F$ & $0.3$ \\ \hline
+    \end{tabular}
+  } (rain_t);
+  \draw[arc] (rain_t) -- (rain_t1);
+  
+  % Right ellipsis
+  \node at (12, 4) {$\cdots$};
+  
+  % Umbrella nodes (bottom row)
+  \node[vertex] (umb_t_1) at (0, 0) {$\text{Umbrella}_{t-1}$};
+  \node[vertex] (umb_t) at (5, 0) {$\text{Umbrella}_t$};
+  \node[vertex] (umb_t1) at (10, 0) {$\text{Umbrella}_{t+1}$};
+  
+  % Vertical arrows from rain to umbrella
+  \draw[arc] (rain_t_1) -- (umb_t_1);
+  \draw[arc] (rain_t) -- node[right=0.2cm] {
+    \begin{tabular}{|c|c|} \hline
+        $R_{t}$ & $P(U_t)$ \\ \hline 
+        $T$ & $0.9$ \\ \hline
+        $F$ & $0.2$ \\ \hline
+    \end{tabular}
+  } (umb_t);
+  \draw[arc] (rain_t1) -- (umb_t1);
+\end{tikzpicture}
+\end{figure}
+}{}
+
+
+\titledbox{Umbrella Matrices}{
+\[
+O_T = \begin{pmatrix}
+0.9 & 0 \\
+0 & 0.2
+\end{pmatrix}
+\qquad
+O_F = \begin{pmatrix}
+0.1 & 0 \\
+0 & 0.8
+\end{pmatrix}
+\qquad
+T = \begin{pmatrix}
+0.7 & 0.3 \\
+0.3 & 0.7
+\end{pmatrix}
+\]
+}
+

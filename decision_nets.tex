@@ -16,16 +16,7 @@ We now know how to update our world model, represented as a \linkterm{set}{def:s
 Given a world model and a \linkterm{set}{def:set} of actions, what are the likely consequences of action?  How good are these consequences? 
 \end{tcolorbox}
 
-\begin{tcolorbox}[
-    enhanced,
-    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
-    colback=green!5!white,      
-    colframe=green!40!black,    
-    colbacktitle=red!80!black,  
-    title=Idea,
-    fonttitle=\bfseries,
-    boxed title style={size=small, colframe=red!50!black}
-]
+\ideabox{
 (1) Represent actions as \textit{special} \linkterm{random variables}{def:random_variable}.
 \begin{itemize}
     \item Given disjoint actions $a_1, \cdots, a_n$, we introduce a \linkterm{random variable}{def:random_variable} $A$ with domain $\set{a_1, \cdots, a_n}$. Then we can query $\probd{X \mid A=a_i}$
@@ -33,7 +24,7 @@ Given a world model and a \linkterm{set}{def:set} of actions, what are the likel
 (2) Assign numerical values to the outcomes of actions, i.e. a \linkterm{function}{function} $\func{u}{\text{dom}(X)}{\mathbb{R}}$
 
 (3) Choose the action that \textbf{maximizes} the \textbf{expected value} if $u$
-\end{tcolorbox}
+}
 
 
 \anondefinition{
@@ -522,11 +513,22 @@ Which means, without any additional information, both actions have the same expe
 ]
 What if someone offered to give us information about where the oil is. What is the value of that information? i.e. How much we are willing to pay to get such information?
 \end{tcolorbox}
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      
+    colframe=green!40!black,    
+    colbacktitle=red!80!black,  
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black}
+]
 Assume we have information that says \textit{the oil location is b} (our \linkterm{evidence}{def:bayesian_terms}), then we get EU of 0 for $D=a$ and we get EU of $K$ for $D=b$ and we will choose to dig in $b$ immediately.
 
-The value of this perfect information is simply what we get with information ($K$) minus we would get without it ($\frac{K}{2}$).
+The value of this perfect information is simply what we get with information ($K$) minus what we would get without it ($\frac{K}{2}$).
 
 \[
 \text{VPI}(E) = \text{MEU}(A \mid E) - \text{MEU}(\emptyset)
 \]
+\end{tcolorbox}
 }{}
