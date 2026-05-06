@@ -361,7 +361,7 @@ Our umbrella example (\exampleref{umbrella_example}) is a \linkterm{HMM}{hmm} wi
   \draw[arc] (rain_t1) -- (umb_t1);
 \end{tikzpicture}
 \end{figure}
-}{}
+}{umbrella_example_full}
 
 
 \titledbox{Umbrella Matrices}{
@@ -586,6 +586,468 @@ We call the inner part of the above expression the \defemph{forward} algorithm:
 \probd{X_t \mid E_{1:t}^{=e}} = 
 \alpha \left(
 O_t \cdot T^T \cdot \probd{X_{t-1} \mid E_{1:t-1}^{=e}}
-\right)
+\right) = f_{1:t}
 \]
 }
+
+\minititle{Filtering the Umbrellas}
+Let's assume we were given the following information:
+\begin{itemize}
+  \item $\probd{R_0} = \tuple{0.5, 0.5}$
+  \item $P(R_{t} \mid R_{t-1}) = 0.6, P(\neg R_{t} \mid \neg R_{t-1}) = 0.8$
+  \item $P(U_{t} \mid R_{t}) = 0.9, P(\neg U_{t} \mid \neg R_{t}) = 0.85$
+\end{itemize}
+
+From that, we can infer: 
+\begin{itemize}
+  \item $P(\neg R_{t} \mid R_{t-1}) = 0.4$
+  \item $P(R_{t} \mid \neg R_{t-1}) = 0.2$
+  \item $P(\neg U_{t} \mid R_{t}) = 0.1$
+  \item $P(U_{t} \mid \neg R_{t}) = 0.15$
+\end{itemize}
+
+Hence, we construct the matrices:
+\[
+O_T = \begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\qquad
+O_F = \begin{pmatrix}
+0.1 & 0 \\
+0 & 0.85
+\end{pmatrix}
+\qquad
+T = \begin{pmatrix}
+0.6 & 0.4 \\
+0.2 & 0.8
+\end{pmatrix}
+\]
+
+Assume that the director carries an umbrella on days $1$ and $2$, and not on day $3$, hence:
+\[
+O_1 = O_2 = O_T = \begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\qquad
+O_3 = O_F = \begin{pmatrix}
+0.1 & 0 \\
+0 & 0.85
+\end{pmatrix}
+\]
+
+Remember:
+\[
+\probd{X_t \mid E_{1:t}^{=e}} = 
+\alpha \left(
+O_t \cdot T^T \cdot \probd{X_{t-1} \mid E_{1:t-1}^{=e}}
+\right) = f_{1:t}
+\]
+
+\commandnote{
+Throughout these calculations, our state vector order is fixed: the top value represents the probability of Rain ($R_t$) and the bottom value represents the probability of No Rain ($\neg R_t$). i.e. $\begin{pmatrix} P(R_t \mid E_{1:t}) \\ P(\neg R_t \mid E_{1:t}) \end{pmatrix}$. This is because of how we initially constructed the transition and observation matrices.
+}
+
+For $t=1$, we have:
+\begin{align*}
+f_{1:1} &= \alpha \left( O_1 \cdot T^T \cdot \probd{R_0} \right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+0.6 & 0.2 \\
+0.4 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.5 \\
+0.5
+\end{pmatrix}
+\right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+(0.6 \cdot 0.5) + (0.2 \cdot 0.5) \\
+(0.4 \cdot 0.5) + (0.8 \cdot 0.5)
+\end{pmatrix}
+\right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+0.4 \\
+0.6
+\end{pmatrix}
+\right) \\
+&= \alpha 
+\begin{pmatrix}
+0.9 \cdot 0.4 \\
+0.15 \cdot 0.6
+\end{pmatrix} \\
+&= \alpha 
+\begin{pmatrix}
+0.36 \\
+0.09
+\end{pmatrix} \\
+&= \frac{1}{0.36 + 0.09} \begin{pmatrix} 0.36 \\ 0.09 \end{pmatrix} = \begin{pmatrix} \frac{0.36}{0.45} \\ \frac{0.09}{0.45} \end{pmatrix} \\
+&= \begin{pmatrix} 0.8 \\ 0.2 \end{pmatrix}
+\end{align*}
+
+For $t=2$, we have:
+\begin{align*}
+f_{1:2} &= \alpha \left( O_2 \cdot T^T \cdot f_{1:1} \right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+0.6 & 0.2 \\
+0.4 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.8 \\
+0.2
+\end{pmatrix}
+\right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+(0.6 \cdot 0.8) + (0.2 \cdot 0.2) \\
+(0.4 \cdot 0.8) + (0.8 \cdot 0.2)
+\end{pmatrix}
+\right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+0.52 \\
+0.48
+\end{pmatrix}
+\right) \\
+&= \alpha 
+\begin{pmatrix}
+0.9 \cdot 0.52 \\
+0.15 \cdot 0.48
+\end{pmatrix} \\
+&= \alpha 
+\begin{pmatrix}
+0.468 \\
+0.072
+\end{pmatrix} \\
+&= \frac{1}{0.468 + 0.072} \begin{pmatrix} 0.468 \\ 0.072 \end{pmatrix} = \begin{pmatrix} \frac{0.468}{0.54} \\ \frac{0.072}{0.54} \end{pmatrix} \\
+&\approx \begin{pmatrix} 0.867 \\ 0.133 \end{pmatrix}
+\end{align*}
+
+For $t=3$, the director did \textit{not} bring an umbrella, so we use $O_3 = O_F$:
+\begin{align*}
+f_{1:3} &= \alpha \left( O_3 \cdot T^T \cdot f_{1:2} \right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.1 & 0 \\
+0 & 0.85
+\end{pmatrix}
+\begin{pmatrix}
+0.6 & 0.2 \\
+0.4 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.867 \\
+0.133
+\end{pmatrix}
+\right) \\
+&= \alpha \left( 
+\begin{pmatrix}
+0.1 & 0 \\
+0 & 0.85
+\end{pmatrix}
+\begin{pmatrix}
+(0.6 \cdot 0.867) + (0.2 \cdot 0.133) \\
+(0.4 \cdot 0.867) + (0.8 \cdot 0.133)
+\end{pmatrix}
+\right) \\
+&\approx \alpha \left( 
+\begin{pmatrix}
+0.1 & 0 \\
+0 & 0.85
+\end{pmatrix}
+\begin{pmatrix}
+0.547 \\
+0.453
+\end{pmatrix}
+\right) \\
+&= \alpha 
+\begin{pmatrix}
+0.1 \cdot 0.547 \\
+0.85 \cdot 0.453
+\end{pmatrix} \\
+&\approx \alpha 
+\begin{pmatrix}
+0.055 \\
+0.385
+\end{pmatrix} \\
+&= \frac{1}{0.055 + 0.385} \begin{pmatrix} 0.055 \\ 0.385 \end{pmatrix} = \begin{pmatrix} \frac{0.055}{0.440} \\ \frac{0.385}{0.440} \end{pmatrix} \\
+&\approx \begin{pmatrix} 0.125 \\ 0.875 \end{pmatrix}
+\end{align*} 
+
+\redbox{
+At day $3$, there is a $12.5\%$ chance it is raining, and an $87.5\%$ it is not raining.
+}
+
+\minititle{Prediction}
+\ideabox{
+\linkterm{Prediction}{markov_inference} is \linkterm{filtering}{markov_inference} without new \linkterm{evidence}{def:bayesian_terms}, i.e. we can use \linkterm{filtering}{markov_inference} until $t$, and then continue as follows:
+}
+\[
+\probd{X_{t+k} \mid E_{1:t}^{=e}} = \sum_{x}
+\probd{X_{t+k} \mid X_{t+k-1} = x} \cdot 
+P(X_{t+k-1} = x \mid E_{1:t}^{=e})
+\]
+
+\commandnote{By recursively applying this formula $k$ times, starting from our current filtered belief state $\probd{X_t \mid E_{1:t}^{=e}}$, we can predict $k$ steps into the future.}
+
+\titledbox{Prediction Matrix Notation}{
+\[
+\probd{X_{t+k} \mid E_{1:t}^{=e}} = T^T \cdot \probd{X_{t+k-1} \mid E_{1:t}^{=e}}
+\]
+}
+
+\minititle{Smoothing Derivation}
+\ideabox{
+\linkterm{Smoothing}{markov_inference} computes $\probd{X_{t-k} \mid E_{1:t}^{=e}}$ for $k > 0$. The intuition is to split the evidence into two independent parts: the past/current evidence up to the target state ($E_{1:t-k}$) and the future evidence after the target state ($E_{t-k+1:t}$). We then compute a forward filtering pass up to time $t-k$, and a backward pass from time $t$ down to $t-k$.
+}
+
+\textbf{Step 1: Divide the Evidence (Product Rule)} \\
+We want to find our belief about state $X_{t-k}$ given all evidence $E_{1:t}$. Let's divide the evidence at the target state:
+$E_{1:t} = E_{1:t-k}, E_{t-k+1:t}$
+
+\begin{align*}
+\probd{X_{t-k} \mid E_{1:t-k}, E_{t-k+1:t}} &= \frac{\probd{X_{t-k}, E_{t-k+1:t}, E_{1:t-k}}}{\probd{E_{t-k+1:t}, E_{1:t-k}}}
+\end{align*}
+
+We apply the product rule to the numerator ($\probd{A, B, C} = \probd{A \mid B, C} \cdot \probd{B \mid C} \cdot \probd{C}$) and denominator ($\probd{A, B} = \probd{A \mid B} \cdot \probd{B}$), keeping $E_{1:t-k}$ as the conditioning context:
+\begin{align*}
+\probd{X_{t-k} \mid E_{1:t}} &= \frac{\probd{E_{t-k+1:t} \mid X_{t-k}, E_{1:t-k}} \cdot \probd{X_{t-k} \mid E_{1:t-k}} \cdot \probd{E_{1:t-k}}}{\probd{E_{t-k+1:t} \mid E_{1:t-k}} \cdot \probd{E_{1:t-k}}}
+\end{align*}
+
+we cancel out $\probd{E_{1:t-k}}$ and replace the normalizing denominator with $\alpha$:
+\begin{align*}
+\probd{X_{t-k} \mid E_{1:t}} &= \alpha \Big( \probd{E_{t-k+1:t} \mid X_{t-k}, E_{1:t-k}} \cdot \probd{X_{t-k} \mid E_{1:t-k}} \Big)
+\end{align*}
+
+\textbf{Step 2: Apply Conditional Independence} \\
+By the \linkterm{Markov property}{markov_chain}, if we lock in our knowledge of the target state $X_{t-k}$, then the future evidence $E_{t-k+1:t}$ becomes independent of the past evidence $E_{1:t-k}$. (We say the state $X_{t-k}$ "$d$-separates" the past and future). Thus, we drop the past evidence from the conditional:
+\begin{align*}
+\probd{E_{t-k+1:t} \mid X_{t-k}, E_{1:t-k}} &= \probd{E_{t-k+1:t} \mid X_{t-k}}
+\end{align*}
+
+Substituting this back gives us the foundational equation for smoothing:
+\begin{tcolorbox}[ams equation*,colback=yellow!10!white,colframe=red!50!black]
+\probd{X_{t-k} \mid E_{1:t}} = \alpha \Big( \underbrace{\probd{E_{t-k+1:t} \mid X_{t-k}}}_{\text{backward message } b_{t-k+1:t}} \cdot \underbrace{\probd{X_{t-k} \mid E_{1:t-k}}}_{\text{forward message } f_{1:t-k}} \Big)
+\end{tcolorbox}
+Notice that the second term is exactly our \linkterm{filtering}{markov_inference} formula result! We call this the \textbf{forward message} $f_{1:t-k}$.
+The first term is a new concept, denoting the probability of observing all upcoming future evidence given the target state. We formally define this as the \textbf{backward message} $b_{t-k+1:t}$.
+
+\textbf{Step 3: Deriving the Backward Message Recursion} \\
+Let $b_{m:t} = \probd{E_{m:t} \mid X_{m-1}}$ be a generic backward message representing future evidence $E_{m:t}$ given the state immediately preceding it ($X_{m-1}$).
+We want to recursively express this in terms of the next state down the line, $X_m$. We do this by \linkterm{marginalizing}{def:marginalization} over all possible values of $X_m$:
+\begin{align*}
+\probd{E_{m:t} \mid X_{m-1}} &= \sum_{x \in \text{dom}(X)} \probd{E_{m:t}, X_m = x \mid X_{m-1}}
+\end{align*}
+
+To split the inner joint probability, we apply the definition of conditional probability ($\probd{A, B \mid C} = \frac{\probd{A, B, C}}{\probd{C}}$) and then use the product rule on the numerator ($\probd{A, B, C} = \probd{A \mid B, C} \cdot \probd{B, C}$):
+\begin{align*}
+\probd{E_{m:t}, X_m = x \mid X_{m-1}} &= \frac{\probd{E_{m:t}, X_m = x, X_{m-1}}}{\probd{X_{m-1}}} \\
+&= \frac{\probd{E_{m:t} \mid X_m = x, X_{m-1}} \cdot \probd{X_m = x, X_{m-1}}}{\probd{X_{m-1}}}
+\end{align*}
+
+Since $\frac{\probd{X_m = x, X_{m-1}}}{\probd{X_{m-1}}} = \probd{X_m = x \mid X_{m-1}}$ (by definition of conditional probability again), substituting this back gives us the conditionalized product rule:
+\begin{align*}
+\probd{E_{m:t} \mid X_{m-1}} &= \sum_{x \in \text{dom}(X)} \probd{E_{m:t} \mid X_m = x, X_{m-1}} \cdot \probd{X_m = x \mid X_{m-1}}
+\end{align*}
+
+Next, we split the future evidence $E_{m:t}$ into purely the current observation $E_m$ and the remaining future observations $E_{m+1:t}$:
+\begin{align*}
+&= \sum_{x \in \text{dom}(X)} \probd{E_m, E_{m+1:t} \mid X_m = x, X_{m-1}} \cdot \probd{X_m = x \mid X_{m-1}}
+\end{align*}
+
+First, by the \linkterm{Markov property}{markov_chain}, future observations ($E_{m:t}$) are conditionally independent of the past state $X_{m-1}$ given the current state $X_m$. In other words, knowing the current state completely shields the future from the past. We can thus safely drop $X_{m-1}$ from the conditioning:
+\begin{align*}
+&= \sum_{x \in \text{dom}(X)} \probd{E_m, E_{m+1:t} \mid X_m = x} \cdot \probd{X_m = x \mid X_{m-1}}
+\end{align*}
+
+Next, we must separate the joint probability $\probd{E_m, E_{m+1:t} \mid X_m = x}$. Unpacking this completely using the definition of conditional probability ($\probd{A, B \mid C} = \frac{\probd{A, B, C}}{\probd{C}}$) gives:
+\begin{align*}
+\probd{E_m, E_{m+1:t} \mid X_m = x} &= \frac{\probd{E_{m+1:t}, E_m, X_m = x}}{\probd{X_m = x}}
+\end{align*}
+
+We apply the standard product rule to the numerator ($\probd{A, B, C} = \probd{A \mid B, C} \cdot \probd{B, C}$):
+\begin{align*}
+&= \frac{\probd{E_{m+1:t} \mid E_m, X_m = x} \cdot \probd{E_m, X_m = x}}{\probd{X_m = x}}
+\end{align*}
+
+And applying the definition of conditional probability once more on the remaining fraction ($\frac{\probd{A, B}}{\probd{B}} = \probd{A \mid B}$):
+\begin{align*}
+&= \probd{E_{m+1:t} \mid E_m, X_m = x} \cdot \probd{E_m \mid X_m = x}
+\end{align*}
+
+Finally, we recognize that the current evidence $E_m$ and future evidence $E_{m+1:t}$ are conditionally independent given the current state $X_m$ (because the sensor model depends solely on the immediate state). Due to this conditional independence, knowing $E_m$ provides no extra information about $E_{m+1:t}$ if we already know $X_m$, so we can drop $E_m$ from the second term:
+\begin{align*}
+\probd{E_m, E_{m+1:t} \mid X_m = x} &= \probd{E_m \mid X_m = x} \cdot \probd{E_{m+1:t} \mid X_m = x}
+\end{align*}
+
+Substituting this fully separated expression back into our main summation yields:
+\begin{align*}
+&= \sum_{x \in \text{dom}(X)} \probd{E_m \mid X_m = x} \cdot \probd{E_{m+1:t} \mid X_m = x} \cdot \probd{X_m = x \mid X_{m-1}}
+\end{align*}
+
+Rearranging these terms, we see the recursive relationship emerges beautifully:
+\begin{align*}
+b_{m:t} &= \sum_{x \in \text{dom}(X)} \underbrace{\probd{E_m \mid X_m = x}}_{\text{sensor model}} \cdot \underbrace{\probd{E_{m+1:t} \mid X_m = x}}_{\text{next backward msg } b_{m+1:t}} \cdot \underbrace{\probd{X_m = x \mid X_{m-1}}}_{\text{transition model}}
+\end{align*}
+
+If we substitute our target $m = t-k+1$, we get the recursive definition:
+\begin{align*}
+b_{t-k+1:t} &= \sum_{x \in \text{dom}(X)} \probd{E_{t-k+1} = e_{t-k+1} \mid X_{t-k+1}=x} \cdot b_{t-k+2:t} \cdot \probd{X_{t-k+1} = x \mid X_{t-k}}
+\end{align*}
+
+\commandnote{As a starting point for the backward recursion at time $t$, we let $b_{t+1:t}$ be the explicit uniform vector with $1$ in every component, since there is no evidence after $t$.}
+
+\titledbox{Backward Algorithm Matrix Notation}{
+The generic backward message recursion algorithm represented as matrix multiplication is:
+\[
+b_{t-k+1:t} = T \cdot O_{t-k+1} \cdot b_{t-k+2:t}
+\]
+Notice that we evaluate using $T$, not $T^T$ like we do in forward filtering.
+}
+
+\titledbox{Smoothing Final Algorithm Matrix Notation}{
+Combining the forward and backward passes, the full \textbf{smoothing algorithm} becomes:
+\[
+\probd{X_{t-k} \mid E_{1:t}^{=e}} = \alpha \left( f_{1:t-k} \times b_{t-k+1:t} \right)
+\]
+Where $\times$ denotes component-wise (Hadamard) vector multiplication.
+}
+
+\minititle{Smoothing Umbrellas}
+Using \linkterm{filtering}{markov_inference} we already calculated 
+\[
+f_{1:1} = \begin{pmatrix} 0.8 \\ 0.2 \end{pmatrix}, 
+f_{1:2} = \begin{pmatrix} 0.867 \\ 0.133 \end{pmatrix}, 
+f_{1:3} = \begin{pmatrix} 0.125 \\ 0.875 \end{pmatrix} 
+\]
+
+Let's compute our smoothed belief for day 1 ($k=2$):
+\[
+\probd{R_1 \mid E_{1:3}} = \probd{R_1 \mid U_1 = T, U_2 = T, U_3 = F} = \alpha (f_{1:1} \times b_{2:3})
+\]
+
+For that, we need to compute $b_{2:3}$ and $b_{3:3}$ using the backward algorithm: $b_{m:t} = T \cdot O_m \cdot b_{m+1:t}$.
+The base case at time $t=3$ is $b_{4:3} = \begin{pmatrix} 1 \\ 1 \end{pmatrix}$.
+
+\textbf{1. Calculate backward message $b_{3:3}$}
+\begin{align*}
+b_{3:3} &= T \cdot O_3 \cdot b_{4:3} \\
+&= \begin{pmatrix}
+0.6 & 0.4 \\
+0.2 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.1 & 0 \\
+0 & 0.85
+\end{pmatrix}
+\begin{pmatrix}
+1 \\ 
+1
+\end{pmatrix} \\
+&= \begin{pmatrix}
+0.6 & 0.4 \\
+0.2 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.1 \\
+0.85
+\end{pmatrix} \\
+&= \begin{pmatrix}
+(0.6 \cdot 0.1) + (0.4 \cdot 0.85) \\
+(0.2 \cdot 0.1) + (0.8 \cdot 0.85)
+\end{pmatrix}
+= \begin{pmatrix}
+0.06 + 0.34 \\
+0.02 + 0.68
+\end{pmatrix}
+= \begin{pmatrix}
+0.4 \\
+0.7
+\end{pmatrix}
+\end{align*}
+
+\textbf{2. Calculate backward message $b_{2:3}$}
+\begin{align*}
+b_{2:3} &= T \cdot O_2 \cdot b_{3:3} \\
+&= \begin{pmatrix}
+0.6 & 0.4 \\
+0.2 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.9 & 0 \\
+0 & 0.15
+\end{pmatrix}
+\begin{pmatrix}
+0.4 \\ 
+0.7
+\end{pmatrix} \\
+&= \begin{pmatrix}
+0.6 & 0.4 \\
+0.2 & 0.8
+\end{pmatrix}
+\begin{pmatrix}
+0.36 \\
+0.105
+\end{pmatrix} \\
+&= \begin{pmatrix}
+(0.6 \cdot 0.36) + (0.4 \cdot 0.105) \\
+(0.2 \cdot 0.36) + (0.8 \cdot 0.105)
+\end{pmatrix}
+= \begin{pmatrix}
+0.216 + 0.042 \\
+0.072 + 0.084
+\end{pmatrix}
+= \begin{pmatrix}
+0.258 \\
+0.156
+\end{pmatrix}
+\end{align*}
+
+\textbf{3. Combine Forward and Backward messages} \\
+Now we take our forward filtered probability for day 1 ($f_{1:1}$) and element-wise multiply ($\times$) it with the backward message from the future ($b_{2:3}$):
+\begin{align*}
+\probd{R_1 \mid E_{1:3}} &= \alpha \left( f_{1:1} \times b_{2:3} \right) \\
+&= \alpha \left( 
+\begin{pmatrix} 0.8 \\ 0.2 \end{pmatrix} 
+\times 
+\begin{pmatrix} 0.258 \\ 0.156 \end{pmatrix} 
+\right) \\
+&= \alpha \begin{pmatrix} 0.8 \cdot 0.258 \\ 0.2 \cdot 0.156 \end{pmatrix} \\
+&= \alpha \begin{pmatrix} 0.2064 \\ 0.0312 \end{pmatrix}
+\end{align*}
+
+Calculating the normalization constant $\alpha = \frac{1}{0.2064 + 0.0312} = \frac{1}{0.2376} \approx 4.2088$:
+\begin{align*}
+\probd{R_1 \mid E_{1:3}} &\approx 4.2088 \cdot \begin{pmatrix} 0.2064 \\ 0.0312 \end{pmatrix} \\
+&\approx \begin{pmatrix} 0.8687 \\ 0.1313 \end{pmatrix}
+\end{align*}
+
+\commandnote{Compare this with the original filtered probability for day $1$ ($f_{1:1} = \langle 0.8, 0.2 \rangle$). Given that the director brought an umbrella on day $2$, it made sense in hindsight that it was even more likely to be raining on day $1$ ($86.87\%$ vs $80\%$).}
