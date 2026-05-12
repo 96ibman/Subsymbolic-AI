@@ -1051,3 +1051,20 @@ Calculating the normalization constant $\alpha = \frac{1}{0.2064 + 0.0312} = \fr
 \end{align*}
 
 \commandnote{Compare this with the original filtered probability for day $1$ ($f_{1:1} = \langle 0.8, 0.2 \rangle$). Given that the director brought an umbrella on day $2$, it made sense in hindsight that it was even more likely to be raining on day $1$ ($86.87\%$ vs $80\%$).}
+
+\definition{Dynamic Bayesian Networks (DBN)}{
+A \linkterm{Bayesian Network}{def:bayes_net} $\mathcal{D}$ is called \defemph{dynamic} iff its \linkterm{random variables}{def:random_variable} are \linkterm{indexed}{indexing_function} by a time structure. We assume $\mathcal{D}$ is:
+\begin{itemize}
+  \item \defemph{time sliced}, i.e. that the \defemph{time slices} $\mathcal{D}_t$ - the subgraphs of $t$-indexed \linkterm{random variables}{def:random_variable} and the edges between them - are \linkterm{isomorphic}{graph_isomorphism}.
+  \item a \linkterm{stationary}{stationary_hmm} \linkterm{Markov chain}{markov_chain}, i.e. that variables $X_t$ can only have parents in $\mathcal{D}_t$ and $\mathcal{D}_{t-1}$
+\end{itemize}
+}{DBN}
+
+\observationbox{
+\begin{itemize}
+  \item Every \linkterm{HMM}{hmm} is a single-variable \linkterm{DBN}{DBN} \hfill \textit{(trivially)}
+  \item Every \linkterm{DBN}{DBN} can be turned into an \linkterm{HMM}{hmm} \hfill \textit{(combine variables into tuple} $\leadsto$ \textit{lose information about dependencies)}
+  \item \linkterm{DBNs}{DBN} have sparse dependencies $\leadsto$ exponentially fewer parameters
+\end{itemize}
+}
+
