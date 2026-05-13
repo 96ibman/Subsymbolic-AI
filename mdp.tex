@@ -307,6 +307,10 @@ Once these \linkterm{utilities}{state_utility_mdp} are known, the \linkterm{opti
 \]
 }{optimal_action_mdp}
 
+\redbox{
+Given the \linkterm{true utilities}{state_utility_mdp}, we can compute the \linkterm{optimal policy}{optimal_action_mdp} and vice versa.
+}
+
 \Example{
 Assume we know the \linkterm{utilities}{state_utility_mdp} of our grid world:
 \begin{figure}[H]
@@ -346,3 +350,518 @@ Therefore:
 \pi^{*}((3,4)) &= \argmax{a \in \set{\text{N, S, E, W}}} \left( \sum_{s'} P(s' \mid s, a) \cdot U(s') \right) = W
 \end{align*}
 }{}
+
+\questionbox{
+How to compute these \linkterm{utilities}{state_utility_mdp} without knowing the \linkterm{optimal policy}{optimal_policy_mdp}?
+}
+
+\observationbox{
+The expected sum of \linkterm{rewards}{MDP} = current \linkterm{reward}{MDP} + $\gamma \cdot$ expected \linkterm{reward}{MDP} sum after taking the \linkterm{optimal action}{optimal_action_mdp}
+}
+
+\centeredtitledbox{Bellman Equation}{
+\Theorem{
+\[
+U(s) := R(s) + \gamma \cdot \max_{a \in \mathcal{A}_s} \sum_{s'} U(s') \cdot P(s' \mid s, a) 
+\]
+}{bellman_equation}
+}
+
+\Example{
+Assume our grid world with $R(s)=-0.04$. Then the utility for, e.g. $(1,1)$ is:
+\begin{align*}
+U(s) &:= R(s) + \gamma \cdot \max_{a \in \mathcal{A}_s} \sum_{s'} U(s') \cdot P(s' \mid s, a) \\
+U((1,1)) &:= R((1,1)) + \gamma \cdot \max_{a \in \set{N, S, E, W}} \sum_{s'} U(s') \cdot P(s' \mid (1,1), a) \\
+&:= -0.04 + \gamma \cdot \max_{a \in \set{N, S, E, W}} \sum_{s'} U(s') \cdot P(s' \mid (1,1), a) \\[1ex]
+% Merged second block
+U(1,1) &= -0.04 + \gamma \cdot \max \{ \\
+&\quad 0.8U(1,2) + 0.1U(2,1) + 0.1U(1,1), && \textit{North} \\
+&\quad 0.9U(1,1) + 0.1U(1,2), && \textit{West} \\
+&\quad 0.9U(1,1) + 0.1U(2,1), && \textit{South} \\
+&\quad 0.8U(2,1) + 0.1U(1,2) + 0.1U(1,1) \} && \textit{East}
+\end{align*}
+}{}
+
+\redbox{
+\textbf{The Computational Challenge}: The Bellman equations are inherently \textbf{nonlinear} due to the $\max$ operator. This coupling, combined with a high-dimensional state space, renders direct analytical solutions via standard Linear Algebra \textbf{intractable}.
+}
+
+\ideabox{
+Solve iteratively using e.g., dynamic programming:
+\begin{itemize}
+    \item Start with arbitrary \linkterm{utility}{state_utility_mdp} values 
+    \item At every iteration, update the \linkterm{utility}{state_utility_mdp} values for each state using the values from the previous iteration 
+    \item Keep iterating until convergence $\leadsto$ every $s$, eventually will have the true $U(s)$
+\end{itemize}
+}
+
+\anondefinition{
+\centeredtitledbox{Value Iteration}{
+\[
+U_{i+1}(s) \leftarrow R(s) + \gamma \cdot \max_{a \in \mathcal{A}_s} \sum_{s'} U_i(s') \cdot P(s' \mid s, a) 
+\]
+
+\[
+\text{Terminate when}\qquad \max_{s \in S} \abs{U_i(s) - U_{i+1}(s)} \qquad \text{is small enough}
+\]
+}
+}{value_iteration}
+
+\anondefinition{
+The \textbf{maximum norm} is defined as $\|U\| = \max_{s} |U(s)|$. Consequently, $\|U - V\|$ represents the maximum difference between $U$ and $V$.  
+}{maximum_norm}
+
+\Example{
+Consider a state space $S = \{s_1, s_2, s_3\}$ with the following utility values:
+\[ U = \begin{bmatrix} 2 \\ -5 \\ 4 \end{bmatrix} \]
+
+To find the maximum norm $\|U\|$, we calculate the absolute value for each state and select the largest:
+\begin{align*}
+\|U\| &= \max_{s \in S} |U(s)| \\
+&= \max(\abs{2}, \abs{-5}, \abs{4}) \\
+&= \max(2, 5, 4) \\
+&= 5
+\end{align*}
+\redbox{
+The maximum norm is $5$ because $-5$ is the value furthest from zero in this vector.
+}
+}{}
+
+\Example{
+Consider two utility vectors $U$ and $V$ for the state space $S = \{s_1, s_2, s_3\}$:
+\[ U = \begin{bmatrix} 10 \\ 2 \\ 5 \end{bmatrix}, \quad V = \begin{bmatrix} 7 \\ 2 \\ 8 \end{bmatrix} \]
+
+To find $\|U - V\|$, we find the maximum absolute difference across all states:
+\begin{align*}
+\|U - V\| &= \max_{s \in S} |U(s) - V(s)| \\
+&= \max(|10 - 7|, |2 - 2|, |5 - 8|) \\
+&= \max(|3|, |0|, \abs{-3}) \\
+&= \max(3, 0, 3) \\
+&= 3
+\end{align*}
+
+\redbox{
+This value represents the largest "error" or shift between the two approximations.
+}
+}{}
+
+\Theorem{
+Let $U^t$ and $U^{t+1}$ be successive approximations to the \linkterm{true utility}{state_utility_mdp} vector $U$ during \linkterm{value iteration}{value_iteration}. Then for any two approximations $U^t$, $V^t$ we have:
+\[
+\|U^{t+1} - V^{t+1}\| \leq \gamma \|U^{t} - V^{t}\|
+\]
+
+where:
+\begin{itemize}
+    \item $U, V \in \mathbb{R}^{|S|}$ are vectors where each component $U(s)$ represents the expected long-term reward from state $s$.
+    \item $\|U - V\|$ is the "distance" between these two utility estimates.
+\end{itemize}
+$\leadsto$ The update rule ensures that $U$ and $V$ move closer together at a rate defined by the discount factor $\gamma$.
+}{thm:contraction_mapping}
+
+\commandnote{
+\begin{itemize}
+\item That means, any distinct approximations get closer to each other over time. 
+\item In our case, they get closer to the \linkterm{true utility}{state_utility_mdp} vector $U$
+\item Consequently, \linkterm{value iteration}{value_iteration} converges to a unique, stable, optimal solution 
+\end{itemize}
+}
+
+\Theorem{
+If $\norm{U^{t+1} - U^t} < \epsilon$, then:
+\[
+\norm{U^{t+1} - U} < \frac{2 \epsilon  \gamma}{1-\gamma} 
+\]
+}{thm:bellman_error_bound}
+
+\commandnote{
+\begin{itemize}
+    \item In practice, we cannot check the distance to the \linkterm{true utility}{state_utility_mdp} vector $U$ because it is unknown. We can only check the change between steps: $\|U^{t+1} - U^t\|$.
+    \item \Thmref{thm:contraction_mapping} guarantees that if the change in the last step is less than $\epsilon$, then the absolute error from the optimal solution is no larger than $\frac{2\epsilon\gamma}{1-\gamma}$.
+    \item As the discount factor $\gamma$ approaches $1$, the denominator $(1-\gamma)$ becomes very small, which makes the error bound much larger. This reflects how "far-sighted" problems are harder to converge.
+    \item This allows me to pre-calculate a stopping threshold $\epsilon$ to ensure the final result is within a desired accuracy range.
+\end{itemize}
+}
+
+\ideabox{
+To bridge the gap between theory and code, we use a specific termination condition in the \linkterm{value iteration}{value_iteration} algorithm:
+\begin{itemize}
+    \item We want the final error to be small, specifically $\|U^{t+1} - U\| < \epsilon$.
+    \item During the loop, we track $\delta = \|U^{t+1} - U^t\|$, which is the change between the current and previous guess.
+    \item Based on \Thmref{thm:bellman_error_bound}, if we want the true error to be less than $\epsilon$, we must iterate until our observed change $\delta$ satisfies:
+    \[
+    \delta < \epsilon \frac{(1 - \gamma)}{\gamma}
+    \]
+    \item As the discount factor $\gamma$ gets closer to 1, the value $(1-\gamma)$ becomes very small. This forces the algorithm to wait until $\delta$ is extremely tiny, ensuring that even small "leftover" changes don't accumulate into a large error over an infinite time horizon.
+\end{itemize}
+}
+
+\anondefinition{
+The \defemph{Value Iteration Algorithm} is given by \Algref{alg:value_iteration}
+}{value_iteration_alg}
+
+\begin{algorithm}[H]
+\caption{Value Iteration}
+\label{alg:value_iteration}
+\begin{algorithmic}[1]
+\Function{Value-Iteration}{$mdp, \epsilon$}
+    \State \textbf{inputs}: $mdp$, an MDP with states $S$, actions $A(s)$, transition model $P(s' \mid s, a)$, rewards $R(s)$, discount $\gamma$
+    \State \textbf{inputs}: $\epsilon$, the maximum error allowed in the utility of any state
+    \State \textbf{local variables}: $U, U'$, vectors of utilities for states in $S$, initially zero
+    \State \textbf{local variables}: $\delta$, the maximum change in the utility of any state in an iteration
+    \Repeat
+        \State $U \gets U'$
+        \State $\delta \gets 0$
+        \For{each state $s$ in $S$}
+            \State $U'[s] \gets R(s) + \gamma \cdot \max_{a \in A(s)} \sum_{s'} P(s' \mid s, a) U[s']$
+            \If{$|U'[s] - U[s]| > \delta$}
+                \State $\delta \gets |U'[s] - U[s]|$
+            \EndIf
+        \EndFor
+    \Until{$\delta < \epsilon(1 - \gamma) / \gamma$}
+    \State \Return $U$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\Example{
+Assume again our grid world. We will use $\gamma=1$ (\linkterm{additive rewards}{discounted_rewards}) for simplicity and $R(s)=-0.04$. We start with $U_0(s)=0$, we want to iterate twice to calculate $U_1((3,2))$, $U_1((3,3))$, $U_2((3,2))$ and $U_2((3,3))$:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{images/u_0.png}
+\caption{$U_0$}
+\end{figure}
+
+\begin{align*}
+U_{i+1}(s) &\leftarrow R(s) + \gamma \cdot \max_{a} \sum_{s'} U_i(s') \cdot P(s' \mid s, a) \\ 
+U_{1}(s_{3,2}) &\leftarrow R(s_{3,2}) + 1 \cdot \max_{a} \sum_{s'} U_0(s') \cdot P(s' \mid s_{3,2}, a) \\ 
+U_{1}(s_{3,2}) &\leftarrow -0.04 + 1 \cdot \max_{a} \sum_{s'} U_0(s') \cdot P(s' \mid s_{3,2}, a) \\
+&\leftarrow -0.04 + \max \{ \\
+&0 \cdot 0.8 + -1 \cdot 0.1 + 0 \cdot 0.1, && \text{North} \\
+&-1 \cdot 0.8 + 0 \cdot 0.1 + 0 \cdot 0.1, && \text{East} \\
+&0 \cdot 0.8 + 0 \cdot 0.1 + 0 \cdot 0.1, && \text{West} \\
+&0 \cdot 0.8 + -1 \cdot 0.1 + 0 \cdot 0.1\} && \text{South} \\
+U_{1}(s_{3,2}) &\leftarrow -0.04 + \max \set{-0.1, -0.8, 0, -0.1} \\
+U_{1}(s_{3,2}) &\leftarrow -0.04 + 0 \\ 
+U_{1}(s_{3,2}) &\leftarrow -0.04
+\end{align*}
+
+\begin{align*}
+U_{1}(s_{3,3}) &\leftarrow -0.04 + 1 \cdot \max_{a} \sum_{s'} U_0(s') \cdot P(s' \mid s_{3,3}, a) \\
+&\leftarrow -0.04 + \max \{ \\
+&0 \cdot 0.8 + 1 \cdot 0.1 + 0 \cdot 0.1, && \text{North} \\
+&1 \cdot 0.8 + 0 \cdot 0.1 + 0 \cdot 0.1, && \text{East} \\
+&0 \cdot 0.8 + 0 \cdot 0.1 + 0 \cdot 0.1, && \text{West} \\
+&0 \cdot 0.8 + 1 \cdot 0.1 + 0 \cdot 0.1\} && \text{South} \\
+U_{1}(s_{3,3}) &\leftarrow -0.04 + \max \set{0.1, 0.8, 0, 0.1} \\
+U_{1}(s_{3,3}) &\leftarrow -0.04 + 0.8 \\ 
+U_{1}(s_{3,3}) &\leftarrow 0.76
+\end{align*}
+
+\commandnote{
+For the first iteration, the only state that will have a positive \linkterm{utility}{state_utility_mdp} is the one that is adjacent to the state where $R(s) = +1$. For every other state, one step will not take us to that state, hence, we will end up having $U(s) = R(s) = -0.04$ for every other state.
+}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{images/u_1.png}
+\caption{$U_1$}
+\end{figure}
+
+\redbox{
+To generalize, If we are calculating the \linkterm{utility}{state_utility_mdp} estimate for iteration $i$, only the states that can reach the "$+1$" state in $i$ steps or less will have a positive estimate of \linkterm{utility}{state_utility_mdp}.
+}
+
+\begin{align*}
+U_{i+1}(s) &\leftarrow R(s) + \gamma \cdot \max_{a} \sum_{s'} U_i(s') \cdot P(s' \mid s, a) \\ 
+U_{2}(s_{3,2}) &\leftarrow R(s_{3,2}) + 1 \cdot \max_{a} \sum_{s'} U_1(s') \cdot P(s' \mid s_{3,2}, a) \\ 
+U_{2}(s_{3,2}) &\leftarrow -0.04 + 1 \cdot \max_{a} \sum_{s'} U_1(s') \cdot P(s' \mid s_{3,2}, a) \\
+&\leftarrow -0.04 + \max \{ \\
+&0.76 \cdot 0.8 + -1 \cdot 0.1 + -0.04 \cdot 0.1, && \text{North} \\
+&-1 \cdot 0.8 + 0.76 \cdot 0.1 + -0.04 \cdot 0.1, && \text{East} \\
+&-0.04 \cdot 0.8 + 0.76 \cdot 0.1 + -0.04 \cdot 0.1, && \text{West} \\
+&-0.04 \cdot 0.8 + -1 \cdot 0.1 + -0.04 \cdot 0.1\} && \text{South} \\
+U_{2}(s_{3,2}) &\leftarrow -0.04 + \max \set{0.504, -0.728, 0.04, -0.136} \\
+U_{2}(s_{3,2}) &\leftarrow -0.04 + 0.504 \\ 
+U_{2}(s_{3,2}) &\leftarrow 0.464
+\end{align*}
+
+\begin{align*}
+U_{i+1}(s) &\leftarrow R(s) + \gamma \cdot \max_{a} \sum_{s'} U_i(s') \cdot P(s' \mid s, a) \\ 
+U_{2}(s_{3,3}) &\leftarrow R(s_{3,3}) + 1 \cdot \max_{a} \sum_{s'} U_1(s') \cdot P(s' \mid s_{3,3}, a) \\ 
+U_{2}(s_{3,3}) &\leftarrow -0.04 + 1 \cdot \max_{a} \sum_{s'} U_1(s') \cdot P(s' \mid s_{3,3}, a) \\
+&\leftarrow -0.04 + \max \{ \\
+&0.76 \cdot 0.8 + -0.04 \cdot 0.1 + 1 \cdot 0.1, && \text{North} \\
+&1 \cdot 0.8 + 0.76 \cdot 0.1 + -0.04 \cdot 0.1, && \text{East} \\
+&-0.04 \cdot 0.8 + 0.76 \cdot 0.1 + -0.04 \cdot 0.1, && \text{West} \\
+&-0.04 \cdot 0.8 + 1 \cdot 0.1 + -0.04 \cdot 0.1\} && \text{South} \\
+U_{2}(s_{3,3}) &\leftarrow -0.04 + \max \set{0.704, 0.872, 0.04, 0.064} \\
+U_{2}(s_{3,3}) &\leftarrow -0.04 + 0.872 \\ 
+U_{2}(s_{3,3}) &\leftarrow 0.832
+\end{align*}
+
+$U_2(s_{2,3})$ will be $0.56$, All other states will have \linkterm{utility}{state_utility_mdp} $=-0.08$. Therefore, second iteration \linkterm{utilities}{state_utility_mdp}:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{images/u_2.png}
+\caption{$U_2$}
+\end{figure}
+
+\redbox{
+Again, the states that have positive \linkterm{utilities}{state_utility_mdp} in the second iteration are those which can reach the "$+1$" state in $2$ steps or less.
+}
+}{}
+
+\observationbox{
+While executing the \linkterm{value iteration algorithm}{value_iteration_alg}, you may observe that despite the utility values haven't converged yet, the \linkterm{optimal policy}{optimal_policy_mdp} already stopped changing. 
+}
+
+\redbox{
+Deriving the \linkterm{optimal policy}{optimal_policy_mdp} doesn't necessarily require us to have accurate estimates of the \linkterm{true utilities}{state_utility_mdp}.
+}
+
+\ideabox{
+Search for \linkterm{optimal policy}{optimal_policy_mdp} and \linkterm{utility values}{state_utility_mdp} simultaneously $\leadsto$ \textbf{Policy Iteration}
+}
+
+\anondefinition{
+\defemph{Policy Iteration} alternates between two steps:
+\begin{itemize}
+    \item \defemph{Policy Evaluation}: Given a \linkterm{policy}{policy} $\pi_i$, calculate $U_i^{\pi}(s)$ which is the \linkterm{utility}{state_utility_mdp} of each state $s$ if $\pi_i$ were to be executed.
+    \item \defemph{Policy Improvement}: Calculate a new \linkterm{policy}{policy} $\pi_{i+1}$ using $U_i^{\pi}$
+\end{itemize}
+Terminate when there is no change in \linkterm{policy}{policy}.
+}{policy_iteration}
+
+\titledbox{Value vs Policy Iteration}{
+\minititle{Value Iteration:}
+\[
+U_0(s) \to U_1(s) \to U_2(s) \to \cdots \to U^{*}(s)
+\]
+Then calculate \linkterm{optimal action}{optimal_action_mdp} for each using:
+\[
+\pi^{*}(s) = \argmax{a \in \mathcal{A}_s} \left( \sum_{s'} P(s' \mid s, a) \cdot U(s') \right)
+\]
+
+\minititle{Policy Iteration:}
+\[
+\pi_0(s) \quad \overrightarrow{\text{eval}} \quad U_0(s)
+\quad \overrightarrow{\text{impr}} \quad
+\pi_1(s) \quad \overrightarrow{\text{eval}} \quad U_1(s) 
+\cdots 
+\pi^{*}(s) \quad \overrightarrow{\text{eval}} \quad U^{*}(s)
+\quad \overrightarrow{\text{impr}} \quad
+\pi^{*}(s)
+\]
+}
+
+\centeredtitledbox{Policy Improvement}{
+\[
+\pi_{i+1}(s) := \argmax{a} \sum_{s'} P(s' \mid a,s) \cdot U_i(s')
+\]
+}
+
+\centeredtitledbox{Policy Evaluation}{
+\[
+U_i(s) := R(s) + \gamma \cdot \sum_{s'} P(s' \mid s, \pi_i(s)) \cdot U_i(s')
+\]
+}
+
+\commandnote{
+\begin{itemize}
+    \item Notice that we do not have the $\max$ operator anymore since we are already using a policy $\pi_i(s)$.
+    \item This yields a linear system of equations where we know everything except the \linkterm{utilities}{state_utility_mdp} (what we solve for)
+    \item Solving this system is easier than solving the \linkterm{Bellman Equation}{bellman_equation} where we have a nonlinearity because we do not know the actions ($\max$ operator)
+    \item For $n$ states, this will take $\bigo{n^3}$ time.
+\end{itemize}
+}
+
+\minititle{Policy Iteration Mini Exercise}
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.80\textwidth}
+        Consider the following grid world with $R(s) = -0.04$ and $\gamma=1$. 
+        Assume the initial policy $\pi_0(s_{1,1}) = \pi_0(s_{1,2}) = E$ (east) 
+        and the same transition probabilities as before.
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.1\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/simple_iter.png}
+    \end{minipage}
+\end{figure}
+
+We evaluate the initial policy:
+\begin{align*}
+U_i(s) &:= R(s) + \gamma \cdot \sum_{s'} P(s' \mid s, \pi_i(s)) \cdot U_i(s') \\ 
+U_0(s) &:= R(s) + \gamma \cdot \sum_{s'} P(s' \mid s, \pi_0(s)) \cdot U_0(s') \\ 
+U_0(s_{1,1}) &:= -0.04 + \sum_{s'} P(s' \mid s_{1,1}, E) \cdot U_0(s') \\ 
+U_0(s_{1,1}) &:= -0.04 + 0.8 \cdot U_0(s_{2,1}) + 0.1 \cdot U_0(s_{1,2}) + 0.1 \cdot U_0(s_{1,1}) \\ 
+U_0(s_{1,1}) &:= -0.04 + 0.8 \cdot -1 + 0.1 \cdot U_0(s_{1,2}) + 0.1 \cdot U_0(s_{1,1}) \\ 
+U_0(s_{1,2}) &:= -0.04 + \sum_{s'} P(s' \mid s_{1,2}, E) \cdot U_0(s') \\ 
+U_0(s_{1,2}) &:= -0.04 + 0.8 + 0.1 \cdot U_0(s_{1,2}) +  0.1 \cdot U_0(s_{1,1})\\ 
+\end{align*}
+
+We have the following system (two equations and two variables):
+\begin{align}
+    U_0(s_{1,1}) &= -0.84 + 0.1 U_0(s_{1,2}) + 0.1 U_0(s_{1,1}) \label{eq1} \\
+    U_0(s_{1,2}) &= 0.76 + 0.1 U_0(s_{1,2}) + 0.1 U_0(s_{1,1}) \label{eq2}
+\end{align}
+
+Rearranging terms to the left-hand side:
+\begin{align}
+    0.9 U_0(s_{1,1}) - 0.1 U_0(s_{1,2}) &= -0.84 \tag{1'} \\
+    -0.1 U_0(s_{1,1}) + 0.9 U_0(s_{1,2}) &= 0.76 \tag{2'}
+\end{align}
+
+Adding (1') and (2') yields:
+\begin{equation*}
+    0.8 U_0(s_{1,1}) + 0.8 U_0(s_{1,2}) = -0.08 \implies U_0(s_{1,1}) + U_0(s_{1,2}) = -0.1
+\end{equation*}
+
+Solving for $U_0(s_{1,1}) = -0.1 - U_0(s_{1,2})$ and substituting into (2'):
+\begin{align*}
+    -0.1(-0.1 - U_0(s_{1,2})) + 0.9 U_0(s_{1,2}) &= 0.76 \\
+    0.01 + 0.1 U_0(s_{1,2}) + 0.9 U_0(s_{1,2}) &= 0.76 \\
+    U_0(s_{1,2}) &= 0.75
+\end{align*}
+
+Substituting back to find $U_0(s_{1,1})$:
+\begin{equation*}
+    U_0(s_{1,1}) = -0.1 - 0.75 = -0.85
+\end{equation*}
+
+The final utilities are:
+\begin{equation*}
+    U_0(s_{1,1}) = -0.85, \quad U_0(s_{1,2}) = 0.75
+\end{equation*}
+
+Now we improve:
+\begin{align*}
+\pi_{i+1}(s) &:= \argmax{a} \sum_{s'} P(s' \mid a,s) \cdot U_i(s') \\
+\pi_{1}(s) &:= \argmax{a} \sum_{s'} P(s' \mid a,s) \cdot U_0(s') \\
+\pi_{1}(s_{1,1}) &:= \argmax{a} \sum_{s'} P(s' \mid a,s_{1,1}) \cdot U_0(s') \\
+\pi_{1}(s_{1,1}) &:= \argmax{a} \{ \\
+&0.8 \cdot 0.75 + 0.1 \cdot -1 + 0.1 \cdot -0.85 , && \text{North} \\
+&0.8 \cdot -0.85 + 0.1 \cdot -0.85 + 0.1 \cdot -1 ,  && \text{South} \\
+&0.8 \cdot -1 + 0.1 \cdot 0.75 + 0.1 \cdot -0.85 ,  && \text{East} \\
+&0.8 \cdot -0.85 + 0.1 \cdot 0.75 + 0.1 \cdot -0.85 \} && \text{West} \\
+\pi_{1}(s_{1,1}) &:= \argmax{a} \{ \\
+&0.415 , && \text{North} \\
+&-0.865 ,  && \text{South} \\
+&-0.81 ,  && \text{East} \\
+&-0.69 \} && \text{West} \\
+\pi_{1}(s_{1,1}) &:= N
+\end{align*}
+
+Similarly, for $s_{1,2}$:
+\begin{align*}
+\pi_{1}(s_{1,2}) &:= \argmax{a} \sum_{s'} P(s' \mid a,s_{1,2}) \cdot U_0(s') \\
+\pi_{1}(s_{1,2}) &:= \argmax{a} \{ \\
+&0.8 \cdot 0.75 + 0.1 \cdot 0.75 + 0.1 \cdot 1 , && \text{North} \\
+&0.8 \cdot -0.85 + 0.1 \cdot 0.75 + 0.1 \cdot 1 ,  && \text{South} \\
+&0.8 \cdot 1 + 0.1 \cdot 0.75 + 0.1 \cdot -0.85 ,  && \text{East} \\
+&0.8 \cdot 0.75 + 0.1 \cdot 0.75 + 0.1 \cdot -0.85 \} && \text{West} \\
+\pi_{1}(s_{1,2}) &:= \argmax{a} \{ \\
+&0.775 , && \text{North} \\
+&-0.505 ,  && \text{South} \\
+&0.79 ,  && \text{East} \\
+&0.59 \} && \text{West} \\
+\pi_{1}(s_{1,2}) &:= E && (\text{didn't change})
+\end{align*}
+
+Now we evaluate $\pi_1$:
+\begin{align*}
+U_i(s) &:= R(s) + \gamma \cdot \sum_{s'} P(s' \mid s, \pi_i(s)) \cdot U_i(s') \\ 
+U_1(s) &:= R(s) + \gamma \cdot \sum_{s'} P(s' \mid s, \pi_1(s)) \cdot U_1(s') \\ 
+U_1(s_{1,1}) &:= -0.04 + \sum_{s'} P(s' \mid s, \pi_1(s_{1,1})) \cdot U_1(s') \\
+U_1(s_{1,1}) &:= -0.04 + 0.8 \cdot U_1(s_{1,2}) + 0.1 \cdot -1 + 0.1 \cdot U_1(s_{1,1}) \\ 
+U_1(s_{1,2}) &:= -0.04 + \sum_{s'} P(s' \mid s, \pi_1(s_{1,2})) \cdot U_1(s') \\
+U_1(s_{1,2}) &:= -0.04 + 0.8 \cdot 1 + 0.1 \cdot U_1(s_{1,2}) + 0.1 \cdot U_1(s_{1,1}) \\
+\end{align*}
+
+
+We have the following system (two equations and two variables):
+\begin{align}
+    U_1(s_{1,1}) &:= -0.04 + 0.8 \cdot U_1(s_{1,2}) - 0.1 + 0.1 \cdot U_1(s_{1,1}) \label{eq3} \\
+    U_1(s_{1,2}) &:= -0.04 + 0.8 + 0.1 \cdot U_1(s_{1,2}) + 0.1 \cdot U_1(s_{1,1}) \label{eq4}
+\end{align}
+
+
+Rearranging:
+\begin{align}
+    0.9 U_1(s_{1,1}) - 0.8 U_1(s_{1,2}) &= -0.14 \tag{3'} \\
+    -0.1 U_1(s_{1,1}) + 0.9 U_1(s_{1,2}) &= 0.76 \tag{4'}
+\end{align}
+
+From (4'), we express $U_1(s_{1,1})$ in terms of $U_1(s_{1,2})$:
+\begin{equation*}
+    0.1 U_1(s_{1,1}) = 0.9 U_1(s_{1,2}) - 0.76 \implies U_1(s_{1,1}) = 9 U_1(s_{1,2}) - 7.6
+\end{equation*}
+
+Substituting this into (3'):
+\begin{align*}
+    0.9(9 U_1(s_{1,2}) - 7.6) - 0.8 U_1(s_{1,2}) &= -0.14 \\
+    8.1 U_1(s_{1,2}) - 6.84 - 0.8 U_1(s_{1,2}) &= -0.14 \\
+    7.3 U_1(s_{1,2}) &= 6.7 \\
+    U_1(s_{1,2}) &= \frac{67}{73} \approx 0.918
+\end{align*}
+
+Substituting back to find $U_1(s_{1,1})$:
+\begin{equation*}
+    U_1(s_{1,1}) = 9\left(\frac{67}{73}\right) - 7.6 = \frac{603 - 554.8}{73} = \frac{48.2}{73} \approx 0.660
+\end{equation*}
+
+The final utilities for $\pi_1$ are:
+\begin{equation*}
+    U_1(s_{1,1}) \approx 0.660, \quad U_1(s_{1,2}) \approx 0.918
+\end{equation*}
+
+Now we improve:
+\begin{align*}
+\pi_{i+1}(s) &:= \argmax{a} \sum_{s'} P(s' \mid a,s) \cdot U_i(s') \\
+\pi_{2}(s) &:= \argmax{a} \sum_{s'} P(s' \mid a,s) \cdot U_1(s') \\
+\pi_{2}(s_{1,1}) &:= \argmax{a} \sum_{s'} P(s' \mid a,s_{1,1}) \cdot U_1(s') \\
+\pi_{2}(s_{1,1}) &:= \argmax{a} \{ \\
+&0.8 \cdot 0.918 + 0.1 \cdot -1 + 0.1 \cdot 0.660 , && \text{North} \\
+&0.8 \cdot 0.660 + 0.1 \cdot 0.660 + 0.1 \cdot -1 ,  && \text{South} \\
+&0.8 \cdot -1 + 0.1 \cdot 0.918 + 0.1 \cdot 0.660 ,  && \text{East} \\
+&0.8 \cdot 0.660 + 0.1 \cdot 0.918 + 0.1 \cdot 0.660 \} && \text{West} \\
+\pi_{2}(s_{1,1}) &:= \argmax{a} \{ \\
+&0.7004 , && \text{North} \\
+&0.494 ,  && \text{South} \\
+&-0.6422 ,  && \text{East} \\
+&0.6858 \} && \text{West} \\
+\pi_{2}(s_{1,1}) &:= N && (\text{didn't change})
+\end{align*}
+
+Similarly, for $s_{1,2}$:
+\begin{align*}
+\pi_{2}(s_{1,2}) &:= \argmax{a} \sum_{s'} P(s' \mid a,s_{1,2}) \cdot U_1(s') \\
+\pi_{2}(s_{1,2}) &:= \argmax{a} \{ \\
+&0.8 \cdot 0.918 + 0.1 \cdot 0.918 + 0.1 \cdot 1 , && \text{North} \\
+&0.8 \cdot 0.660 + 0.1 \cdot 0.918 + 0.1 \cdot 1 ,  && \text{South} \\
+&0.8 \cdot 1 + 0.1 \cdot 0.918 + 0.1 \cdot 0.660 ,  && \text{East} \\
+&0.8 \cdot 0.918 + 0.1 \cdot 0.918 + 0.1 \cdot 0.660 \} && \text{West} \\
+\pi_{2}(s_{1,2}) &:= \argmax{a} \{ \\
+&0.9262 , && \text{North} \\
+&0.7198 ,  && \text{South} \\
+&0.9578 ,  && \text{East} \\
+&0.8922 \} && \text{West} \\
+\pi_{2}(s_{1,2}) &:= E && (\text{didn't change})
+\end{align*}
+
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.80\textwidth}
+        \redbox{Since $\pi_1(s) = \pi_2(s) \quad \forall s$, we terminate.}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.1\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/simple_iter_sol.png}
+    \end{minipage}
+\end{figure} 
+
