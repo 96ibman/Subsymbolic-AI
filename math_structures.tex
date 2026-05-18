@@ -1,26 +1,11 @@
-\labeledsection{Mathematical Structures}{sec:math_structure}
-\definition{Mathematical Structure}{
+\subsection{Algebraic Structures}\label{sec:math_structure}
+\definition{Mathematical (Algebraic) Structure}{
 A mathematical structure combines multiple \linkterm{mathematical objects}{math_object} (the components) into a new \linkterm{object}{math_object}. The components usually have names by which they can be referenced. Given a \linkterm{definition}{definitions} of a mathematical structure $S$, we say that any \linkterm{object}{math_object} that conforms to that is an instance of $S$.
 }{def:math_structure}
-\textbf{Example: }A graph $G = \tuple{V,E}$ is a \linkterm{mathematical structure}{def:math_structure} where the components are: $V$ (the \linkterm{set}{def:set} of vertices) and $E$ (the \linkterm{set}{def:set} of edges). A graph $G$ where $V = \set{1,2,3}$ and $E=\set{(1,2),(2,3)}$ is one instance of a graph.
 
 \definition{Structure Signature}{
 A structure signature combines the components, their types, and accessor names of a \linkterm{mathematical structure}{def:math_structure} in a tabular overview.
 }{structure_signature}
-\textbf{Example: }
-
-\[
-\left\langle
-\begin{array}{lll}
-V & \text{Set} & \text{vertices (nodes)} \\
-E & \setbuilder{(u,v)}{u,v \in V} & \text{edges} \\
-\end{array}
-\right\rangle
-\]
-
-\commandnote{
-Most programming languages have some way of creating \textit{"named structures"} and referencing components is usually done via \textit{"dot notation"} (e.g. \texttt{person.name}).
-}
 
 \definition{Group}{
 A group is a \linkterm{mathematical structure}{def:math_structure} $\tuple{G, \circ, e, \inverse{.}}$ that consists of:

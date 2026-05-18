@@ -586,5 +586,36 @@ sorting=ynt
 \end{tcolorbox}
 }
 
+% --- Problem and Solution boxes ---
+\newcommand{\problembox}[1]{
+\begin{tcolorbox}[
+  enhanced,
+  attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+  colback=orange!8!white,
+  colframe=orange!60!black,
+  colbacktitle=orange!80!black,
+  title=Problem,
+  fonttitle=\bfseries,
+  boxed title style={size=small, colframe=orange!50!black}
+]
+#1
+\end{tcolorbox}
+}
+
+\newcommand{\solutionbox}[1]{
+\begin{tcolorbox}[
+  enhanced,
+  attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  colbacktitle=blue!80!black,
+  title=Solution,
+  fonttitle=\bfseries,
+  boxed title style={size=small, colframe=blue!50!black}
+]
+#1
+\end{tcolorbox}
+}
+
 
 \usepackage{subcaption}
