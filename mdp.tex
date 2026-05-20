@@ -863,269 +863,509 @@ Similarly, for $s_{1,2}$:
         \centering
         \includegraphics[width=\linewidth]{images/simple_iter_sol.png}
     \end{minipage}
-\end{figure} 
+\end{figure}
+
 
 \newpage
-\questionbox{
-What about \linkterm{partially observable}{env_types} environments?
-}
-
 \centeredtitledbox{Motivation}{
 So far, we assumed that the environment is \linkterm{fully observable}{env_types}. This means that the \linkterm{agent}{def:agent} always knows exactly which state it is currently in.
 
-However, many real-world environments are only \linkterm{partially observable}{env_types}. In such environments, the \linkterm{agent}{def:agent} cannot directly observe the true state of the world. Instead, it receives incomplete or noisy observations.
+However, many environments are only \linkterm{partially observable}{env_types}. In such environments, the \linkterm{agent}{def:agent} cannot directly observe the true state. Instead, it only receives incomplete or noisy information about the state.
 
-Consequently, the \linkterm{agent}{def:agent} can no longer condition its decisions directly on the current state, because the current state is unknown.
+To model such situations, we use \defemph{Partially Observable Markov Decision Processes (POMDPs)}.
 }
 
 \Example{
-Consider a robot navigating a building using noisy sensors:
+Consider an \linkterm{agent}{def:agent} moving on an infinite discrete line. The current position of the \linkterm{agent}{def:agent} is represented by an integer.
+
+The \linkterm{agent}{def:agent} can:
 \begin{itemize}
-    \item The robot does not know its exact location.
-    \item Its sensors might incorrectly report nearby walls or obstacles.
-    \item Two different locations may produce identical sensor readings.
+    \item move one step left
+    \item move one step right
+    \item stay where it is
 \end{itemize}
 
-Hence, even if the environment itself evolves according to an \linkterm{MDP}{MDP}, the \linkterm{agent}{def:agent} does not know which state it is currently in.
+However, actions are stochastic:
+\begin{itemize}
+    \item moving succeeds only with probability $0.75$
+    \item otherwise, the \linkterm{agent}{def:agent} does not move
+\end{itemize}
+
+Additionally, the \linkterm{agent}{def:agent} cannot directly observe its exact position. Instead, it receives noisy measurements:
+\begin{itemize}
+    \item the correct position is measured with probability $0.5$
+    \item a neighboring position is measured with probability $0.25$
+\end{itemize}
 }{}
 
 \definition{POMDP}{
-A \defemph{Partially Observable Markov Decision Process (POMDP)} is the \linkterm{structure}{def:math_structure}
+A \defemph{Partially Observable Markov Decision Process (POMDP)} is the structure
 \[
-\tuple{\mathcal{S}, \mathcal{A}, \mathcal{T}, \Omega, O, \mathcal{I}, R}
+\tuple{\mathcal{S},\mathcal{A},\mathcal{T},\mathcal{I},R,\mathcal{E},O}
 \]
 where:
 \begin{itemize}
-    \item $\mathcal{S}$: the \linkterm{set}{def:set} of states
-    \item $\mathcal{A}$: the \linkterm{set}{def:set} of actions
-    \item $\mathcal{T}$: the transition model
-    \[
-    \mathcal{T}(s,a)=\probd{\mathcal{S}\mid s,a}
-    \]
-    \item $\Omega$: the \linkterm{set}{def:set} of observations
-    \item $O$: the observation model
-    \[
-    O(s',a)=\probd{\Omega\mid s',a}
-    \]
-    \item $\mathcal{I}$: an initial probability distribution over states
-    \[
-    \mathcal{I}=\probd{\mathcal{S}}
-    \]
-    \item $R$: a reward function
-    \[
-    \func{R}{\mathcal{S}}{\mathbb{R}}
-    \]
+    \item $\mathcal{S}$ is the set of states
+    \item $\mathcal{A}$ is the set of actions
+    \item $\mathcal{T}$ is the transition model $\mathcal{T}(s,a)=\probd{\mathcal{S}\mid s,a}$
+    \item $\mathcal{I}$ is the initial probability distribution over states
+    \item $\func{R}{\mathcal{S}}{\mathbb{R}}$ is the reward function
+    \item $\mathcal{E}$ is the set of possible observations
+    \item $O$ is the observation model such that $O(s,e)=P(e\mid s)$
 \end{itemize}
-}{POMDP}
+}{pomdp}
 
-\commandnote{
-Unlike \linkterm{MDPs}{MDP}, the \linkterm{agent}{def:agent} in a \linkterm{POMDP}{POMDP} does not observe the current state directly.
-}
+\Example{
+For our line-navigation problem:
+\[
+\mathcal{S}=\mathbb{Z}
+\]
 
-\ideabox{
-The key difference between \linkterm{MDPs}{MDP} and \linkterm{POMDPs}{POMDP} is:
+The actions are:
+\[
+\mathcal{A}=\set{-1,0,+1}
+\]
+
+Example initial probability distribution:
+\[
+\mathcal{I}=\set{(4,0.6),(5,0.4)}
+\]
+
+This means the \linkterm{agent}{def:agent} initially believes:
 \begin{itemize}
-    \item In an \linkterm{MDP}{MDP}, the \linkterm{agent}{def:agent} always knows the exact current state.
-    \item In a \linkterm{POMDP}{POMDP}, the \linkterm{agent}{def:agent} only receives observations that provide partial information about the state.
+    \item it is in position $4$ with probability $0.6$
+    \item it is in position $5$ with probability $0.4$
 \end{itemize}
-}
+}{}
 
-\questionbox{
-If the \linkterm{agent}{def:agent} does not know the current state, then how can it choose an action?
-}
-
-\answerbox{
-The \linkterm{agent}{def:agent} must maintain a probability distribution over all possible states.
+\observationbox{
+Compared to an \linkterm{MDP}{MDP}, a \linkterm{POMDP}{pomdp} introduces an additional source of uncertainty:
+\begin{itemize}
+    \item in an \linkterm{MDP}{MDP}, the current state is known exactly
+    \item in a \linkterm{POMDP}{pomdp}, the \linkterm{agent}{def:agent} only receives observations about the state
+\end{itemize}
 }
 
 \definition{Belief State}{
-A \defemph{belief state} is a probability distribution over the possible states of the environment:
+A \defemph{belief state} is a probability distribution over states:
 \[
-b(s)=P(S=s)
+b=\probd{\mathcal{S}}
 \]
-where:
-\[
-\sum_{s\in\mathcal{S}} b(s)=1
-\]
-
-We denote the \linkterm{set}{def:set} of all possible belief states by $\mathcal{B}$
+where $b(s)$ denotes the probability assigned to state $s$.
 }{belief_state}
 
-\commandnote{
-A \linkterm{belief state}{belief_state} represents the \linkterm{agent}{def:agent}'s uncertainty about the world.
+\ideabox{
+In a \linkterm{POMDP}{pomdp}, the \linkterm{agent}{def:agent} does not know the true current state.
+
+Therefore, instead of storing a single state, it stores a probability distribution over all possible states.
+
+This distribution is called the \linkterm{belief state}{belief_state}.
 }
+
+\definition{POMDP Decision Cycle}{
+A \linkterm{POMDP}{pomdp} proceeds in the following cycle:
+\begin{enumerate}
+    \item the \linkterm{agent}{def:agent} starts with a \linkterm{belief state}{belief_state}
+    \item the \linkterm{agent}{def:agent} executes an action
+    \item the environment changes according to the transition model
+    \item the \linkterm{agent}{def:agent} receives an observation
+    \item the \linkterm{agent}{def:agent} updates its \linkterm{belief state}{belief_state}
+\end{enumerate}
+}{pomdp_cycle}
 
 \Example{
-Suppose the environment has three states:
+Suppose the \linkterm{agent}{def:agent} currently has:
 \[
-\mathcal{S}=\set{s_1,s_2,s_3}
+b_0=\set{(4,0.6),(5,0.4)}
 \]
 
-A possible \linkterm{belief state}{belief_state} is:
-\[
-b(s_1)=0.7,\quad b(s_2)=0.2,\quad b(s_3)=0.1
-\]
+and executes action $+1$.
 
-This means the \linkterm{agent}{def:agent} believes that:
-\begin{itemize}
-    \item $s_1$ is very likely
-    \item $s_2$ is possible
-    \item $s_3$ is unlikely
-\end{itemize}
-}{}
-
-\ideabox{
-In \linkterm{POMDPs}{POMDP}, the \linkterm{belief state}{belief_state} plays the role of the state itself.
-}
-
-\anondefinition{
-\textbf{The POMDP Decision Cycle}:
-
-At each time step, the following happens:
+The \linkterm{agent}{def:agent} then:
 \begin{enumerate}
-    \item The \linkterm{agent}{def:agent} has a current \linkterm{belief state}{belief_state} $b$.
-    \item The \linkterm{agent}{def:agent} chooses an action $a$.
-    \item The environment transitions to a new hidden state according to:
-    \[
-    \mathcal{T}(s,a)
-    \]
-    \item The \linkterm{agent}{def:agent} receives an observation $o\in\Omega$ according to:
-    \[
-    O(s',a)
-    \]
-    \item The \linkterm{agent}{def:agent} updates its \linkterm{belief state}{belief_state} using the observation.
+    \item computes the new probabilities after the stochastic movement
+    \item receives a noisy observation
+    \item updates the belief state using the observation
 \end{enumerate}
 }{}
 
+\definition{Transition Model in a POMDP}{
+The \defemph{transition model} describes how actions probabilistically change the state:
+\[
+\mathcal{T}(s,a)=\probd{\mathcal{S}\mid s,a}
+\]
+}{pomdp_transition_model}
 
-\commandnote{
-In a \linkterm{POMDP}{POMDP}, the \linkterm{agent}{def:agent} never directly observes the true state.
+\Example{
+For action $+1$:
+\[
+\mathcal{T}(n,+1)
+=
+\set{
+(n+1,0.75),
+(n,0.25)
 }
+\]
 
-\definition{Belief State Update}{
-Given:
+This means:
 \begin{itemize}
-    \item current \linkterm{belief state}{belief_state} $b$
-    \item action $a$
-    \item observation $o$
+    \item with probability $0.75$, the \linkterm{agent}{def:agent} successfully moves right
+    \item with probability $0.25$, it stays where it is
 \end{itemize}
 
-the updated \linkterm{belief state}{belief_state} $b'$ is computed using Bayes' rule:
+Similarly:
 \[
-b'(s')=\alpha\; O(o\mid s',a)\sum_{s\in\mathcal{S}} \mathcal{T}(s,a,s')b(s)
-\]
-where $\alpha$ is a normalization constant chosen such that:
-\[
-\sum_{s'\in\mathcal{S}} b'(s')=1
-\]
-}{belief_state_update}
-
-\observationbox{
-The \linkterm{belief state}{belief_state} update consists of two steps:
-\begin{itemize}
-    \item \textbf{Prediction}: estimate the next state distribution using the transition model.
-    \item \textbf{Correction}: refine the estimate using the observation.
-\end{itemize}
+\mathcal{T}(n,-1)
+=
+\set{
+(n-1,0.75),
+(n,0.25)
 }
-
-\redbox{
-Solving \linkterm{POMDPs}{POMDP} exactly is computationally very difficult.
-}
-
-\Theorem{
-Computing an optimal policy for a finite-horizon \linkterm{POMDP}{POMDP} is PSPACE-hard.
+\]
 }{}
 
-\ideabox{
-The difficulty comes from two sources:
+\definition{Observation Model}{
+The \defemph{observation model} specifies the probability of receiving observation $e$ while being in state $s$:
+\[
+O(s,e)=P(e\mid s)
+\]
+}{observation_model}
+
+\Example{
+\[
+O
+=
+\set{
+(s,s-1,0.25),
+(s,s,0.5),
+(s,s+1,0.25)
+}
+\]
+
+This means:
 \begin{itemize}
-    \item The \linkterm{agent}{def:agent} must reason about probabilities over states.
-    \item The number of possible \linkterm{belief states}{belief_state} is infinite, even when the original state space is finite.
+    \item if the agent observes it is in $s$, there is a $0.5$ chance it is actually there,
+    \item and there is a $0.25$ chance it is at $s-1$, and another $0.25$ chance it is at $s+1$.
+\end{itemize}
+}{}
+
+\minititle{Belief State Update}
+
+Assume the current belief state is:
+\[
+b_0=\set{(4,0.6),(5,0.4)}
+\]
+
+The \linkterm{agent}{def:agent} executes action $+1$.
+
+Recall:
+\[
+\mathcal{T}(n,+1)
+=
+\set{
+(n+1,0.75),
+(n,0.25)
+}
+\]
+
+We now compute the probability for each possible successor state separately.
+
+
+\textbf{State $4$}
+
+The only way to end in state $4$ is:
+\begin{itemize}
+    \item start in state $4$
+    \item fail to move
+\end{itemize}
+
+Thus:
+\[
+b_a(4)
+=
+0.6\cdot 0.25
+=
+0.15
+\]
+
+\textbf{State $5$}
+
+There are two ways to end in state $5$:
+\begin{itemize}
+    \item start in state $4$ and successfully move right
+    \item start in state $5$ and fail to move
+\end{itemize}
+
+Thus:
+\[
+b_a(5)
+=
+0.6\cdot 0.75
++
+0.4\cdot 0.25
+=
+0.45+0.10
+=
+0.55
+\]
+
+\textbf{State $6$}
+
+The only way to end in state $6$ is:
+\begin{itemize}
+    \item start in state $5$
+    \item successfully move right
+\end{itemize}
+
+Thus:
+\[
+b_a(6)
+=
+0.4\cdot 0.75
+=
+0.3
+\]
+
+Therefore, the resulting \linkterm{belief state}{belief_state} is:
+\[
+b_a
+=
+\set{
+(4,0.15),
+(5,0.55),
+(6,0.3)
+}
+\]
+
+Suppose the \linkterm{agent}{def:agent} now observes position $4$.
+
+Recall that the predicted \linkterm{belief state}{belief_state} after executing action $+1$ was:
+\[
+b_a
+=
+\set{
+(4,0.15),
+(5,0.55),
+(6,0.3)
+}
+\]
+
+This means:
+\begin{itemize}
+    \item the \linkterm{agent}{def:agent} believes it is in state $4$ with probability $0.15$
+    \item in state $5$ with probability $0.55$
+    \item in state $6$ with probability $0.3$
+\end{itemize}
+
+Now the \linkterm{agent}{def:agent} receives the observation $4$.
+
+We use the observation model:
+\[
+O
+=
+\set{
+(s,s-1,0.25),
+(s,s,0.5),
+(s,s+1,0.25)
+}
+\]
+
+We now ask:
+
+\begin{quote}
+How likely is it to observe $4$ from each possible state?
+\end{quote}
+
+\paragraph{Case 1: True state is $4$}
+
+If the true state is $4$, then observing $4$ is correct.
+
+Thus:
+\[
+O(4,4)=0.5
+\]
+
+The prior probability of being in state $4$ was:
+\[
+b_a(4)=0.15
+\]
+
+Therefore:
+\[
+P(4,4)
+=
+b_a(4)\cdot O(4,4)
+=
+0.15\cdot 0.5
+=
+0.075
+\]
+
+\paragraph{Case 2: True state is $5$}
+
+If the true state is $5$, then observing $4$ means measuring one step too far left.
+
+Thus:
+\[
+O(5,4)=0.25
+\]
+
+The prior probability of being in state $5$ was:
+\[
+b_a(5)=0.55
+\]
+
+Therefore:
+\[
+P(5,4)
+=
+b_a(5)\cdot O(5,4)
+=
+0.55\cdot 0.25
+=
+0.1375
+\]
+
+\paragraph{Case 3: True state is $6$}
+
+If the true state is $6$, then observing $4$ would require an error of two positions.
+
+This is impossible in our observation model.
+
+Thus:
+\[
+O(6,4)=0
+\]
+
+Therefore:
+\[
+P(6,4)
+=
+b_a(6)\cdot O(6,4)
+=
+0.3\cdot 0
+=
+0
+\]
+
+Combining all values yields the unnormalized updated belief state:
+\[
+\set{
+(4,0.075),
+(5,0.1375)
+}
+\]
+
+However, this is not yet a probability distribution, because the probabilities do not sum to $1$:
+\[
+0.075+0.1375=0.2125
+\]
+
+Therefore, we normalize the values.
+
+\paragraph{Normalized probability for state $4$}
+
+\[
+b'(4)
+=
+\frac{0.075}{0.2125}
+\approx
+0.35
+\]
+
+\paragraph{Normalized probability for state $5$}
+
+\[
+b'(5)
+=
+\frac{0.1375}{0.2125}
+\approx
+0.65
+\]
+
+Thus, the updated \linkterm{belief state}{belief_state} becomes:
+\[
+b'
+\approx
+\set{
+(4,0.35),
+(5,0.65)
+}
+\]
+
+\ideabox{
+Observation $4$ increases the probability of state $5$ more strongly than state $4$ because state $5$ already had a much larger prior probability before the observation.
+}
+
+
+\definition{Belief-State MDP}{
+Every \linkterm{POMDP}{pomdp} can be transformed into an equivalent \linkterm{MDP}{MDP} whose states are \linkterm{belief states}{belief_state}.
+}{belief_mdp}
+
+\observationbox{
+In the transformed \linkterm{MDP}{MDP}:
+\begin{itemize}
+    \item a state is no longer a concrete world state
+    \item instead, a state is a probability distribution over world states
 \end{itemize}
 }
 
 
-\titledbox{From POMDPs to Belief-State MDPs}{
-Although the original state is hidden, the current \linkterm{belief state}{belief_state} contains all information needed for future decision making.
-}
-
-\definition{Belief-State MDP}{
-A \linkterm{POMDP}{POMDP} can be transformed into an equivalent \linkterm{MDP}{MDP} whose states are \linkterm{belief states}{belief_state}.
-
-The new state space is $\mathcal{B}$ where each state is a probability distribution over the original states.
-}{belief_state_mdp}
-
-\commandnote{
-The resulting \linkterm{belief-state MDP}{belief_state_mdp} is \linkterm{fully observable}{env_types}, because the \linkterm{agent}{def:agent} always knows its current \linkterm{belief state}{belief_state}.
-}
-
-\definition{Belief-State Reward Function}{
-The reward of a \linkterm{belief state}{belief_state} is the expected reward over all states:
+\definition{Reward Function on Belief States}{
+The reward of a \linkterm{belief state}{belief_state} is defined as its expected reward:
 \[
-R_B(b)=\sum_{s\in\mathcal{S}} b(s)R(s)
+R'(b)
+=
+\sum_{s\in\mathcal{S}}
+R(s)\cdot b(s)
 \]
-}{belief_state_reward}
+}{belief_reward}
 
 \Example{
 Suppose:
 \[
-b(s_1)=0.8,\quad b(s_2)=0.2
+R(0)=1
 \]
 and:
 \[
-R(s_1)=10,\quad R(s_2)=-5
+R(s)=-0.1
+\qquad
+\text{for all } s\neq 0
 \]
 
-Then:
+For:
 \[
-R_B(b)=0.8\cdot 10 + 0.2\cdot (-5)=7
+b
+=
+\set{
+(4,0.15),
+(5,0.55),
+(6,0.3)
+}
+\]
+
+we obtain:
+\[
+R'(b)
+=
+(-0.1)\cdot 0.15
++
+(-0.1)\cdot 0.55
++
+(-0.1)\cdot 0.3
+=
+-0.1
 \]
 }{}
 
-\ideabox{
-Once we convert a \linkterm{POMDP}{POMDP} into a \linkterm{belief-state MDP}{belief_state_mdp}, we can apply dynamic programming methods such as value iteration.
+\redbox{
+Although \linkterm{POMDPs}{pomdp} can be reduced to \linkterm{belief-state MDPs}{belief_mdp}, solving them exactly is computationally very difficult.
 }
 
-\definition{POMDP Value Function}{
-The value of a \linkterm{belief state}{belief_state} $b$ is:
-\[
-V(b)=\max_a \left[
-R_B(b)+\gamma \sum_{o\in\Omega} P(o\mid b,a)V(b_{a,o})
-\right]
-\]
-where:
-\begin{itemize}
-    \item $b_{a,o}$ is the updated \linkterm{belief state}{belief_state}
-    \item $P(o\mid b,a)$ is the probability of receiving observation $o$
-\end{itemize}
-}{pomdp_value_function}
-
-\definition{POMDP Value Iteration}{
-The \defemph{POMDP Value Iteration Algorithm} repeatedly updates the value function over \linkterm{belief states}{belief_state}:
-\[
-V_{k+1}(b)=\max_a \left[
-R_B(b)+\gamma \sum_{o\in\Omega} P(o\mid b,a)V_k(b_{a,o})
-\right]
-\]
-
-until convergence.
-}{pomdp_value_iteration}
+\Theorem{
+Solving finite-horizon \linkterm{POMDPs}{pomdp} is PSPACE-hard.
+}{}
 
 \commandnote{
-The only difference from ordinary \linkterm{MDP}{MDP} value iteration is that:
-\begin{itemize}
-    \item states become \linkterm{belief states}{belief_state}
-    \item transitions depend on observations and Bayesian updates
-\end{itemize}
+The difficulty comes from the fact that the \linkterm{belief-state space}{belief_state} is typically infinite. Even if the original state space is finite, there are infinitely many possible probability distributions over it.
 }
-
-\observationbox{
-Even though the original \linkterm{POMDP}{POMDP} has a finite number of states, the corresponding \linkterm{belief-state MDP}{belief_state_mdp} usually has an infinite continuous state space.
-}
-
-\ideabox{
-In practice, exact \linkterm{POMDP}{POMDP} planning is often infeasible. Therefore, many practical algorithms rely on approximations, sampling, or point-based methods.
-}
-
-
-
