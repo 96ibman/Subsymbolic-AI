@@ -264,7 +264,7 @@ Here is the \textit{true} \linkterm{DT}{decision_trees} for \exampleref{restaura
 \caption{The true decision tree for the restaurant dataset.}
 \label{fig:restaurant_decision_tree}
 \end{figure}
-}{}
+}{ex:true_dt}
 
 \anondefinition{
 We call an \linkterm{attribute}{attribute_based_representations} together with a \linkterm{set}{def:set} of \linkterm{attribute values}{attribute_based_representations} (an inner node with outgoing edge labels) an \defemph{attribute test}. 
@@ -298,4 +298,625 @@ We should find more \textit{compact} \linkterm{Decision Trees}{decision_trees}.
 A \textit{good} \linkterm{attribute}{attribute_based_representations} splits the \linkterm{examples}{supervised_learning} into \linkterm{subsets}{subset} that are \textit{ideally} all positive or all negative.
 }
 
+\anondefinition{
+Let $\tuple{p_1, \cdots, p_n}$ the distirbution of a \linkterm{random variable}{def:random_variable} $P$. The \defemph{information} (also called \defemph{entropy}) of $P$ is:
+\[
+I(\tuple{p_1, \cdots, p_n}) := \sum_{i=1}^{n} - (p_i \cdot \log_2(p_i))
+\]
+}{entropy}
 
+\commandnote{
+Because $\log_2(0)$ is \linkterm{undefined}{undefined}, for $p_i = 0$, we consider $p_i \cdot \log_2(p_i) = 0$
+}
+
+\anondefinition{
+The unit of \linkterm{information}{entropy} is called \defemph{bit (b)} , with:
+\begin{align*}
+1b := I(\tuple{\frac{1}{2},\frac{1}{2}}) &:= - (\frac{1}{2} \cdot \log_2(\frac{1}{2})) + - (\frac{1}{2} \cdot \log_2(\frac{1}{2})) \\
+&:= - (\frac{1}{2} \cdot (-1)) + - (\frac{1}{2} \cdot (-1)) \\
+&:= - (- \frac{1}{2}) + - (- \frac{1}{2}) \\
+&:= \frac{1}{2} + \frac{1}{2} = 1b\\
+\end{align*}
+}{bit_info}
+
+\Example{
+\begin{itemize}
+    \item For a fair coin toss, we have $I(\tuple{\frac{1}{2},\frac{1}{2}})=1b$
+    \item for a coin toss with $99\%$ heads and $1\%$ tails, we have $I(\tuple{\frac{1}{100},\frac{99}{100}})=0.08b$
+    \item $\leadsto$ \linkterm{information}{entropy} goes to $0$ as head probability goes to $1$.
+\end{itemize}
+}{}
+
+
+\Example{
+Suppose we have two different coins:
+
+\begin{itemize}
+    \item Coin $A$ is a fair coin:
+    \[
+    P(H)=\frac12,\quad P(T)=\frac12
+    \]
+
+    \item Coin $B$ is a biased coin:
+    \[
+    P(H)=0.99,\quad P(T)=0.01
+    \]
+\end{itemize}
+
+We now compute the \linkterm{entropy}{entropy} of both \linkterm{probability distributions}{def:prob_distribution}.
+
+\vspace{0.5em}
+
+\textbf{Entropy of Coin A}
+
+\[
+I\tuple{\frac12,\frac12} = 1b
+\]
+
+\vspace{0.5em}
+
+\textbf{Entropy of Coin B}
+
+\[
+I\tuple{0.99,0.01}
+=
+-
+\left(
+0.99\log_2(0.99)
++
+0.01\log_2(0.01)
+\right)
+\]
+
+Using:
+\[
+\log_2(0.99)\approx -0.014 \qquad \text{and} \qquad \log_2(0.01)\approx -6.644
+\]
+
+we obtain:
+\[
+I\tuple{0.99,0.01}
+\approx
+-
+\left(
+0.99(-0.014)+0.01(-6.644)
+\right)
+\]
+
+\[
+\approx
+-
+\left(
+-0.0139-0.0664 
+\right) \approx 0.08b
+\]
+
+\vspace{1em}
+
+\titledbox{Intuition Behind Entropy}{
+\linkterm{Entropy}{entropy} measures how uncertain or unpredictable a \linkterm{random variable}{def:random_variable} is.
+
+\begin{itemize}
+    \item The fair coin has high \linkterm{entropy}{entropy} because the outcome is completely uncertain. Before tossing the coin, we genuinely do not know whether we will obtain heads or tails. Therefore, observing the outcome gives us a lot of \linkterm{information}{entropy}.
+
+    \item The biased coin has very low \linkterm{entropy}{entropy} because the result is almost always heads. Seeing "heads" is not surprising, so observing the outcome gives us very little new \linkterm{information}{entropy}.
+\end{itemize}
+}
+
+\vspace{0.5em}
+
+\redbox{
+\linkterm{Entropy}{entropy} tells us how much \linkterm{information}{entropy} we expect to gain when observing the result of a random process.
+}
+}{}
+
+\ideabox{
+Suppose we have $p$ \linkterm{examples}{supervised_learning} classified as positive and $n$ classified as negative. We can then estimate the \linkterm{probability distribution}{def:prob_distribution} of the \linkterm{classifcation}{classifcation_regression} $C$ with $\probd{C} = \tuple{\frac{p}{p+n},\frac{n}{p+n}}$, and need $I(\probd{C})$ \linkterm{bits}{bit_info} to correctly classify a new \linkterm{example}{supervised_learning}.
+}
+
+\Example{
+For \linkterm{the restaurant data}{restaurant_example}, we have total of $12$ \linkterm{examples}{supervised_learning} and $n=p=6$, hence $I(\probd{\text{WillWait}}) = I(\tuple{\frac{6}{12},\frac{6}{12}}) = 1b$ of \linkterm{information}{entropy}
+}{}
+
+\observationbox{
+If we know, e.g. \textit{Pat = Full}, we would only need $I(\probd{\text{WillWait} \mid \text{Pat}=\text{Full}}) = I(\tuple{\frac{4}{6},\frac{2}{6}}) \approx 0.9$ \linkterm{bits}{bit_info} of \linkterm{information}{entropy}.
+}
+
+\commandnote{
+Treating \linkterm{attributes}{attribute_based_representations} also as \linkterm{random variables}{def:random_variable}, we can compute how much \linkterm{information}{entropy} is needed after knowing the \linkterm{value}{attribute_based_representations} for one \linkterm{attribute}{attribute_based_representations}.
+}
+
+\anondefinition{
+The \defemph{conditional entropy} (or expected remaining information) of $C$ given attribute $A$, written $H(C\mid A)$, is
+\begin{align*}
+H(C\mid A)&:=\sum_{a} P(A=a) \cdot I\big(\probd{C\mid A=a}\big)\\ 
+&:=- \sum_{a} P(A=a)\sum_{c} P(C=c\mid A=a) \cdot \log_2 P(C=c\mid A=a)
+\end{align*}
+}{conditional_entropy}
+
+\Example{
+We want to compute the \linkterm{conditional entropy}{conditional_entropy} for \linkterm{attribute}{attribute_based_representations} \textit{Pat} on the \linkterm{restaurant dataset}{restaurant_example} 
+
+\textbf{Pat = None.} The \linkterm{examples}{supervised_learning} with $\text{Pat}=\text{None}$ are $X_7,X_{11}$; both have $C=\text{WillWait}=F$. Thus
+\[
+P(C=T\mid \text{Pat}=\text{None})=0,\qquad
+P(C=F\mid \text{Pat}=\text{None})=1,
+\]
+Hence:
+\[
+I\big(\probd{C\mid \text{Pat}=\text{None}}\big)
+= -\big(0\log_2 0 + 1\log_2 1\big)=0.
+\]
+
+\textbf{Pat = Some.} The \linkterm{examples}{supervised_learning} with $\text{Pat}=\text{Some}$ are $X_1,X_3,X_6,X_8$; all have $C=T$. Hence
+\[
+P(C=T\mid \text{Pat}=\text{Some})=1,\qquad
+P(C=F\mid \text{Pat}=\text{Some})=0,
+\]
+so
+\[
+I\big(\probd{C\mid \text{Pat}=\text{Some}}\big)
+= -\big(1\log_2 1 + 0\log_2 0\big)=0.
+\]
+
+\textbf{Pat = Full.} The examples with $\text{Pat}=\text{Full}$ are $X_2,X_4,X_5,X_9,X_{10},X_{12}$.
+There are $2$ positives ($T$) and $4$ negatives ($F$), so
+\[
+P(C=T\mid \text{Pat}=\text{Full})=\tfrac{2}{6}=\tfrac{1}{3},\qquad
+P(C=F\mid \text{Pat}=\text{Full})=\tfrac{4}{6}=\tfrac{2}{3}.
+\]
+Apply the entropy formula:
+\begin{align*}
+I\big(\probd{C\mid \text{Pat}=\text{Full}}\big)
+&= -\Big(\tfrac{1}{3}\log_2\tfrac{1}{3} + \tfrac{2}{3}\log_2\tfrac{2}{3}\Big)\\
+&= -\Big(\tfrac{1}{3}(-\log_2 3) + \tfrac{2}{3}(\log_2 2 - \log_2 3)\Big)\\
+&= -\Big(-\tfrac{1}{3}\log_2 3 + \tfrac{2}{3}(1-\log_2 3)\Big)\\
+&= -\Big(-\tfrac{1}{3}\log_2 3 + \tfrac{2}{3} - \tfrac{2}{3}\log_2 3\Big)\\
+&= -\Big(\tfrac{2}{3} - \log_2 3\Big)\cdot(-1)\\
+&= \log_2 3 - \tfrac{2}{3}.
+\end{align*}
+Numerically, with $\log_2 3 \approx 1.5850$,
+\[
+I\big(\probd{C\mid \text{Pat}=\text{Full}}\big)
+\approx 1.5850 - 0.6667 \approx 0.9183\ \text{bits}.
+\]
+
+\textbf{Combine to get \linkterm{conditional entropy}{conditional_entropy}}:
+\[
+H(C\mid \text{Pat})
+=\sum_{a} P(\text{Pat}=a)\,I\big(\probd{C\mid \text{Pat}=a}\big)
+=\tfrac{2}{12}\cdot 0 + \tfrac{4}{12}\cdot 0 + \tfrac{6}{12}\cdot 0.9183
+\approx 0.4592\ \text{bits}.
+\]
+}{}
+
+\anondefinition{
+The \defemph{information gain} from an \linkterm{attribute test}{attribute_test_dt} $A$ is:
+\begin{align*}
+\text{Gain}(A) &:= I(\probd{C}) - H(C \mid A) \\ 
+&:= I(\probd{C}) - \sum_{a} P(A=a) \cdot I\big(\probd{C\mid A=a}\big) \\ 
+\end{align*}
+}{information_gain}
+
+
+
+\anondefinition{
+Assume we know the results of some
+\linkterm{attribute tests}{attribute_test_dt}
+\[
+b := B_1 = b_1 \land B_2 = b_2 \land \cdots \land B_n = b_n
+\]
+
+The \defemph{conditional entropy} (or expected remaining information)
+of the class variable
+C
+\textbf{given the attribute}
+A
+\textbf{under background information}
+b,
+is:
+\begin{align*}
+H(C \mid A,b)
+&:= \sum_a P(A=a \mid b)\cdot I\big(\probd{C \mid A=a,b}\big) \\
+&:= -\sum_a P(A=a\mid b)
+\sum_c P(C=c\mid A=a,b)\log_2 P(C=c\mid A=a,b)
+\end{align*}
+}{conditional_entropy_given_evidence}
+
+\anondefinition{
+Assume we know the results of some
+\linkterm{attribute tests}{attribute_test_dt}
+\[
+b := B_1 = b_1 \land B_2 = b_2 \land \cdots \land B_n = b_n
+\]
+
+Then the \defemph{conditional information gain}
+from an \linkterm{attribute test}{attribute_test_dt}
+A
+is:
+\begin{align*}
+\text{Gain}(A \mid b)
+&:= I(\probd{C\mid b}) - H(C\mid A,b) \\
+&:= I(\probd{C\mid b})
+- \sum_a P(A=a \mid b)\cdot
+I\big(\probd{C\mid A=a,b}\big)
+\end{align*}
+}{conditional_information_gain}
+
+\Example{
+Let's compute \linkterm{information gain}{information_gain} for the \linkterm{attribute}{attribute_based_representations} \textit{Patrons}:
+\begin{align*}
+\text{Gain}(A) &:= I(\probd{C}) - H(C \mid A) \\ 
+&:= I(\probd{C}) - \sum_{a} P(A=a) \cdot I\big(\probd{C\mid A=a}\big) \\ 
+\end{align*}
+
+\begin{align*}
+\text{Gain}(\text{Patrons}) &:= I(\probd{C}) - \sum_{a} P(\text{Patrons}=a) \cdot I\big(\probd{C\mid \text{Patrons}=a}\big) \\ 
+\end{align*}
+
+We know that $I(\probd{C}) = I(\tuple{P(C=T), P(C=F)}) = I(\tuple{\frac{6}{12}, \frac{6}{12}}) = 1b$
+
+We have the following \linkterm{examples}{supervised_learning} with Pat=None:
+
+\begin{tabular}{c||c|c|c|c|c|c|c|c|c|c||c}
+\hline
+ & \multicolumn{10}{c||}{\textbf{Attributes}} & \textbf{Target} \\ \cline{2-11}
+\textbf{Example} & \textit{Alt} & \textit{Bar} & \textit{Fri} & \textit{Hun} & \textit{Pat} & \textit{Price} & \textit{Rain} & \textit{Res} & \textit{Type} & \textit{Est} & \textit{WillWait} \\ \hline\hline
+$X_7$  & F & T & F & F & None & \$    & T & F & Burger  & 0--10  & F \\ 
+$X_{11}$ & F & F & F & F & None & \$    & F & F & Thai    & 0--10  & F \\ \hline
+\end{tabular}
+
+So, $P(\text{Pat=None}) = \frac{2}{12}$
+
+And $\probd{C \mid \text{Pat=None}} = \tuple{\frac{0}{2},\frac{2}{2}} = \tuple{0,1}$
+
+We have the following \linkterm{examples}{supervised_learning} with Pat=Some:
+
+\begin{tabular}{c||c|c|c|c|c|c|c|c|c|c||c}
+\hline
+ & \multicolumn{10}{c||}{\textbf{Attributes}} & \textbf{Target} \\ \cline{2-11}
+\textbf{Example} & \textit{Alt} & \textit{Bar} & \textit{Fri} & \textit{Hun} & \textit{Pat} & \textit{Price} & \textit{Rain} & \textit{Res} & \textit{Type} & \textit{Est} & \textit{WillWait} \\ \hline\hline
+$X_1$  & T & F & F & T & Some & \$\$\$ & F & T & French  & 0--10  & T \\ 
+$X_3$  & F & T & F & F & Some & \$    & F & F & Burger  & 0--10  & T \\ 
+$X_6$  & F & T & F & T & Some & \$\$   & T & T & Italian & 0--10  & T \\ 
+$X_8$  & F & F & F & T & Some & \$\$   & T & T & Thai    & 0--10  & T \\ \hline
+\end{tabular}
+
+So, $P(\text{Pat=Some}) = \frac{4}{12}$
+
+And $\probd{C \mid \text{Pat=Some}} = \tuple{\frac{4}{4},\frac{0}{4}} = \tuple{1,0}$
+
+We have the following \linkterm{examples}{supervised_learning} with Pat=Full:
+
+\begin{tabular}{c||c|c|c|c|c|c|c|c|c|c||c}
+\hline
+ & \multicolumn{10}{c||}{\textbf{Attributes}} & \textbf{Target} \\ \cline{2-11}
+\textbf{Example} & \textit{Alt} & \textit{Bar} & \textit{Fri} & \textit{Hun} & \textit{Pat} & \textit{Price} & \textit{Rain} & \textit{Res} & \textit{Type} & \textit{Est} & \textit{WillWait} \\ \hline\hline
+$X_2$  & T & F & F & T & Full & \$    & F & F & Thai    & 30--60 & F \\ 
+$X_4$  & T & F & T & T & Full & \$    & F & F & Thai    & 10--30 & T \\ 
+$X_5$  & T & F & T & F & Full & \$\$\$ & F & T & French  & $>$60  & F \\ 
+$X_9$  & F & T & F & T & Full & \$    & T & F & Burger  & $>$60  & F \\ 
+$X_{10}$ & T & T & T & T & Full & \$\$\$ & F & T & Italian & 10--30 & F \\ 
+$X_{12}$ & T & T & T & T & Full & \$    & F & F & Burger  & 30--60 & T \\ \hline
+\end{tabular}
+
+So, $P(\text{Pat=Full}) = \frac{6}{12}$
+
+And $\probd{C \mid \text{Pat=Full}} = \tuple{\frac{2}{6},\frac{4}{6}} = \tuple{\frac{1}{3},\frac{2}{3}}$
+
+Therefore:
+\begin{align*}
+\text{Gain}(\text{Patrons})
+&= 1 - \left(
+\frac{2}{12} \cdot I(\tuple{0,1}) + 
+\frac{4}{12} \cdot I(\tuple{1,0}) + 
+\frac{6}{12} \cdot I(\tuple{\frac{1}{3}, \frac{2}{3}})
+\right) \\[0.5em]
+&= 1 - \left(
+\frac{2}{12} \cdot \Big[-(0\log_2 0 + 1\log_2 1)\Big] + 
+\frac{4}{12} \cdot \Big[-(1\log_2 1 + 0\log_2 0)\Big] \right.\\
+&\qquad\qquad\left.
++ \frac{6}{12} \cdot \Big[-\Big(\frac{1}{3}\log_2\frac{1}{3} + \frac{2}{3}\log_2\frac{2}{3}\Big)\Big]
+\right) \\[0.5em]
+&= 1 - \left(
+\frac{2}{12} \cdot 0 + 
+\frac{4}{12} \cdot 0 + 
+\frac{6}{12} \cdot \Big[-\Big(\frac{1}{3}\log_2\frac{1}{3} + \frac{2}{3}\log_2\frac{2}{3}\Big)\Big]
+\right) \\[0.5em]
+&= 1 - \left(
+\frac{1}{2} \cdot \Big[-\Big(\frac{1}{3}\log_2\frac{1}{3} + \frac{2}{3}\log_2\frac{2}{3}\Big)\Big]
+\right) \\[0.5em]
+&= 1 - \frac{1}{2}\, I\!\left(\tuple{\frac{1}{3},\frac{2}{3}}\right).
+\end{align*}
+
+\begin{align*}
+I\!\left(\tuple{\frac{1}{3},\frac{2}{3}}\right)
+&= -\left(\frac{1}{3}\log_2\frac{1}{3} + \frac{2}{3}\log_2\frac{2}{3}\right) \\[0.5em]
+&= -\left(\frac{1}{3}(-\log_2 3) + \frac{2}{3}(\log_2 2 - \log_2 3)\right) \\[0.5em]
+&= -\left(-\frac{1}{3}\log_2 3 + \frac{2}{3}(1-\log_2 3)\right) \\[0.5em]
+&= -\left(-\frac{1}{3}\log_2 3 + \frac{2}{3} - \frac{2}{3}\log_2 3\right) \\[0.5em]
+&= \log_2 3 - \frac{2}{3} \\[0.5em]
+&\approx 1.5850 - 0.6667 \approx 0.9183.
+\end{align*}
+
+Therefore,
+\begin{align*}
+\text{Gain}(\text{Patrons})
+&= 1 - \frac{1}{2}\cdot 0.9183 \\[0.5em]
+&\approx 1 - 0.4592 \\[0.5em]
+&\approx 0.5408b
+\end{align*}
+}{}
+
+
+\Example{
+Similarly, we can compute the \linkterm{information gain}{information_gain} of the \linkterm{attribute}{attribute_based_representations} \textit{Type}:
+\[
+\text{Gain}(\text{Type}) = 1 - \left(
+\frac{2}{12} \cdot I(\tuple{0.5, 0.5}) + 
+\frac{2}{12} \cdot I(\tuple{0.5, 0.5}) +
+\frac{4}{12} \cdot I(\tuple{0.5,0.5}) + 
+\frac{4}{12} \cdot I(\tuple{0.5,0.5})
+\right) \approx 0b
+\]
+}{}
+
+\ideabox{
+In order to construct a \textbf{simple} \linkterm{DT}{decision_trees}, we better prioritize the \linkterm{attributes}{attribute_based_representations} that \textbf{maximize} \linkterm{information gain}{information_gain}
+}
+
+\anondefinition{
+The following algorithm performs \defemph{Decision Tree Learning (DTL)} by recursively choosing the \linkterm{attribute}{attribute_based_representations} that \textbf{maximizes} \linkterm{information gain}{information_gain} as root of (sub)-\linkterm{tree}{tree}:
+\begin{algorithm}[H]
+\caption{Decision Tree Learning (DTL)}
+\label{alg:dtl}
+\begin{algorithmic}[1]
+\Function{DTL}{examples, attributes, default}
+
+\If{examples is empty}
+    \State \Return default
+
+\ElsIf{all examples have the same classification}
+    \State \Return the classification
+
+\ElsIf{attributes is empty}
+    \State \Return \Call{MODE}{examples}
+
+\Else
+    \State best $\gets$ \Call{Choose-Attribute}{attributes, examples}
+    \State tree $\gets$ a new decision tree with root test best
+    \State $m \gets$ \Call{MODE}{examples}
+
+    \For{each value $v_i$ of best}
+        \State $examples_i \gets \{\, e \in examples \mid best(e) = v_i \,\}$
+        \State subtree $\gets$ \Call{DTL}{$examples_i$, attributes $\setminus$ best, $m$}
+        \State add a branch to tree with label $v_i$ and subtree subtree
+    \EndFor
+
+    \State \Return tree
+\EndIf
+
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+}{DTL}
+
+\commandnote{
+\texttt{MODE(examples)} returns the most frequent class label in the dataset. For \linkterm{examples}{supervised_learning} $X$ where $X_i = \tuple{x_1, x_2, \cdots, c}$:
+\[
+\text{MODE}(\text{examples}) = \argmax{c} \abs{\set{e \in X \mid \text{class}(e) = c}}
+\]
+}
+
+\Example{
+Here is a \linkterm{DT}{decision_trees} learned by \linkterm{DTL}{DTL} from the 12 \linkterm{examples}{supervised_learning} using \linkterm{information gain}{information_gain} maximization for \texttt{CHOOSE-ATTRIBUTE}:
+
+\begin{center}
+    \includegraphics[width=0.3\linewidth]{images/restaurant_dtl.png}
+\end{center}
+}{ex:learned_dt}
+
+\redbox{
+Notice how the \linkterm{DT}{decision_trees} in \exampleref{ex:learned_dt} is substantially simpler than the \textit{true} \linkterm{DT}{decision_trees} showed in \exampleref{ex:true_dt}.
+}
+
+
+\anondefinition{
+Given a \linkterm{supervised learning problem}{supervised_learning} with a \linkterm{set}{def:set} of \linkterm{examples}{supervised_learning} $T \subseteq A \times B$, we define the \defemph{error rate} of a \linkterm{hypothesis}{supervised_learning} $h \in \mathcal{H}$ as the fraction of errors:
+\[
+\frac{\abs{\set{\tuple{x,y} \in T \mid h(x) \neq y}}}{\abs{T}}
+\]
+}{error_rate_ml}
+
+\observationbox{
+A low \linkterm{error rate}{error_rate_ml} on the \linkterm{training set}{supervised_learning} does not mean that a \linkterm{hypothesis}{supervised_learning} generalizes well. (it might be too \linkterm{consistent}{consistent_hyp})
+}
+
+\ideabox{
+Split \linkterm{example}{examples} into training and testing.
+}
+
+\definition{Holdout Cross Validation}{
+a practice of splitting the data available for learning into a \linkterm{training set}{supervised_learning} from which the \linkterm{learning algorithm}{inductive_learning_algorithms} produces a \linkterm{hypothesis}{supervised_learning} $h$, and a \defemph{test set}, which is used for evaluating $h$
+}{holdout_cv}
+
+\commandnote{
+A \defemph{test set} is a set of \linkterm{examples}{supervised_learning} that is drawn from the same \linkterm{distribution}{def:prob_distribution} as the \linkterm{training set}{supervised_learning}, but is kept separate from it and is used only to estimate how well a learned \linkterm{hypothesis}{supervised_learning} generalizes to new data.
+}
+
+\definition{K-fold Cross Validation}{
+Performing $k$ rounds of learning, each with $\frac{1}{k}$ of the data as \linkterm{test set}{holdout_cv} and average over the $k$ \linkterm{error rates}{error_rate_ml}
+}{k_fold_cv}
+
+\commandnote{
+If $k=\abs{\text{dom}(f)}$, then \linkterm{K-fold CV}{k_fold_cv} is called \defemph{leave one out cross validation (LOOCV)}
+}
+
+
+
+\definition{Vector Norm}{
+Let $V$ be a vector space over $\mathbb{R}$. A \defemph{norm} on $V$ is a function
+\[
+\|\cdot\| : V \to \mathbb{R}
+\]
+such that for all $u,v \in V$ and all scalars $\alpha \in \mathbb{R}$:
+
+\begin{itemize}
+    \item \textbf{Positivity:} $\|v\| \ge 0$, and $\|v\| = 0$ iff $v = 0$
+    \item \textbf{Absolute homogeneity:} $\|\alpha v\| = |\alpha|\,\|v\|$
+    \item \textbf{Triangle inequality:} $\|u+v\| \le \|u\| + \|v\|$
+\end{itemize}
+}{vector_norm}
+
+\definition{$\ell_1$ Norm}{
+For $v=(v_1,\dots,v_n)\in \mathbb{R}^n$, the \defemph{$\ell_1$ norm} is
+\[
+\|v\|_1 := \sum_{i=1}^n |v_i|.
+\]
+}{l1_norm}
+
+\definition{$\ell_2$ Norm}{
+For $v=(v_1,\dots,v_n)\in \mathbb{R}^n$, the \defemph{$\ell_2$ norm} is
+\[
+\|v\|_2 := \sqrt{\sum_{i=1}^n v_i^2}.
+\]
+}{l2_norm}
+
+\definition{$\ell_p$ Norm}{
+For $v=(v_1,\dots,v_n)\in \mathbb{R}^n$ and $p \ge 1$, the \defemph{$\ell_p$ norm} is
+\[
+\|v\|_p := \left(\sum_{i=1}^n |v_i|^p\right)^{1/p}.
+\]
+}{lp_norm}
+
+
+\definition{Loss Vector}{
+Let $T=\tuple{(x_1,y_1),\dots,(x_m,y_m)}$ be a \linkterm{training set}{supervised_learning} and let $h$ be a \linkterm{hypothesis}{supervised_learning}.
+The \defemph{loss vector} of $h$ on $T$ is
+\[
+\vec{\ell}(h,T)
+:=
+\tuple{\,y_1-h(x_1),\; y_2-h(x_2),\; \dots,\; y_m-h(x_m)\,}.
+\]
+}{loss_vector}
+
+\notationbox{
+We sometimes write $y_i$ as $f(x_i)$ where $f$ is the \linkterm{target function}{supervised_learning} we are trying to learn. And we express the predicted value by our \linkterm{hypothesis}{supervised_learning} as $\hat{y_i} = h(x_i)$ 
+}
+
+\anondefinition{
+A \defemph{loss function} is a function
+\[
+L : A \times B \times B \to \mathbb{R}_{\ge 0}
+\]
+that assigns to each input $x \in A$, true label $y \in B$, and prediction $\hat{y} \in B$
+a nonnegative real number measuring how bad it is to predict $\hat{y}$ instead of $y$ on $x$.
+
+If the loss does not depend on the input $x$, we write
+\[
+L : B \times B \to \mathbb{R}_{\ge 0},
+\]
+and simply use $L(y,\hat{y})$.
+}{loss_function}
+
+\definition{$\ell_1$ Loss}{
+The \defemph{$\ell_1$ loss} of a \linkterm{hypothesis}{supervised_learning} $h$ on a \linkterm{training set}{supervised_learning} $T$ is the \linkterm{$\ell_1$ norm}{l1_norm} of its \linkterm{loss vector}{loss_vector}:
+\[
+L_1(h,T) := \|\vec{\ell}(h,T)\|_1
+= \sum_{i=1}^{m} \abs{y_i-\hat{y_i}}.
+\]
+}{l1_loss}
+
+\commandnote{
+We might refer to the \linkterm{$\ell_1$ Loss}{l1_loss} as the \textbf{absolute value loss}
+}
+
+\definition{$\ell_2$ Loss}{
+The \defemph{$\ell_2$ loss} of a \linkterm{hypothesis}{supervised_learning} $h$ on a \linkterm{training set}{supervised_learning} $T$ is the square of the \linkterm{$\ell_2$ norm}{l2_norm} of its \linkterm{loss vector}{loss_vector}:
+\[
+L_2(h,T) := \|\vec{\ell}(h,T)\|_2^2
+= \sum_{i=1}^{m} \big(y_i-\hat{y_i}\big)^2.
+\]
+}{l2_loss}
+
+\commandnote{
+We might refer to the \linkterm{$\ell_2$ Loss}{l2_loss} as the \textbf{squared error loss}
+}
+
+
+\definition{0/1 Loss}{
+For a true label $y$ and a prediction $\hat{y}$, the \defemph{0/1 loss} is
+\[
+L_{0/1}(y,\hat{y}) :=
+\begin{cases}
+0, & \text{if } y=\hat{y},\\
+1, & \text{if } y\neq \hat{y}.
+\end{cases}
+\]
+This is the standard \linkterm{loss function}{loss_function}  for \linkterm{classification}{classifcation_regression}, and it is equal to the \linkterm{error rate}{error_rate_ml} on a single example.
+}{01loss}
+
+\definition{Generalization Loss / Expected Risk}{
+Let $\mathcal{E} = X \times Y$ be the \linkterm{set}{def:set} of all possible \linkterm{examples}{supervised_learning} and $\probd{X,Y}$ is the \linkterm{prior}{def:bayesian_terms} \linkterm{probability distribution}{def:prob_distribution} over its components, then the \defemph{expected generalization loss} for a \linkterm{hypothesis}{supervised_learning} $h \in \mathcal{H}$ with respect to a \linkterm{loss function}{loss_function} $L$ is:
+\[
+\text{GenLoss}_L(h) := \sum_{\tuple{x,y} \in \mathcal{E}} L(y, h(x)) \cdot p(x,y)
+\]  
+}{gen_loss}
+
+\redbox{
+The \textit{best} \linkterm{hypothesis}{supervised_learning} $h^{*}$ is the one that minimizes the \linkterm{generalization loss}{gen_loss}:
+\[
+h^{*} := \argmin{h \in \mathcal{H}} \text{GenLoss}_L(h)
+\]
+}
+
+\problembox{
+$\probd{X,Y}$ is unknown $\leadsto$ learners only \textbf{estimate} \linkterm{generalization loss}{gen_loss}
+}
+
+\definition{Empirical Loss}{
+Let $L$ be a \linkterm{loss function}{loss_function} and $E$ a set of \linkterm{examples}{supervised_learning} with $\abs{E}=N$, then we define the \defemph{empirical loss} as:
+\[
+\text{EmpLoss}_{L,E}(h) := \frac{1}{N} \left(
+\sum_{\tuple{x,y} \in E} L(y, h(x))
+\right)
+\]
+}{emp_loss}
+
+\redbox{
+The estimated best \linkterm{hypothesis}{supervised_learning} $\hat{h}^{*}$ is the one that minimizes the \linkterm{empirical loss}{emp_loss}:
+\[
+\hat{h}^{*} := \argmin{h \in \mathcal{H}} \text{EmpLoss}_{L,E}(h)
+\]
+}
+
+\titledbox{Intuition}{
+Our aim is not to only minimize the \linkterm{empirical loss}{emp_loss}, we also want a \textit{simple} \linkterm{hypothesis}{supervised_learning} (i.e. finding a good \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$) to avoid \linkterm{overfitting}{overfitting}
+}
+
+\ideabox{
+Minimize the weighted sum of \linkterm{empirical loss}{emp_loss} and \linkterm{hypothesis}{supervised_learning} complexity
+}
+
+\anondefinition{
+Let $\lambda \in \mathbb{R}$, $h \in \mathcal{H}$, and $E$ a \linkterm{set}{def:set} of \linkterm{examples}{supervised_learning}, then we call
+\[
+\text{Cost}_{L,E} := \text{EmpLoss}_{L,E}(h) + \lambda \text{Complexity}(h)
+\]
+the \defemph{total cost} of $h$ on $E$
+}{total_cost_ml}
+
+\redbox{
+The \linkterm{total cost}{total_cost_ml} minimizing \linkterm{hypothesis}{supervised_learning} is 
+\[
+\hat{h}^{*} := \argmin{h \in \mathcal{H}} \text{Cost}_{L,E}
+\]
+}
+
+\anondefinition{
+The process of finding a \textbf{total cost minimizing hypothesis}
+\[
+\hat{h}^{*} := \argmin{h \in \mathcal{H}} \text{Cost}_{L,E}
+\]
+is called \defemph{regularization}. Complexity in $\lambda \text{Complexity}(h)$ is called the \defemph{regularization function} or \defemph{hypothesis complexity}
+}{regularization}
