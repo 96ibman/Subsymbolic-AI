@@ -920,3 +920,514 @@ The process of finding a \textbf{total cost minimizing hypothesis}
 \]
 is called \defemph{regularization}. Complexity in $\lambda \text{Complexity}(h)$ is called the \defemph{regularization function} or \defemph{hypothesis complexity}
 }{regularization}
+
+
+\questionbox{
+How can we be sure that our learning algorithm has produced a \linkterm{hypothesis}{supervised_learning} that will predict the correct value for previously unseen inputs? In other words, how do we know that the \linkterm{hypothesis}{supervised_learning} $h$ is close to the \linkterm{target function}{supervised_learning} $f$ if we don't know what $f$ is?
+}
+
+Some more questions:
+\begin{itemize}
+    \item How many \linkterm{examples}{supervised_learning} do we need to get a good $h$ ?
+    \item What \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$ should we use?
+    \item If the \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$ is very complex, can we find the best $h \in \mathcal{H}$, or do we have to settle for a local maximum in $\mathcal{H}$?
+    \item How complex $h$ should be?
+    \item How do we avoid \linkterm{overfitting}{overfitting}?
+    \item $\cdots$
+\end{itemize}
+
+\redbox{
+\textbf{"Computational Learning Theory"} tries to answer such questions using concepts from AI, Statistics, and Theoretical Computer Science
+}
+
+\titledbox{Basic idea of Computational Learning Theory}{
+\begin{itemize}
+    \item Any \linkterm{hypothesis}{supervised_learning} $h$ that is \textbf{seriously wrong} will almost certainly be \textit{found out} with high probability after a small number of \linkterm{examples}{supervised_learning}, because it will make an incorrect prediction. 
+    \item Thus, if $h$ is \linkterm{consistent}{consistent_heuristic} with a sufficiently large \linkterm{set}{def:set} of \linkterm{training examples}{supervised_learning}, it is unlikely to be \textbf{seriously wrong}
+    \item $\leadsto h$ is \textbf{probably approximately correct}
+\end{itemize}
+}
+
+\definition{PAC Learning}{
+Any \linkterm{inductive learning algorithm}{inductive_learning_algorithms} that returns \linkterm{hypotheses}{supervised_learning} that are \defemph{probably approximately correct} is called a \defemph{PAC Learning} algorithm.
+}{pac_learning}
+
+\redbox{
+Let's only discuss \linkterm{PAC}{pac_learning} theorems for Boolean \linkterm{functions}{function}, for which \linkterm{0/1 Loss}{01loss} is appropriate.
+}
+
+\ideabox{
+The \linkterm{error rate}{error_rate_ml} of a \linkterm{hypothesis}{supervised_learning} $h$ is the probability that $h$ misclassifies a new \linkterm{example}{supervised_learning}. What about if we fix an acceptable $\epsilon > 0$ as an \defemph{error threshold} for \textit{"seriously bad"} \linkterm{hypotheses}{supervised_learning}? (an error/loss that we can tolerate)
+}
+
+\anondefinition{
+A \linkterm{hypothesis}{supervised_learning} $h$ is called \defemph{approximately correct}, iff $\text{error}(h) \leq \epsilon$. We write $\mathcal{H}_b := \set{h \in \mathcal{H} \mid \text{error}(h) > \epsilon}$ for the \textbf{seriously bad} \linkterm{hypotheses}{supervised_learning}
+}{approximately_correct_hyp}
+
+\redbox{
+Let's compute the probability that $h_b \in \mathcal{H}_b$ is \linkterm{consistent with}{consistent_hyp} the first $N$ \linkterm{examples}{supervised_learning}
+}
+
+\redbox{
+Let $h_b \in \mathcal{H}_b$ be a \textbf{seriously bad} hypothesis, i.e.
+\[
+\text{error}(h_b) > \epsilon
+\]
+This means that $h_b$ misclassifies more than an $\epsilon$ fraction of all possible examples.
+}
+
+\titledbox{Probability that a bad hypothesis survives}{
+For a single randomly drawn example:
+\[
+P(h_b \text{ classifies the example correctly})
+=
+1 - \text{error}(h_b)
+\]
+
+Since $\text{error}(h_b) > \epsilon$, we obtain:
+\[
+P(h_b \text{ classifies correctly})
+<
+1-\epsilon
+\]
+
+Therefore, the probability that $h_b$ correctly classifies all $N$ independent training examples is at most:
+\[
+P(h_b \text{ agrees with all } N \text{ examples})
+\leq
+(1-\epsilon)^N
+\]
+}
+
+\commandnote{
+That means, even a bad hypothesis may accidentally classify a few examples correctly. However, the probability that it survives many examples without making a mistake decreases exponentially fast with $N$.
+}
+
+\titledbox{Considering all bad hypotheses}{
+We now ask:
+
+\begin{center}
+\textit{What is the probability that there exists at least one seriously bad hypothesis that is still consistent with all training examples?}
+\end{center}
+
+Let:
+\[
+\mathcal{H}_b
+=
+\set{h \in \mathcal{H} \mid \text{error}(h) > \epsilon}
+\]
+
+be the set of all seriously bad hypotheses.
+
+Each bad hypothesis survives with probability at most:
+\[
+(1-\epsilon)^N
+\]
+}
+
+\titledbox{Using the Union Bound}{
+For each bad hypothesis:
+\[
+h_b \in \mathcal H_b
+\]
+
+define the event:
+\[
+E_{h_b}
+=
+\text{``}h_b \text{ is consistent with all } N \text{ examples''}
+\]
+
+Earlier we showed:
+\[
+P(E_{h_b})
+\leq
+(1-\epsilon)^N
+\]
+
+We are interested in the probability that \emph{at least one} bad hypothesis survives, i.e.
+\[
+P(\mathcal H_b \text{ contains a consistent hypothesis})
+=
+P\left(
+\bigcup_{h_b \in \mathcal H_b} E_{h_b}
+\right)
+\]
+
+Using the union bound:
+\[
+P\left(
+\bigcup_{h_b \in \mathcal H_b} E_{h_b}
+\right)
+\leq
+\sum_{h_b \in \mathcal H_b} P(E_{h_b})
+\]
+
+Since every bad hypothesis satisfies:
+\[
+P(E_{h_b})
+\leq
+(1-\epsilon)^N
+\]
+
+we obtain:
+\[
+P(\mathcal H_b \text{ contains a consistent hypothesis})
+\leq
+|\mathcal H_b|(1-\epsilon)^N
+\]
+
+Thus, the probability that some seriously bad hypothesis survives decreases exponentially with the number of training examples.
+}
+
+
+Because $\mathcal{H}_b \subseteq \mathcal{H}$, that means $\abs{\mathcal{H}_b} \leq \abs{\mathcal{H}}$. We multiply both sides by $(1-\epsilon)^N$, we get:
+\[
+\abs{\mathcal{H}_b} (1-\epsilon)^N \leq \abs{\mathcal{H}} (1-\epsilon)^N
+\]
+Therefore:
+\[
+P(\mathcal H_b \text{ contains a consistent hypothesis})
+\leq
+|\mathcal H_b|(1-\epsilon)^N
+\leq
+\abs{\mathcal{H}} (1-\epsilon)^N
+\]
+
+Considering only the upper bound:
+\[
+P(\mathcal H_b \text{ contains a consistent hypothesis})
+\leq
+\abs{\mathcal{H}} (1-\epsilon)^N
+\]
+
+This quantity is an \textbf{upper bound} on the probability that a seriously bad hypothesis survives all training examples.
+
+We now introduce a parameter:
+\[
+\delta > 0
+\]
+
+which represents the maximum probability of failure that we are willing to tolerate.
+
+In other words:
+
+\begin{center}
+\textit{We want the probability that a bad hypothesis survives to be at most $\delta$.}
+\end{center}
+
+Which also means:
+\begin{center}
+\textit{with probability at least $1-\delta$, no bad hypothesis survives training}
+\end{center}
+
+\commandnote{
+If no bad \linkterm{hypothesis}{supervised_learning} survives training, that means every hypothesis that fits the training data must have error $\leq \epsilon$, so the learning algorithm must output a good hypothesis.
+}
+
+
+Therefore, we require:
+\[
+P(\mathcal H_b \text{ contains a consistent hypothesis})
+\leq
+\delta
+\]
+
+
+Hence, it is sufficient to enforce:
+\[
+\abs{\mathcal{H}}(1-\epsilon)^N
+\leq
+\delta
+\]
+
+This guarantees that the probability of accepting a seriously bad hypothesis is at most $\delta$.
+
+\bigskip
+
+Let's solve this inequality for $N$. Divide both sides by $\abs{\mathcal{H}}$:
+\[
+(1-\epsilon)^N
+\leq
+\frac{\delta}{\abs{\mathcal{H}}}
+\]
+
+Take logarithms:
+\[
+\log_2\left((1-\epsilon)^N\right)
+\leq
+\log_2\left(\frac{\delta}{\abs{\mathcal{H}}}\right)
+\]
+
+Using the logarithm rule:
+\[
+\log_2(a^N)=N\log_2(a)
+\]
+
+we obtain:
+\[
+N\log_2(1-\epsilon)
+\leq
+\log_2(\delta)-\log_2(\abs{\mathcal{H}})
+\]
+
+For small $\epsilon$, we have:  $\log_2(1-\epsilon) \approx -\epsilon$:
+\[
+N(-\epsilon)
+\leq
+\log_2(\delta)-\log_2(\abs{\mathcal{H}})
+\]
+
+Multiply by $-1$ (which flips the inequality):
+\[
+N(\epsilon)
+\geq
+- \log_2(\delta)+\log_2(\abs{\mathcal{H}})
+\]
+
+We use the identity $- \log_2(a) = \log_2 (\frac{1}{a})$
+
+\[
+N\epsilon
+\geq
+\log_2(\abs{\mathcal{H}})
++
+\log_2\left(\frac{1}{\delta}\right)
+\]
+
+Finally, divide by $\epsilon$:
+\[
+N
+\geq
+\frac{1}{\epsilon}
+\left(
+\log_2\left(\frac{1}{\delta}\right)
++
+\log_2(\abs{\mathcal{H}})
+\right)
+\]
+
+
+That means, to guarantee that a learned \linkterm{hypothesis}{supervised_learning} is within error $\epsilon$ (\linkterm{approximately correct}{approximately_correct_hyp}) with probability at least $1-\delta$, you need at least:
+\[
+\frac{1}{\epsilon}
+\left(
+\log_2\left(\frac{1}{\delta}\right)
++
+\log_2(\abs{\mathcal{H}})
+\right) \text{ examples }
+\]
+
+
+\titledbox{Interpretation}{
+\begin{itemize}
+    \item Smaller $\epsilon$ means we tolerate less error $\Rightarrow$ more examples are required
+    \item Smaller $\delta$ means we want higher confidence $\Rightarrow$ more examples are required
+    \item Larger hypothesis spaces $\abs{\mathcal{H}}$ require more examples because there are more hypotheses that could accidentally fit the training data
+\end{itemize}
+}
+
+\anondefinition{
+The number of required \linkterm{training examples}{supervised_learning} $N$ as a function of $\epsilon$, $\delta$, and $|\mathcal{H}|$ is called the \defemph{sample complexity}.
+}{sample_complexity}
+
+\Example{
+If $\mathcal{H}$ is the \linkterm{set}{def:set} of $n$-ary Boolean \linkterm{functions}{function}, then $\abs{\mathcal{H}} = 2^{2^n}$.
+\begin{itemize}
+    \item \linkterm{sample complexity}{sample_complexity} grows with $\bigo{\log_2(2^{2^n})} = \bigo{2^n}$
+    \item There are $2^n$ possible \linkterm{examples}{supervised_learning}
+    \item $\leadsto$ \linkterm{PAC learning}{pac_learning} for Boolean \linkterm{functions}{function} needs to see (nearly) all \linkterm{examples}{supervised_learning}!
+\end{itemize}
+}{}
+
+
+\redbox{
+If your \linkterm{hypotheses space}{supervised_learning} is too expressive (like all Boolean \linkterm{functions}{function}), then \linkterm{sample complexity}{sample_complexity} becomes exponential.
+}
+
+\ideabox{
+Restrict $\mathcal{H}$ in some way. For example, focusing on "\textit{learnable subsets}" of $\mathcal{H}$
+}
+
+\anondefinition{
+A \defemph{decision list} consists of a \linkterm{sequence}{sequence} of tests, each of which is a conjunction of literals.
+\begin{itemize}
+    \item If a test succeeds when applied to an \linkterm{example}{supervised_learning} description, the decision list specifies the value to be returned 
+    \item If the test fails, processing continues with the next test in the list
+\end{itemize}
+}{decision_list}
+
+\commandnote{
+Like \linkterm{Decision Trees}{decision_trees}, but restricted branching, but more complex tests.
+}
+
+\Example{
+Here is a \linkterm{decision list}{decision_list} for the Restaurant problem:
+\begin{center}
+\includegraphics[width=0.5\linewidth]{images/decision_list.png}
+\end{center}
+}{decision_list_ex}
+
+\Lemma{
+Given arbitrary size conditions, \linkterm{decision lists}{decision_list} can represent arbitrary Boolean \linkterm{functions}{function}
+}{}
+
+\anondefinition{
+The \linkterm{set}{def:set} of \linkterm{decision lists}{decision_list} where tests are of conjunctions of at most $k$ literals is denoted by $k$-DL
+}{k_decision_list}
+
+\Example{
+The \linkterm{decision list}{decision_list} from \exampleref{decision_list_ex} is in $2$-DL
+}{}
+
+\observationbox{
+$k$-DL contains $k$-DT, the \linkterm{set}{def:set} of \linkterm{Decision Trees}{decision_trees} of depth at most $k$
+}
+
+
+\anondefinition{
+We denote the \linkterm{set}{def:set} of $k$-DL \linkterm{decision lists}{decision_list} with at most $n$ Boolean \linkterm{attributes}{attribute_based_representations} with $k$-DL$(n)$. The \linkterm{set}{def:set} of conjunctions of at most $k$ literals over $n$ \linkterm{attributes}{attribute_based_representations} is written as $\text{Conj}(k,n)$
+}{}
+
+\Example{
+If we have two \linkterm{attributes}{attribute_based_representations} $x_1, x_2$ and we want at most $2$ literals, then all the possible tests are:
+\[
+\text{Conj}(k,n) = \set{x_1, \neg x_1, x_2, \neg x_2,
+x_1 \land x_2,
+x_1 \land \neg x_2,
+\neg x_1 \land x_2,
+\neg x_1 \land \neg x_2,
+x_1 \land \neg x_2,
+x_2 \land x_2
+}
+\]
+}{}
+
+\commandnote{
+In the previous example, $\abs{\text{Conj}(k,n)} = 10$
+}
+
+\questionbox{
+Can we generalize this? 
+}
+
+\solutionbox{
+If we have $n$ \linkterm{attributes}{attribute_based_representations}. Each \linkterm{attribute}{attribute_based_representations} $x_i$ can appear as a positive literal or as a negative literal. That gives us $2n$ literals to choose from. A test is made by choosing $i$ literals from this pool of $2n$. The number of ways to choose exactly $i$ items from $2n$ is the binomial coefficient:
+\[
+\binom{2n}{i}
+\]
+Since a test can have at most $k$ literals, we have to sum up all possibilities for tests of length $1$, $2$, all the way up to $k$:
+\[
+\abs{\text{Conj}(k,n)} = \sum_{i=1}^{k} \binom{2n}{i}
+\]
+}
+
+\commandnote{
+$k$ is usually treated as a small constant (like 2, or 3), while $n$ (the number of features) can be very large. The largest term in this sum is:
+\[
+\binom{2n}{k}
+\]
+}
+
+\redbox{
+\[
+\binom{2n}{k} \approx \frac{(2n)^k}{k!} \qquad \text{by definition of combinations}
+\]
+}
+
+\commandnote{
+Since $2k$ and $k!$ are small constants, the dominant growth factor is $n^k$
+}
+
+\ideabox{
+We can bound the number of possible tests as:
+\[
+\abs{\text{Conj}(k,n)} = \bigo{n^k}
+\]
+}
+
+\questionbox{
+What is the size of this restricted learnable \linkterm{hypotheses space}{supervised_learning} ($k$-DL$(n)$)?
+}
+
+We need to calculate the maximum number of unique \linkterm{decision lists}{decision_list} we can build. Let $C=\abs{\text{Conj}(k,n)}$ be the total number of available tests. To build  a \linkterm{decision list}{decision_list}, we must do two things:
+\begin{enumerate}
+    \item Select tests and assign outputs: For every single test out of the $C$ avaiable, it has $3$ possible states in my list:
+    \begin{itemize}
+        \item it is included and returns Yes
+        \item it is included and returns No
+        \item it is not included in the list at all
+    \end{itemize}
+    Because there are $C$ tests, and each has $3$ independent choices, there are exactly $3^C$ ways to select tests and assign their return values.
+    \item Order the tests: A \linkterm{decision list}{decision_list} is strictly ordered. If we choose a subset of tests, we can arrange them in any sequence. The absolute maximum number of tests we could possibly select is $C$. The number of ways to order $C$ items is $C!$
+\end{enumerate}
+
+Putting it all together, the total number of \linkterm{decision lists}{decision_list} is bounded by the combinations of selections multiplied by their possible orderings:
+\[
+\abs{k-\text{DL}(n)} \leq 3^C \cdot C!
+\]
+
+Take the logarithm:
+\[
+\log_2 \abs{k-\text{DL}(n)} \leq \log_2 (3^C \cdot C!)
+\]
+
+\[
+\log_2 \abs{k-\text{DL}(n)} \leq C\log_2 3 \cdot \log_2 C!
+\]
+
+\redbox{
+\[
+\log_2 C! \leq C \log_2(C) \qquad \text{(Stirling's approximation)}
+\]
+}
+
+\[
+\log_2 \abs{k-\text{DL}(n)} \leq C\log_2 3 \cdot C \log_2(C)
+\]
+
+\commandnote{
+$C \log_2(C)$ grows much faster than $ C\log_2 3$
+}
+
+\ideabox{
+We ignore $C\log_2 3$ and bound the size using $\bigo{\cdot}$ notation
+}
+
+\[
+\log_2 \abs{k-\text{DL}(n)} = \bigo{C \log_2(C)}
+\]
+
+\observationbox{
+$C = \abs{\text{Conj}(k,n)} = \bigo{n^k}$
+}
+
+\[
+\log_2 \abs{k-\text{DL}(n)} = \bigo{n^k \log_2(n^k)}
+\]
+
+We raise $2$ to the power of both sides:
+\[
+\abs{k-\text{DL}(n)} = 2^{\bigo{n^k \log_2(n^k)}}
+\]
+
+Plug this into the equation for the \linkterm{sample complexity}{sample_complexity} to obtain:
+
+\[
+N
+\geq
+\frac{1}{\epsilon}
+\left(
+\log_2\left(\frac{1}{\delta}\right)
++
+\log_2(\bigo{n^k \log_2(n^k)})
+\right)
+\]
+
+\titledbox{Intuition}{
+Before, when our \linkterm{hypotheses space}{supervised_learning} was all Boolean \linkterm{functions}{function} $\leadsto$ exponential \linkterm{sample complexity}{sample_complexity}. With $k-\text{DL}(n)$ as our \linkterm{hypotheses space}{supervised_learning}, we have polynomial \linkterm{sample complexity}{sample_complexity}
+}
+
+\redbox{
+Take home message: If you restirct your \linkterm{hypotheses space}{supervised_learning} structure, learning becomes feasible
+}
