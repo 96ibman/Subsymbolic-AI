@@ -75,6 +75,15 @@ A semigroup (\linkterm{magma}{magma} with associativity) is a \linkterm{mathemat
 Given collections $M$ and $S$ of instances of \linkterm{magmas}{magma} and \linkterm{semigroups}{semigroup}, $S \subseteq M$ as there are \linkterm{magmas}{magma} whose operation is not associative.
 }
 
+\definition{Abelian Group}{
+An abelian group (or commutative group) is a \linkterm{group}{group}
+$\tuple{G,\circ,e,\inverse{.}}$ such that:
+\[
+\forall a,b \in G. a \circ b = b \circ a
+\]
+}{abelian_group}
+
+
 \minititle{Mathematical Structures in a Graph:}
 \begin{figure} [H]
     \begin{center}
@@ -91,4 +100,59 @@ Given collections $M$ and $S$ of instances of \linkterm{magmas}{magma} and \link
 \end{itemize} 
 \item Examples are just interpretations ($\leadsto$) read backwards
 \item Any \linkterm{object}{math_object} / property / \linkterm{theorem}{theorem} can be copied along any edge
+\end{itemize}
+
+\definition{Field}{
+A field is a \linkterm{mathematical structure}{def:math_structure}
+\[
+\tuple{F,+,0,-,*,1}
+\]
+consisting of:
+\begin{itemize}
+    \item A base \linkterm{set}{def:set} $F$,
+    \item An addition operation such that $\tuple{F,+,0,-}$ is an abelian \linkterm{group}{group},
+    \item A multiplication operation such that
+    \[
+    \tuple{F \setminus \set{0}, *, 1, a \mapsto \frac{1}{a}}
+    \]
+    is an abelian \linkterm{group}{group},
+    \item Distributivity:
+    \[
+    a*(b+c)=(a*b)+(a*c)
+    \]
+    and
+    \[
+    (a+b)*c=(a*c)+(b*c)
+    \]
+    for all $a,b,c \in F$.
+\end{itemize}
+}{field}
+
+\textbf{Examples:}
+\begin{itemize}
+    \item $\mathbb{Q}$ (rational numbers) is a \linkterm{field}{field}.
+    Every non-zero rational number has a multiplicative inverse in $\mathbb{Q}$.
+    For example:
+    \[
+    2^{-1} = \frac{1}{2}
+    \]
+
+    \item $\mathbb{R}$ (real numbers) is a \linkterm{field}{field}.
+
+    \item $\mathbb{C}$ (complex numbers) is a \linkterm{field}{field}.
+
+    \item $\mathbb{Z}$ (integers) is \textbf{not} a \linkterm{field}{field},
+    because most integers do not have multiplicative inverses in $\mathbb{Z}$.
+    For example:
+    \[
+    \frac{1}{2} \notin \mathbb{Z}
+    \]
+
+    \item The set of matrices
+    \[
+    \mathbb{R}^{n \times n}
+    \]
+    is generally \textbf{not} a \linkterm{field}{field},
+    because matrix multiplication is not commutative and some non-zero
+    matrices are not invertible.
 \end{itemize}

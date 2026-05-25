@@ -1,0 +1,100 @@
+\labeledsection{Regression}{sec:regression}
+\anondefinition{
+A \linkterm{function}{function} with one argument is called \defemph{univariate} or \defemph{unary}
+}{univariate}
+
+\definition{Vector Space}{
+A vector space over a \linkterm{field}{field} $K$ is a
+\linkterm{mathematical structure}{def:math_structure} $\tuple{V, +, \cdot}$ consisting of:
+\begin{itemize}
+    \item A base \linkterm{set}{def:set} $V$,
+    \item A \defemph{vector addition} operation $+ : V \times V \to V$ such that
+    $\tuple{V,+,0,-}$ is an abelian \linkterm{group}{abelian_group},
+    \item A \defemph{scalar multiplication} operation
+    \[
+    \cdot : K \times V \to V
+    \]
+    such that for all $\alpha,\beta \in K$ and $u,v \in V$:
+
+    \begin{itemize}
+        \item $\alpha (u+v) = \alpha u + \alpha v$
+        \item $(\alpha + \beta)v = \alpha v + \beta v$
+        \item $(\alpha \beta)v = \alpha (\beta v)$
+        \item $1 \cdot v = v$
+    \end{itemize}
+\end{itemize}
+}{vector_space}
+
+\Example{
+Let $V = \mathbb{R}^n$ and $K = \mathbb{R}$.
+
+Vector addition:
+\[
+(x_1,\dots,x_n) + (y_1,\dots,y_n)
+= (x_1+y_1,\dots,x_n+y_n)
+\]
+
+Scalar multiplication:
+\[
+\alpha (x_1,\dots,x_n)
+= (\alpha x_1,\dots,\alpha x_n)
+\]
+}{}
+
+
+
+
+\anondefinition{
+A mapping $f$ between \linkterm{vector spaces}{vector_space} is called \defemph{linear}, iff it preserves  \linkterm{vector addition}{vector_space} and \linkterm{scalar multiplication}{vector_space}:
+\[
+f(\alpha \cdot (v_1 + v_2)) = \alpha \cdot (f(v_1), f(v_2))
+\]
+}{linear_mapping}
+
+\Example{
+\begin{itemize}
+
+\item \textbf{Scaling in $\mathbb{R}^n$}
+
+\[
+f : \mathbb{R}^n \to \mathbb{R}^n, \quad f(v) = 2v
+\]
+
+Acts on vectors:
+\[
+(x_1,\dots,x_n) \mapsto (2x_1,\dots,2x_n)
+\]
+
+\item \textbf{Projection onto first coordinate}
+
+\[
+f(x_1,x_2,\dots,x_n) = (x_1,0,\dots,0)
+\]
+
+\item \textbf{Matrix transformation}
+
+For $A \in \mathbb{R}^{m \times n}$:
+\[
+f(v) = Av
+\]
+
+Example:
+\[
+\begin{pmatrix}
+1 & 2 \\
+0 & 1
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+x+2y \\
+y
+\end{pmatrix}
+\]
+
+\end{itemize}
+}{}
+
