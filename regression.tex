@@ -241,13 +241,34 @@ h_{\mathbf{w}}(\mathbf{x})
 where $\mathbf{w}^T\mathbf{x}$ denotes matrix multiplication (multiplying a horizontal row vector by a vertical column vector) and $\mathbf{w} \cdot \mathbf{x}$ denotes the standard algebraic dot product.
 }
 
-\anondefinition{
-Let $\mathbf{X}$ be an $N \times (n+1)$ matrix containing all training inputs, and let $\mathbf{y}$ be an $N \times 1$ vector containing all target outputs. The total \linkterm{$\ell_2$ Loss}{l2_loss} for \linkterm{multivariate linear regression}{multivariate_linear_regression} can be written compactly using matrix operations as:
+\notationbox{
+When we have a dataset of $N$ training examples, we use a superscript $(i)$ to denote the $i$-th example vector. Each individual example vector $\mathbf{x}^{(i)}$ is composed of $n$ distinct scalar features plus our constant dummy feature $x_0^{(i)} = 1$:
 \[
-L(\mathbf{w}) = (\mathbf{X}\mathbf{w} - \mathbf{y})^T(\mathbf{X}\mathbf{w} - \mathbf{y})
+\mathbf{x}^{(i)} :=
+\begin{pmatrix}
+x_0^{(i)}\\
+x_1^{(i)}\\
+\vdots\\
+x_n^{(i)}
+\end{pmatrix}
+=
+\begin{pmatrix}
+1\\
+x_{i,1}\\
+\vdots\\
+x_{i,n}
+\end{pmatrix}
 \]
-The goal is to find the optimal parameter vector $\mathbf{w}^{*}$ that makes this total error as small as possible.
-}{multivariate_l2_loss}
+where $x_{i,j}$ represents the scalar value of the $j$-th feature for the $i$-th data instance.
+}
+
+\anondefinition{
+Let $E = \{(\mathbf{x}^{(1)}, y_1), (\mathbf{x}^{(2)}, y_2), \dots, (\mathbf{x}^{(N)}, y_N)\}$ be a \linkterm{set}{def:set} of $N$ \linkterm{examples}{supervised_learning}. The total \linkterm{$\ell_2$ Loss}{l2_loss} for \linkterm{multivariate linear regression}{multivariate_linear_regression} is the sum of the squared errors across all individual example vectors:
+\[
+L(\mathbf{w}) = \sum_{i=1}^{N} \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big)^2 = \sum_{i=1}^{N} \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big)^2
+\]
+}{multivariate_l2_loss_vector}
+
 
 \observationbox{
 Just like the univariate case, this multivariate loss function has a unique, exact closed-form solution that can be computed analytically in a single step. This solution is known as the \defemph{Normal Equations}:
@@ -277,5 +298,345 @@ Let $\alpha \in \mathbb{R}^{+}$ be a small scalar value called the \defemph{lear
 \[
 \mathbf{w}^{(t+1)} := \mathbf{w}^{(t)} - \alpha \nabla L(\mathbf{w}^{(t)})
 \]
-where $t$ denotes the current iteration step.
 }{gradient_descent_update}
+
+Before evaluating the entire gradient vector simultaneously, we can look at how gradient descent updates a single individual weight parameter $w_j$ (where $j \in \{0, 1, \dots, n\}$) using individual scalar components.
+
+Applying the chain rule to our summation loss function, the partial derivative with respect to a specific weight $w_j$ is:
+\[
+\frac{\partial L}{\partial w_j} = \sum_{i=1}^{N} 2\big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big)\left(-x_j^{(i)}\right)
+\]
+
+\observationbox{
+Factoring out the constant $-2$, the partial derivative shows how much our $j$-th scalar feature contributes to the total error across all $N$ examples:
+\[
+\frac{\partial L}{\partial w_j} = -2 \sum_{i=1}^{N} \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big) x_j^{(i)}
+\]
+}
+
+\commandnote{
+By isolating this specific coordinate of the gradient, the individual scalar update rule for a single parameter $w_j$ at iteration step $t$ is defined as:
+\[
+w_j^{(t+1)} := w_j^{(t)} + 2\alpha \sum_{i=1}^{N} \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big) x_j^{(i)}
+\]
+where $x_j^{(i)}$ is the specific scalar value of the $j$-th feature for the $i$-th training instance, and $x_0^{(i)} = 1$ for the bias parameter $w_0$.
+}
+
+
+\anondefinition{
+When the gradient is calculated by summing the errors across the \textbf{entire dataset} of $N$ examples before performing a single weight update, the algorithm is called \defemph{Batch Gradient Descent}. 
+
+\[
+w_j^{(t+1)} := w_j^{(t)} + 2\alpha \sum_{i=1}^{N} \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big) x_j^{(i)}
+\]
+}{batch_gradient_descent}
+
+\problembox{
+While Batch Gradient Descent takes very stable, direct steps toward the minimum, it scales poorly. If the dataset contains millions of examples ($N > 10^6$), the computer must perform millions of operations just to make a single tiny adjustment to the weights, making it incredibly slow.
+}
+
+\anondefinition{
+When the weight parameters are updated iteratively after examining only \textbf{one single, randomly selected training example} $(\mathbf{x}^{(i)}, y_i)$, the algorithm is called \defemph{Stochastic Gradient Descent}.
+
+\[
+w_j^{(t+1)} := w_j^{(t)} + 2\alpha \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big) x_j^{(i)}
+\]
+}{stochastic_gradient_descent}
+
+\commandnote{
+Remember \Defref{regularization}. For \linkterm{multivariate linear regression}{multivariate_linear_regression}, the \linkterm{complexity}{regularization} of a \linkterm{hypothesis}{supervised_learning} $h_{\mathbf{w}}$ is determined by the size of its weight parameters. To prevent \linkterm{overfitting}{overfitting}, we exclude the baseline intercept $w_0$ from the \linkterm{complexity}{regularization} calculation and only penalize the feature weights $w_1, w_2, \dots, w_n$.
+}
+
+
+\anondefinition{
+When we define the \linkterm{hypothesis complexity}{regularization} as the sum of the \textbf{squared magnitudes} of the feature weights, the process is called \defemph{$L_2$ Regularization} (or \textbf{Ridge Regression}):
+\[
+\text{Complexity}(h_{\mathbf{w}}) = \|\mathbf{w}_{1:n}\|_2^2 = \sum_{j=1}^{n} w_j^2
+\]
+The \linkterm{total cost function}{total_cost_ml} becomes:
+\[
+\text{Cost}_{L,E}(\mathbf{w}) = \sum_{i=1}^{N} \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big)^2 + \lambda \sum_{j=1}^{n} w_j^2
+\]
+}{l2_regularization}
+
+\observationbox{
+$L_2$ regularization heavily penalizes exceptionally large weight values because it squares each parameter. This forces the optimization to distribute weight softly across all features, driving all parameters closer to zero without making them exactly zero.
+}
+
+\anondefinition{
+When we define the \linkterm{hypothesis complexity}{regularization} as the sum of the \textbf{absolute magnitudes} of the feature weights, the process is called \defemph{$L_1$ Regularization} (or \textbf{Lasso Regression}):
+\[
+\text{Complexity}(h_{\mathbf{w}}) = \|\mathbf{w}_{1:n}\|_1 = \sum_{j=1}^{n} |w_j|
+\]
+The  \linkterm{total cost function}{total_cost_ml} becomes:
+\[
+\text{Cost}_{L,E}(\mathbf{w}) = \sum_{i=1}^{N} \big(y_i - \mathbf{w}^T\mathbf{x}^{(i)}\big)^2 + \lambda \sum_{j=1}^{n} |w_j|
+\]
+}{l1_regularization}
+
+\observationbox{
+\linkterm{$L_1$ Regularization}{l1_regularization} tends to produce \textbf{sparse models}, i.e. it sets many weights to $0$, effectively declaring the corresponding \linkterm{attributes}{attribute_based_representations} to be irrelevant. \linkterm{hypotheses}{supervised_learning} that discard \linkterm{attributes}{attribute_based_representations} can be easier for a human to understand, and may be less likely to \linkterm{overfit}{overfitting}
+}
+
+
+\questionbox{
+Can we use our existing multivariate linear model $h_{\mathbf{w}}(\mathbf{x}) = \mathbf{w}^T\mathbf{x}$ to predict binary categorical outcomes, such as deciding whether an email is \textbf{Spam} ($1$) or \textbf{Not Spam} ($0$)?
+}
+
+\problembox{
+Using linear regression for binary classification causes severe issues:
+\begin{itemize}
+    \item \textbf{Unbounded Outputs:} A linear model $\mathbf{w}^T\mathbf{x}$ can output any real value from $-\infty$ to $+\infty$. However, probabilities must strictly reside between $0$ and $1$.
+    \item \textbf{Sensitivity to Outliers:} If we look at data points far away from the decision boundary, the linear fit tilts drastically, altering the classification threshold even though the underlying classification logic hasn't changed.
+\end{itemize}
+}
+
+\anondefinition{
+A \defemph{decision boundary} is a line (or a plane) that separates two classes of points. A linear decision boundary is called a \defemph{linear separator} and data that admits one are called \defemph{linearly separable}
+}{decision_boundary}
+
+\ideabox{
+To enforce a hard binary classification across this \linkterm{decision boundary}{decision_boundary}, we can pass our linear model through a thresholding mechanism that maps any real number directly to exactly $0$ or $1$.
+}
+
+
+\anondefinition{
+The \defemph{Heaviside step function} (or threshold activation function) $\mathcal{T} : \mathbb{R} \to \{0, 1\}$ is defined as:
+\[
+\mathcal{T}(z) := \begin{cases} 
+1 & \text{if } z \geq 0 \\
+0 & \text{if } z < 0 
+\end{cases}
+\]
+}{step_function}
+
+\anondefinition{
+When we wrap our \linkterm{multivariate linear model}{multivariate_linear_regression} inside a \linkterm{step function}{step_function}, we obtain the \defemph{Perceptron} hypothesis model:
+\[
+h_{\mathbf{w}}(\mathbf{x}) := \mathcal{T}(\mathbf{w}^T\mathbf{x}) = \begin{cases} 
+1 & \text{if } \mathbf{w}^T\mathbf{x} \geq 0 \\
+0 & \text{if } \mathbf{w}^T\mathbf{x} < 0 
+\end{cases}
+\]
+}{perceptron_hypothesis}
+
+
+\observationbox{
+Because the \linkterm{step function}{step_function} cannot be differentiated to find a gradient (its derivative is zero everywhere except at $z=0$, where it is undefined), we cannot use standard \linkterm{gradient descent}{gradient_descent_update}. Instead, we use an error-driven learning rule to adjust the weights whenever the model makes a mistake.
+}
+
+
+\anondefinition{
+Let $\alpha \in \mathbb{R}^{+}$ be the learning rate, $y_i \in \{0, 1\}$ be the true label, and $h_{\mathbf{w}}(\mathbf{x}^{(i)}) \in \{0, 1\}$ be the \linkterm{Perceptron's prediction}{perceptron_hypothesis}. The \defemph{Perceptron Learning Rule} updates a single individual weight component $w_j$ at iteration step $t$ according to:
+\[
+w_j^{(t+1)} := w_j^{(t)} + \alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) x_j^{(i)}
+\]
+where an update is only triggered if the model misclassifies the training instance $i$.
+}{perceptron_learning_rule}
+
+\observationbox{
+Let's analyze how this error-driven correction rule automatically fixes mistakes:
+\begin{itemize}
+    \item \textbf{Correct Prediction:} If $y_i = h_{\mathbf{w}}(\mathbf{x}^{(i)})$, the error term $(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})) = 0$. The weight remains unchanged: $w_j^{(t+1)} := w_j^{(t)}$.
+    \item \textbf{False Negative:} If $y_i = 1$ but $h_{\mathbf{w}}(\mathbf{x}^{(i)}) = 0$, the error term is $+1$. The rule adds $\alpha x_j^{(i)}$ to the weight, which increases $\mathbf{w}^T\mathbf{x}^{(i)}$ for the next iteration.
+    \item \textbf{False Positive:} If $y_i = 0$ but $h_{\mathbf{w}}(\mathbf{x}^{(i)}) = 1$, the error term is $-1$. The rule subtracts $\alpha x_j^{(i)}$ from the weight, lowering $\mathbf{w}^T\mathbf{x}^{(i)}$.
+\end{itemize}
+}
+
+\Theorem{
+If a \linkterm{training set}{supervised_learning} $E$ is \linkterm{linearly separable}{decision_boundary}, then the \linkterm{Perceptron Learning Rule}{perceptron_learning_rule} will converge to a valid \linkterm{linear separator}{decision_boundary} in a finite number of iteration steps, regardless of the choice of the initial weight vector $\mathbf{w}^{(0)}$.
+}{}
+
+\problembox{
+If the \linkterm{training data}{supervised_learning} is \textbf{not} \linkterm{linearly separable}{decision_boundary} (for example, the classic non-linear XOR function), the \linkterm{Perceptron Learning Rule}{perceptron_learning_rule} loop will run indefinitely, fluctuating back and forth between bad weight states without ever converging.
+}
+
+
+
+\Theorem{
+If \linkterm{examples}{supervised_learning} $E$ is not \linkterm{linearly separable}{decision_boundary}, finding a weight configuration $\mathbf{w}$ that minimizes the classification error is \textbf{NP-hard}. However, an approximation of the minimal-error hypothesis can be reached by applying an iterative sequence where the learning rate $\alpha$ decays over time:
+\[
+\lim_{t \to \infty} \alpha^{(t)} = 0
+\qquad \text{and} \qquad
+\sum_{t=1}^{\infty} \alpha^{(t)} = \infty
+\]
+}{}
+
+\ideabox{
+To overcome the optimization bottlenecks of the non-differentiable \linkterm{step function}{step_function}, we shift from hard binary decisions to soft, probabilistic outputs. Instead of predicting a discrete class label directly, we predict the continuous probability that an example belongs to a positive class.
+}
+
+\anondefinition{
+The standard \defemph{logistic function} (commonly referred to as the \defemph{sigmoid function}) is a smooth, differentiable mapping $\sigma : \mathbb{R} \to (0,1)$ defined as:
+\[
+\sigma(z) := \frac{1}{1 + e^{-z}}
+\]
+}{sigmoid_function}
+
+\observationbox{
+The \linkterm{logistic function}{sigmoid_function} possesses structural properties that resolve our classification issues:
+\begin{itemize}
+    \item \textbf{Bounded Range:} For any real input $z \in \mathbb{R}$, the output is strictly bounded within the open interval $(0, 1)$, matching the mathematical requirements of a probability.
+    \item \textbf{Symmetry:} At $z = 0$, $\sigma(0) = \frac{1}{1 + 1} = 0.5$. As $z \to +\infty$, $\sigma(z) \to 1$, and as $z \to -\infty$, $\sigma(z) \to 0$.
+\end{itemize}
+}
+
+
+Because the logistic function is smooth and continuous, we can compute its exact analytical derivative. This derivative exhibits a unique property: it can be expressed completely in terms of the function's own output.
+
+\observationbox{
+To find the derivative of $\sigma(z) = (1 + e^{-z})^{-1}$, we apply the chain rule and the quotient rule:
+\[
+\frac{d}{dz}\sigma(z) = -1(1 + e^{-z})^{-2} \cdot \left(-e^{-z}\right) = \frac{e^{-z}}{(1 + e^{-z})^2}
+\]
+We can split this fraction into two separate terms to expose the original function:
+\[
+\frac{d}{dz}\sigma(z) = \left( \frac{1}{1 + e^{-z}} \right) \left( \frac{e^{-z}}{1 + e^{-z}} \right) = \sigma(z) \left( \frac{1 + e^{-z} - 1}{1 + e^{-z}} \right)
+\]
+\[
+\frac{d}{dz}\sigma(z) = \sigma(z) \left( \frac{1 + e^{-z}}{1 + e^{-z}} - \frac{1}{1 + e^{-z}} \right) = \sigma(z)(1 - \sigma(z))
+\]
+}
+
+\anondefinition{
+The \defemph{derivative of the logistic function} with respect to its input argument $z$ is given by:
+\[
+\sigma'(z) := \sigma(z)\big(1 - \sigma(z)\big)
+\]
+}{derivative_sigmoid}
+
+\observationbox{
+The bell-shaped curve of $\sigma'(z)$ reveals an important optimization trait: the gradient reaches its maximum value of $0.25$ at exactly $z = 0$. As $z$ moves far away from zero toward $\pm\infty$, the output $\sigma(z)$ approaches $0$ or $1$, causing the derivative $\sigma'(z)$ to vanish toward $0$.
+}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/sigmoid_derivative.png}
+\end{figure}
+
+\ideabox{
+By passing our vector dot-product through the logistic mapping, we construct a hypothesis model that outputs a continuous probability score representing the confidence that a given instance belongs to the positive class.
+}
+
+
+\anondefinition{
+Let $\mathbf{x} \in \mathbb{R}^{n+1}$ be an input feature vector and $\mathbf{w} \in \mathbb{R}^{n+1}$ be the parameter weight vector. The \defemph{Logistic Regression} hypothesis model $h_{\mathbf{w}}(\mathbf{x}) : \mathbb{R}^{n+1} \to (0, 1)$ is defined as:
+\[
+h_{\mathbf{w}}(\mathbf{x}) := \sigma(\mathbf{w}^T\mathbf{x}) = \frac{1}{1 + e^{-\mathbf{w}^T\mathbf{x}}}
+\]
+}{logistic_regression_hypothesis}
+
+\commandnote{
+This output explicitly models the conditional probability of the target label being positive given the features: $P(y=1 \mid \mathbf{x}, \mathbf{w})$.
+}
+
+\ideabox{
+Because the output probability $h_{\mathbf{w}}(\mathbf{x})$ is a smooth, continuous curve between $0$ and $1$, we must establish a clear thresholding standard to make a final discrete binary prediction $\hat{y} \in \{0, 1\}$. By default, we assign an instance to the positive class if the model is more likely than not to belong there ($P \geq 0.5$).
+}
+
+
+To find the exact coordinates where the model switches its prediction from a negative class ($0$) to a positive class ($1$), we set the output probability to this $0.5$ threshold:
+\[
+h_{\mathbf{w}}(\mathbf{x}) = 0.5
+\]
+Substituting the definition of the logistic regression hypothesis:
+\[
+\frac{1}{1 + e^{-\mathbf{w}^T\mathbf{x}}} = \frac{1}{2}
+\]
+For these fractions to be equal, their denominators must be identical:
+\[
+1 + e^{-\mathbf{w}^T\mathbf{x}} = 2 \implies e^{-\mathbf{w}^T\mathbf{x}} = 1
+\]
+Taking the natural logarithm ($\ln$) of both sides isolates our input exponent:
+\[
+-\mathbf{w}^T\mathbf{x} = \ln(1)
+\]
+Since $\ln(1) = 0$, multiplying by $-1$ gives the threshold boundary equation:
+\[
+\mathbf{w}^T\mathbf{x} = 0
+\]
+
+
+\commandnote{
+The algebraic condition $\mathbf{w}^T\mathbf{x} = 0$ defines the \defemph{decision boundary} of the logistic regression model. Because this dot product is a linear combination of the parameters and features, the boundary forms a flat, straight hyperplane embedded in the feature space $\mathbb{R}^n$.
+}
+
+
+
+\observationbox{
+This derivation reveals our final classification rule explicitly:
+\[
+\hat{y} = \begin{cases} 
+1 & \text{if } h_{\mathbf{w}}(\mathbf{x}) \geq 0.5 \iff \mathbf{w}^T\mathbf{x} \geq 0 \\
+0 & \text{if } h_{\mathbf{w}}(\mathbf{x}) < 0.5 \iff \mathbf{w}^T\mathbf{x} < 0
+\end{cases}
+\]
+}
+
+\titledbox{Take-Home Message}{
+Even though \linkterm{Logistic Regression}{logistic_regression_hypothesis} models continuous, curved probabilities using the non-linear sigmoid function ($\sigma$), the boundary it creates to separate classes is determined entirely by the linear equation $\mathbf{w}^T\mathbf{x} = 0$. Consequently, the boundary is always a flat straight line in 2D, a flat plane in 3D, or a flat hyperplane in higher dimensions. This proves mathematically that \linkterm{Logistic Regression}{logistic_regression_hypothesis} is strictly a \textbf{linear classifier} and can only separate data that is \linkterm{linearly separable}{decision_boundary}.
+}
+
+\ideabox{
+We can use \linkterm{$\ell_2$ Loss}{l2_loss} and update the weights according to \linkterm{gradient descent}{gradient_descent_update}
+}
+
+Remember: The update rule for \linkterm{gradient descent}{gradient_descent_update}:
+\[
+\mathbf{w}^{(t+1)} := \mathbf{w}^{(t)} - \alpha \nabla L(\mathbf{w}^{(t)})
+\]
+
+Remember: \linkterm{$\ell_2$ Loss}{l2_loss}:
+\[
+\sum_{i=1}^{m} \big(y_i-h_{\mathbf{w}}(\mathbf{x})\big)^2.
+\]
+
+Let's derive \linkterm{stochastic gradient descent}{stochastic_gradient_descent} for \linkterm{logistic regression}{logistic_regression_hypothesis}
+\[
+h_{\mathbf{w}}(\mathbf{x}) := \sigma(\mathbf{w}^T\mathbf{x}) = \frac{1}{1 + e^{-\mathbf{w}^T\mathbf{x}}}
+\]
+
+Applying the chain rule to the single-instance squared loss function, the partial derivative with respect to a specific weight component $w_j$ is:
+\[
+\frac{\partial L}{\partial w_j} = \frac{\partial}{\partial w_j} \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big)^2
+\]
+
+By the power rule, we bring down the exponent $2$ and multiply by the derivative of the inner function with respect to $w_j$:
+\[
+\frac{\partial L}{\partial w_j} = 2\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot \frac{\partial}{\partial w_j}\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big)
+\]
+
+Since the true scalar label $y_i$ is a constant, its derivative vanishes ($=0$). This leaves the negative derivative of the hypothesis function:
+\[
+\frac{\partial L}{\partial w_j} = -2\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot \frac{\partial}{\partial w_j} h_{\mathbf{w}}(\mathbf{x}^{(i)})
+\]
+
+Substituting our logistic hypothesis model $h_{\mathbf{w}}(\mathbf{x}^{(i)}) = \sigma(\mathbf{w}^T\mathbf{x}^{(i)})$, we apply the chain rule again using the outer derivative of the sigmoid function, which we defined as $\sigma'(z)$:
+\[
+\frac{\partial L}{\partial w_j} = -2\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot \sigma'\big(\mathbf{w}^T\mathbf{x}^{(i)}\big) \cdot \frac{\partial}{\partial w_j}\big(\mathbf{w}^T\mathbf{x}^{(i)}\big)
+\]
+
+We now evaluate the two remaining inner parts of this product using our previous definitions:
+\begin{itemize}
+    \item The derivative of the sigmoid function satisfies $\sigma'(z) = \sigma(z)(1 - \sigma(z))$, meaning $\sigma'\big(\mathbf{w}^T\mathbf{x}^{(i)}\big) = h_{\mathbf{w}}(\mathbf{x}^{(i)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big)$.
+    \item The derivative of the vector linear combination with respect to the coordinate weight parameter is $\frac{\partial}{\partial w_j}(\mathbf{w}^T\mathbf{x}^{(i)}) = x_j^{(i)}$.
+\end{itemize}
+
+Plugging both analytical terms back into our product yields the complete scalar gradient component for a single training instance:
+\[
+\frac{\partial L}{\partial w_j} = -2\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(i)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot x_j^{(i)}
+\]
+
+\anondefinition{
+By substituting this single coordinate derivative into the step update rule $w_j^{(t+1)} := w_j^{(t)} - \alpha \frac{\partial L}{\partial w_j}$, the double negatives cancel out. The final \defemph{logistic update rule} for a single parameter $w_j$ using a single training example under squared error loss is defined as:
+\[
+w_j^{(t+1)} := w_j^{(t)} + 2\alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(i)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot x_j^{(i)}
+\]
+}{logistic_update_rule_scalar}
+
+\commandnote{
+We sometimes multiply the \linkterm{loss function}{l2_loss} by $\frac{1}{2}$ before deriving so we can get rid of the constant factor $2$ in the final step adjustment:
+\[
+w_j^{(t+1)} := w_j^{(t)} + \alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(i)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot x_j^{(i)}
+\]
+}
