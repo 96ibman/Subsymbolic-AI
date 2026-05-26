@@ -3,98 +3,279 @@
 A \linkterm{function}{function} with one argument is called \defemph{univariate} or \defemph{unary}
 }{univariate}
 
-\definition{Vector Space}{
-A vector space over a \linkterm{field}{field} $K$ is a
-\linkterm{mathematical structure}{def:math_structure} $\tuple{V, +, \cdot}$ consisting of:
-\begin{itemize}
-    \item A base \linkterm{set}{def:set} $V$,
-    \item A \defemph{vector addition} operation $+ : V \times V \to V$ such that
-    $\tuple{V,+,0,-}$ is an abelian \linkterm{group}{abelian_group},
-    \item A \defemph{scalar multiplication} operation
-    \[
-    \cdot : K \times V \to V
-    \]
-    such that for all $\alpha,\beta \in K$ and $u,v \in V$:
+\anondefinition{
+A \linkterm{univariate}{univariate} function $f : \mathbb{R} \to \mathbb{R}$ is called \defemph{linear} iff it simply scales its input by a constant factor:
+\[
+f(x) = wx
+\]
+for some constant scalar $w \in \mathbb{R}$.
+}{linear_function_scalar}
 
-    \begin{itemize}
-        \item $\alpha (u+v) = \alpha u + \alpha v$
-        \item $(\alpha + \beta)v = \alpha v + \beta v$
-        \item $(\alpha \beta)v = \alpha (\beta v)$
-        \item $1 \cdot v = v$
-    \end{itemize}
-\end{itemize}
-}{vector_space}
+\observationbox{
+Geometrically, this represents a straight line that passes exactly through the origin $(0,0)$.
+}
 
 \Example{
-Let $V = \mathbb{R}^n$ and $K = \mathbb{R}$.
-
-Vector addition:
-\[
-(x_1,\dots,x_n) + (y_1,\dots,y_n)
-= (x_1+y_1,\dots,x_n+y_n)
-\]
-
-Scalar multiplication:
-\[
-\alpha (x_1,\dots,x_n)
-= (\alpha x_1,\dots,\alpha x_n)
-\]
+If $w = 3$, then $f(x) = 3x$. 
+\begin{itemize}
+    \item If $x = 2 \implies f(2) = 6$
+    \item If $x = 0 \implies f(0) = 0$
+\end{itemize}
 }{}
+ 
+\anondefinition{
+A \linkterm{univariate}{univariate} function $h_w : \mathbb{R} \to \mathbb{R}$ of the form:
+\[
+h_w(x) = w_1x + w_0
+\]
+is called an \defemph{affine linear model}. The parameter $w_1$ is a scalar called the \defemph{slope}, and $w_0$ is a scalar called the \defemph{intercept} or \defemph{bias}.
+}{affine_linear_model_scalar}
 
+\observationbox{
+An \linkterm{affine linear function}{affine_linear_model_scalar} is simply a \textbf{strict linear} \linkterm{function}{function} plus a constant baseline offset. Because of the $+ w_0$ term, if you pass in zero, the output is the offset ($h_w(0) = w_0$). Geometrically, this is a straight line that can cross the vertical axis anywhere, not just at the origin.
+}
 
-
+\Example{
+Let $w_1 = 3$ and $w_0 = 2$, which gives the model $h_w(x) = 3x + 2$.
+\begin{itemize}
+    \item If $x = 2 \implies h_w(2) = 3(2) + 2 = 8$
+    \item If $x = 0 \implies h_w(0) = 3(0) + 2 = 2$
+\end{itemize}
+}{}
 
 \anondefinition{
-A mapping $f$ between \linkterm{vector spaces}{vector_space} is called \defemph{linear}, iff it preserves  \linkterm{vector addition}{vector_space} and \linkterm{scalar multiplication}{vector_space}:
-\[
-f(\alpha \cdot (v_1 + v_2)) = \alpha \cdot (f(v_1), f(v_2))
-\]
-}{linear_mapping}
+Let $E \subseteq \mathbb{R} \times \mathbb{R}$ be a \linkterm{set}{def:set} of \linkterm{examples}{supervised_learning} (where each example is a pair of scalar inputs and scalar outputs $(x_i, y_i)$). The task of finding the constant scalars $w_1$ and $w_0$ such that the \linkterm{affine linear model}{affine_linear_model_scalar} $h_w(x) = w_1x + w_0$ fits the data points in $E$ as closely as possible is called \defemph{univariate linear regression}.
+}{univariate_linear_regression}
+
+\observationbox{
+In this task, we are strictly mapping a single scalar input variable to a single scalar output variable. Geometrically, this means finding the optimal straight line through a cloud of data points on a two-dimensional grid.
+}
 
 \Example{
-\begin{itemize}
-
-\item \textbf{Scaling in $\mathbb{R}^n$}
-
-\[
-f : \mathbb{R}^n \to \mathbb{R}^n, \quad f(v) = 2v
-\]
-
-Acts on vectors:
-\[
-(x_1,\dots,x_n) \mapsto (2x_1,\dots,2x_n)
-\]
-
-\item \textbf{Projection onto first coordinate}
-
-\[
-f(x_1,x_2,\dots,x_n) = (x_1,0,\dots,0)
-\]
-
-\item \textbf{Matrix transformation}
-
-For $A \in \mathbb{R}^{m \times n}$:
-\[
-f(v) = Av
-\]
-
-Example:
-\[
-\begin{pmatrix}
-1 & 2 \\
-0 & 1
-\end{pmatrix}
-\begin{pmatrix}
-x \\
-y
-\end{pmatrix}
-=
-\begin{pmatrix}
-x+2y \\
-y
-\end{pmatrix}
-\]
-
-\end{itemize}
+We have a dataset $E = \{ (1, 3), (2, 5), (3, 7) \}$. The goal of univariate linear regression is to find the scalars $w_1$ and $w_0$. Here, the perfect fit is reached when $w_1 = 2$ and $w_0 = 1$, yielding the model $h_w(x) = 2x + 1$.
 }{}
 
+\questionbox{
+How to find parameters $w$?
+}
+
+\ideabox{
+We minimize \linkterm{$\ell_2$ Loss}{l2_loss}
+}
+
+\titledbox{Remember}{
+\linkterm{$\ell_2$ Loss}{l2_loss} (squared error loss) for $N$ \linkterm{examples}{supervised_learning} is $\sum_{i=1}^N \big(y_i-\hat{y_i}\big)^2$
+}
+
+\solutionbox{
+We have to find the best tuple $w$, call it $w^{*}$. 
+
+\[
+w^{*} := \argmin{w_0, w_1} \sum_{i=1}^{N} \big(y_i-(w_1x_i + w_0)\big)^2
+\]
+}
+
+\observationbox{
+\[
+\sum_{i=1}^{N} \big(y_i-(w_1x_i+w_0)\big)^2
+\]
+is differentiable, a minimum is attained when its partial derivatives with respect to the parameters vanish ($=0$).
+}
+
+Let $L(h_w) = \sum_{i=1}^{N} \big(y_i-(w_1x_i+w_0)\big)^2$. To minimize the loss, we find where the partial derivatives with respect to each parameter vanish ($=0$):
+\[
+\frac{\partial L}{\partial w_0}=0
+\qquad
+\text{and}
+\qquad
+\frac{\partial L}{\partial w_1}=0
+\]
+
+Applying the chain rule ($\frac{d}{dx}[g(x)^2] = 2g(x) \cdot g'(x)$), the derivatives distribute inside the summation:
+\[
+\frac{\partial L}{\partial w_0} = \sum_{i=1}^{N} 2\big(y_i-(w_1x_i+w_0)\big)(-1)
+\]
+\[
+\frac{\partial L}{\partial w_1} = \sum_{i=1}^{N} 2\big(y_i-(w_1x_i+w_0)\big)(-x_i)
+\]
+
+Setting these total gradients to zero yields the normal system of equations:
+\begin{equation}
+\sum_{i=1}^{N} 2\big(y_i-(w_1x_i+w_0)\big)(-1) = 0 \label{eq:w0}
+\end{equation}
+\begin{equation}
+\sum_{i=1}^{N} 2\big(y_i-(w_1x_i+w_0)\big)(-x_i) = 0 \label{eq:w1}
+\end{equation}
+
+Solving for $w_0$
+Divide equation \eqref{eq:w0} by $-2$ and expand the summation across the individual scalar terms:
+\[
+\sum_{i=1}^{N} \big(y_i - w_1x_i - w_0\big) = 0
+\]
+\[
+\sum_{i=1}^{N} y_i - w_1\sum_{i=1}^{N} x_i - \sum_{i=1}^{N} w_0 = 0
+\]
+
+Because $w_0$ is a constant independent of the index $i$, summing it $N$ times simplifies to $\sum_{i=1}^{N} w_0 = N w_0$:
+\[
+\sum_{i=1}^{N} y_i - w_1\sum_{i=1}^{N} x_i - N w_0 = 0
+\]
+
+Isolating $N w_0$ gives the explicit baseline offset formula:
+\begin{equation}
+w_0 = \frac{\sum_{i=1}^{N}y_i - w_1 \sum_{i=1}^{N}x_i}{N} \label{eq:w0_solved}
+\end{equation}
+
+Solving for $w_1$
+Divide equation \eqref{eq:w1} by $-2$ and distribute the factor of $x_i$ inside the parenthesis:
+\[
+\sum_{i=1}^{N} \big(y_i - w_1x_i - w_0\big)x_i = 0
+\]
+\[
+\sum_{i=1}^{N} x_i y_i - w_1\sum_{i=1}^{N} x_i^2 - w_0\sum_{i=1}^{N} x_i = 0
+\]
+
+Substitute our expression for $w_0$ from equation \eqref{eq:w0_solved} into this expression:
+\[
+\sum_{i=1}^{N} x_i y_i - w_1\sum_{i=1}^{N} x_i^2 - \left(\frac{\sum_{i=1}^{N}y_i - w_1 \sum_{i=1}^{N}x_i}{N}\right)\sum_{i=1}^{N} x_i = 0
+\]
+
+Multiply the entire equation by $N$ to clear out the denominator:
+\[
+N\sum_{i=1}^{N} x_i y_i - N w_1\sum_{i=1}^{N} x_i^2 - \left(\sum_{i=1}^{N}y_i\right)\left(\sum_{i=1}^{N} x_i\right) + w_1\left(\sum_{i=1}^{N}x_i\right)^2 = 0
+\]
+
+Group all terms containing $w_1$ on one side of the equation:
+\[
+w_1 \left[ N\sum_{i=1}^{N} x_i^2 - \left(\sum_{i=1}^{N}x_i\right)^2 \right] = N\sum_{i=1}^{N} x_i y_i - \left(\sum_{i=1}^{N}x_i\right)\left(\sum_{i=1}^{N}y_i\right)
+\]
+
+
+\observationbox{
+The equations \eqref{eq:w0} and \eqref{eq:w1} yield a unique closed-form solution:
+}
+
+\[
+w_1 = \frac{N(\sum_{i=1}^{N} x_i y_i) - (\sum_{i=1}^{N}x_i) (\sum_{i=1}^{N}y_i)}
+{N(\sum_{i=1}^{N}x_i^2) - (\sum_{i=1}^{N}x_i)^2}
+\qquad
+w_0 = \frac{(\sum_{i=1}^{N}y_i) - w_1 (\sum_{i=1}^{N}x_i)}{N}
+\]
+
+\observationbox{
+Thus, \linkterm{univariate linear regression}{univariate_linear_regression} admits an exact closed-form solution and does not require iterative optimization methods.
+}
+
+\anondefinition{
+The \defemph{weight space} of a parametric model is the space of all possible combinations of the parameters (weights). Loss minimization in a weight space is called \defemph{weight fitting}
+}{weight_space}
+
+\observationbox{
+The \linkterm{weight space}{weight_space} of \linkterm{univariate linear regression}{univariate_linear_regression} is $\mathbb{R}^2$
+}
+
+\commandnote{
+The \linkterm{$\ell_2$ Loss}{l2_loss} is \textbf{convex} for any \linkterm{univariate linear regression}{univariate_linear_regression} problem $\leadsto$ there are no \textit{local minima}
+
+\includegraphics[width=0.3\linewidth]{images/convex.png}
+}
+
+\anondefinition{
+A \linkterm{function}{function} that takes a collection of $n \geq 2$ distinct input arguments $(x_1, x_2, \dots, x_n)$ and maps them to a single scalar output is called \defemph{multivariate}.
+}{multivariate}
+
+\observationbox{
+Following the same logic as the \linkterm{univariate}{univariate} \linkterm{affine function}{affine_linear_model_scalar}, a \textbf{multivariate affine function} scales each individual input argument by its own distinct scalar weight ($w_i$) and adds a shared baseline intercept ($w_0$):
+\[
+f(x_1, \dots, x_n) = w_0 + w_1x_1 + w_2x_2 + \dots + w_nx_n = w_0 + \sum_{i=1}^{n}w_ix_i
+\]
+where all parameters $w_0, w_1, \dots, w_n$ are individual scalars.
+}
+
+\anondefinition{
+Let $E \subseteq \mathbb{R}^n \times \mathbb{R}$ be a \linkterm{set}{def:set} of \linkterm{examples}{supervised_learning} (where each example consists of $n$ scalar inputs and one scalar output $(x_{i,1}, x_{i,2}, \dots, x_{i,n}, y_i)$). The task of finding the constant scalar parameters $w_0, w_1, \dots, w_n$ such that the model:
+\[
+h_w(x_1, \dots, x_n) = w_0 + w_1x_1 + w_2x_2 + \dots + w_nx_n
+\]
+fits the data points in $E$ as closely as possible is called \defemph{multivariate linear regression}.
+}{multivariate_linear_regression}
+
+\observationbox{
+Geometrically, instead of fitting a 2D straight line to a flat grid of data points, \linkterm{multivariate linear regression}{multivariate_linear_regression} with $n=2$ features fits a flat 3D plane through a cloud of data points in a three-dimensional space. For $n > 2$, it fits a flat multi-dimensional hyperplane.
+}
+
+\notationbox{
+To avoid writing out long summations for $n$ features, we package our individual scalar inputs and scalar weights into \textbf{vectors}. 
+
+First, we define a parameter weight vector:
+\[
+\mathbf{w} :=
+\begin{pmatrix}
+w_0\\
+w_1\\
+\vdots\\
+w_n
+\end{pmatrix}
+\]
+Next, to account for the baseline intercept $w_0$, we introduce a constant dummy scalar $x_0 := 1$. This allows us to define our complete input feature vector:
+\[
+\mathbf{x} :=
+\begin{pmatrix}
+x_0\\
+x_1\\
+\vdots\\
+x_n
+\end{pmatrix}
+\]
+
+Using these vector representations, the entire multivariate affine model can be compressed compactly into a single matrix multiplication or dot product:
+\[
+h_{\mathbf{w}}(\mathbf{x})
+=
+\mathbf{w}^T\mathbf{x}
+=
+\mathbf{w} \cdot \mathbf{x}
+=
+\sum_{i=0}^{n} w_i x_i
+\]
+where $\mathbf{w}^T\mathbf{x}$ denotes matrix multiplication (multiplying a horizontal row vector by a vertical column vector) and $\mathbf{w} \cdot \mathbf{x}$ denotes the standard algebraic dot product.
+}
+
+\anondefinition{
+Let $\mathbf{X}$ be an $N \times (n+1)$ matrix containing all training inputs, and let $\mathbf{y}$ be an $N \times 1$ vector containing all target outputs. The total \linkterm{$\ell_2$ Loss}{l2_loss} for \linkterm{multivariate linear regression}{multivariate_linear_regression} can be written compactly using matrix operations as:
+\[
+L(\mathbf{w}) = (\mathbf{X}\mathbf{w} - \mathbf{y})^T(\mathbf{X}\mathbf{w} - \mathbf{y})
+\]
+The goal is to find the optimal parameter vector $\mathbf{w}^{*}$ that makes this total error as small as possible.
+}{multivariate_l2_loss}
+
+\observationbox{
+Just like the univariate case, this multivariate loss function has a unique, exact closed-form solution that can be computed analytically in a single step. This solution is known as the \defemph{Normal Equations}:
+\[
+\mathbf{w}^{*} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+\]
+}
+
+\problembox{
+While a perfect mathematical equation exists to find $\mathbf{w}^{*}$ immediately, the matrix inversion operation: $(\mathbf{X}^T\mathbf{X})^{-1}$ is a bottleneck. Inverting a matrix of size $(n+1) \times (n+1)$ requires roughly $\mathcal{O}(n^3)$ computational operations. If a dataset has $n = 50,000$ features, computing $50,000^3$ operations requires an immense amount of time and memory, making it completely impossible to calculate on standard hardware.
+}
+
+\questionbox{
+In a multi-dimensional parameter space, how do we know exactly which direction to tweak our weight vector $\mathbf{w}$ so that the loss decreases?
+}
+
+\anondefinition{
+The \defemph{gradient} of a multivariate function $L(\mathbf{w})$, denoted as $\nabla L(\mathbf{w})$, is a vector of its partial derivatives. It points in the direction of the steepest ascent of the function at a given point. Consequently, the negative gradient $-\nabla L(\mathbf{w})$ points in the direction of the steepest descent.
+}{gradient}
+
+\ideabox{
+We use the \textbf{Gradient Descent} algorithm. By calculating the negative gradient at our current weight configuration, we determine the direction that decreases our error the fastest. We then take a small step in that direction and repeat the process until the weights converge to the minimum.
+}
+
+\anondefinition{
+Let $\alpha \in \mathbb{R}^{+}$ be a small scalar value called the \defemph{learning rate} (or step size). The iterative update rule for \defemph{Gradient Descent} is defined as:
+\[
+\mathbf{w}^{(t+1)} := \mathbf{w}^{(t)} - \alpha \nabla L(\mathbf{w}^{(t)})
+\]
+where $t$ denotes the current iteration step.
+}{gradient_descent_update}
