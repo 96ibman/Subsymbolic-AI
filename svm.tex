@@ -1,1 +1,182 @@
 \labeledsection{Support Vector Machines}{sec:svm}
+\titledbox{Remember}{
+A line in 2D can be expressed as 
+\[
+ax + by + c = 0
+\]
+and the vector $\tuple{a,b}$ is the normal vector of that line (the one that is perpendicular (orthogonal) to the line (or any vector following the direction of the line))
+}
+
+\titledbox{Remember}{
+Similarly, in 3D, a plane can be expressed as
+\[
+ax + by + cz + d = 0
+\]
+and the vector $\tuple{a,b,c}$ is the normal
+}
+
+In \linkterm{logistic regression}{logistic_regression_hypothesis}, we are trying to find the line that best separates two classes (assuming the data is \linkterm{linearly separable}{decision_boundary}),  we eventually find $w_1, w_2$ and find the line $w_1 x + w_2 y + b  = 0$ 
+
+\commandnote{
+The weight vector $\tuple{w_1, w_2}$ is orthogonal to that line 
+}
+
+\titledbox{Generalization}{
+The equations used so far ($ax + by + c = 0$ for a line in 2D and $ax + by + cz + d = 0$ for a plane in 3D) work perfectly when the data has only 2 or 3 features. However, real-world datasets often have tens, hundreds, or thousands of features. 
+
+To handle any number of dimensions cleanly without running out of alphabet letters for coordinates, vector dot products are used to represent the \linkterm{decision boundary}{decision_boundary} (the \linkterm{linear separator}{decision_boundary}).
+}
+
+\notationbox{
+\begin{itemize}
+    \item Instead of coordinate variables $(x, y, z, \dots)$, all features are packed into a single position vector: $\mathbf{x} = \tuple{x_1, x_2, \dots, x_d}^T$.
+    \item Instead of individual coefficients $(a, b, c, \dots)$, all weights determining the tilt are packed into a single weight vector (the normal vector): $\mathbf{w} = \tuple{w_1, w_2, \dots, w_d}^T$.
+    \item The standalone constant $b$ is retained as the scalar offset (bias) from the origin.
+\end{itemize}
+}
+
+\anondefinition{
+A \defemph{hyperplane} (the generalization of a line or a plane to $d$-dimensions) is formally defined as the set of all points $\mathbf{x}$ that satisfy the linear combination:
+\[
+\{ \mathbf{x} \mid (\mathbf{w} \cdot \mathbf{x}) + b = 0 \}
+\]
+where:
+\begin{itemize}
+    \item $\mathbf{w}$ is the weight vector, which stands completely \textbf{orthogonal} to the hyperplane, locking its orientation.
+    \item $b$ is a scalar that determines the \textbf{offset} of the hyperplane from the origin.
+\end{itemize}
+}{hyperplane}
+
+\problembox{
+Which \linkterm{hyperplane}{hyperplane} (generalizes) well on unseen data ?
+}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/which_line.png}
+\end{figure}
+
+\anondefinition{
+Given a \linkterm{linearly separable}{decision_boundary} \linkterm{data set}{supervised_learning} $E$, the \defemph{maximum margin separator} is the \linkterm{linear separator}{decision_boundary} $s$ that maximizes the \defemph{margin} (the distance of the $E$ from $s$)
+}{maximum_margin_separator}
+
+\solutionbox{
+The \linkterm{maximum margin separator}{maximum_margin_separator} generalizes best
+}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/maximum_margin_separator.png}
+\end{figure}
+
+\anondefinition{
+\defemph{Support Vector Machines (SVMs)} are \linkterm{supervised learning}{supervised_learning} models for \linkterm{classification}{boolean_classification} and \linkterm{regression}{classifcation_regression}. \defemph{SVMs} construct a \linkterm{maximum margin separator}{maximum_margin_separator} by prioritizing critical \linkterm{examples}{supervised_learning} called \defemph{support vectors}
+}{svm}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/support_vectors.png}
+\end{figure}
+
+\notationbox{
+We express classes as $\set{+1,-1}$ (positive and negative samples)
+}
+
+Once a hyperplane is fixed, it divides the entire feature space into two distinct regions. The weight vector $\mathbf{w}$ acts as a pointer, indicating which side is which.
+
+\begin{itemize}
+    \item \textbf{The Positive Half-Space:} Points falling on the side that $\mathbf{w}$ points toward will produce a positive result when plugged into the hyperplane equation.
+    \item \textbf{The Negative Half-Space:} Points falling on the opposite side, away from the direction of $\mathbf{w}$, will produce a negative result.
+\end{itemize}
+
+\titledbox{Geometric Sign Rules}{
+For any data point $\mathbf{x}$, its position relative to the hyperplane $\{\mathbf{x} \mid (\mathbf{w} \cdot \mathbf{x}) + b = 0\}$ determines the sign of the output:
+\begin{align*}
+(\mathbf{w} \cdot \mathbf{x}) + b > 0 & \quad \implies \quad \mathbf{x} \text{ lies on the \textbf{positive side} (in the direction of } \mathbf{w}\text{)} \\
+(\mathbf{w} \cdot \mathbf{x}) + b < 0 & \quad \implies \quad \mathbf{x} \text{ lies on the \textbf{negative side} (opposite to } \mathbf{w}\text{)}
+\end{align*}
+
+We also need to allow $=$ to be on favor of the positive or negative class. Usually we say positive when $(\mathbf{w} \cdot \mathbf{x}) + b \geq 0$
+}
+
+
+\commandnote{
+This behavior forms the basis of the SVM decision rule. By looking at the sign of $(\mathbf{w} \cdot \mathbf{x}) + b$, the model classifies the point as either $+1$ or $-1$.
+}
+
+\problembox{
+We still do not know which $\mathbf{w}$ to use since we do not know the magnitude of that vector (we only know its orthogonal). And we do not know which offset $b$ to use.
+}
+
+\ideabox{
+We need more constraints
+}
+
+\solutionbox{
+We insist that positive samples need not just to be on the positive side of the \linkterm{decision boundary}{decision_boundary}, but they also need to be much further:
+\[
+\mathbf{w} \cdot \mathbf{x^{+}} + b \geq 1
+\]
+
+Similarly, for the negative samples:
+\[
+\mathbf{w} \cdot \mathbf{x^{-}} + b \leq -1
+\]
+}
+
+\commandnote{
+A positive sample $\mathbf{x_i^{+}}$ has $y_i = +1$ and a negative sample $\mathbf{x_i^{-}}$ has $y_i = -1$
+}
+
+\observationbox{
+That means, we can combine these two constraints into a single elegant inequality by introducing the class label $y_i \in \{-1, +1\}$ for each sample $\mathbf{x}_i$:
+\[
+y_i (\mathbf{w} \cdot \mathbf{x}_i + b) \geq 1
+\]
+}
+
+\Proof{
+\begin{itemize}
+    \item For positive samples, $y_i = +1$ and we trivially have $(\mathbf{w} \cdot \mathbf{x}_i + b) \geq 1$
+    \item For negative samples, $y_i = -1$, we get $-(\mathbf{w} \cdot \mathbf{x}_i + b) \geq 1$
+    \begin{itemize}
+        \item We multiply or divide the whole inequality by $-1$, we get $(\mathbf{w} \cdot \mathbf{x}_i + b) \leq -1$
+    \end{itemize}
+\end{itemize}
+}
+
+\titledbox{New constraint}{
+We can write the previous constraint compactly for all samples as:
+\[
+y_i (\mathbf{w} \cdot \mathbf{x}_i + b) - 1 \geq 0
+\]
+}
+
+\commandnote{
+We have imposed a strict separation zone where no data points are allowed to enter.
+}
+
+\questionbox{
+Which samples satisfy this constraint with strict equality?
+}
+
+\answerbox{
+The samples that lie \textbf{exactly on the boundaries} (the gutters of our street) will satisfy the constraint with strict equality ($= 0$). These critical points are the \linkterm{support vectors}{svm}:
+\[
+y_i (\mathbf{w} \cdot \mathbf{x}_i + b) - 1 = 0 \quad \implies \quad y_i (\mathbf{w} \cdot \mathbf{x}_i + b) = 1
+\]
+}
+
+\titledbox{What do we have so far?}{
+\begin{itemize}
+    \item $\mathbf{w} \cdot \mathbf{x^{+}} + b > 1$ for safe positive samples
+    \item $\mathbf{w} \cdot \mathbf{x^{-}} + b < -1$ for safe negative samples 
+    \item $\mathbf{w} \cdot \mathbf{x_{sv}^{+}} + b = 1$ for positive support vectors (upper boundary)
+    \item $\mathbf{w} \cdot \mathbf{x_{sv}^{-}} + b = -1$ for negative support vectors (lower boundary)
+\end{itemize}
+}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/constraints_svm.png}
+\end{figure}
+
