@@ -168,36 +168,33 @@ What changes when the activation function is smooth and differentiable instead o
 }
 
 \answerbox{
-If a unit computes
+If a network has multiple outputs, each output unit $k$ computes its own activation using its specific weight vector $\mathbf{w}_k$:
 \[
-h_{\mathbf{w}}(\mathbf{x}^{(i)}) := g\big(\mathbf{w}^T\mathbf{x}^{(i)}\big),
+h_{\mathbf{w}_k}(\mathbf{x}^{(i)}) := g\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big).
 \]
-where $g$ is differentiable, then we can no longer use the hard perceptron rule directly. Instead, we minimize a differentiable loss $L$ by gradient descent:
-\[
-\mathbf{w}^{(t+1)} := \mathbf{w}^{(t)} - \alpha \nabla L.
-\]
+Where $g$ is differentiable, we minimize the total squared error loss over all $K$ output units, $L = \frac{1}{2}\sum_{m=1}^K \big(y_m^{(i)} - h_{\mathbf{w}_m}(\mathbf{x}^{(i)})\big)^2$, by gradient descent.
 
-For a single coordinate $w_{j,k}$, the chain rule gives:
+For a single coordinate $w_{j,k}$ feeding into output unit $k$, the partial derivative isolates to that specific unit via the chain rule:
 \[
 \frac{\partial L}{\partial w_{j,k}}
 =
-\frac{\partial L}{\partial h_{\mathbf{w}}(\mathbf{x}^{(i)})}
-\cdot g'\big(\mathbf{w}^T\mathbf{x}^{(i)}\big)
+\frac{\partial L}{\partial h_{\mathbf{w}_k}(\mathbf{x}^{(i)})}
+\cdot g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)
 \cdot x_j^{(i)}.
 \]
 
-If we use the squared error loss $L = \frac{1}{2}\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big)^2$, then the update rule becomes:
+The resulting online gradient descent update rule becomes:
 \[
-w_{j,k}^{(t+1)} := w_{j,k}^{(t)} + \alpha\big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big)\, g'\big(\mathbf{w}^T\mathbf{x}^{(i)}\big)\, x_j^{(i)}.
+w_{j,k}^{(t+1)} := w_{j,k}^{(t)} + \alpha\big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)}\big)\big)\, g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)\, x_j^{(i)}.
 \]
-So the only extra factor compared to the perceptron update is the derivative of the activation function, $g'$, evaluated at the weighted sum. Here $j$ names the input node and $k$ names the output unit, so $w_{j,k}$ is the weight on the connection from input $j$ to output $k$.
+So the only extra factor compared to the multi-output perceptron update is the derivative of the activation function, $g'$, evaluated at the weighted sum for unit $k$.
 }
 
 \anondefinition{
 In \defemph{Multi-Layer Perceptrons (MLPs)}, \linkterm{layers}{layers_neural_nets} are usually fully connected; number of \linkterm{hidden units}{layers_neural_nets} typically chosen by hand
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\linewidth]{images/mlp.png}
+    \includegraphics[width=0.5\linewidth]{images/mlp.png}
 \end{figure}
 }{mlps}
 
@@ -210,7 +207,7 @@ It allowed us to express a non-linear function (the \texttt{XOR} function)
 }
 
 \ideabox{
-We can train \linkterm{MLPs}{mlps} on non-linear data! The \linkterm{output layer}{layers_neural_nets} is \linkterm{perceptron}{perceptron_nn} whose input is the output of the last \linkterm{hidden layer}{layers_neural_nets} $\leadsto$ we can use the \linkterm{perceptron learning rule}{perceptron_learning_rule} to update the weights of the \linkterm{output layer}{layers_neural_nets}. 
+We can train \linkterm{MLPs}{mlps} on non-linear data! The \linkterm{output layer}{layers_neural_nets} can be viewed as a differentiable classifier whose input is the activation vector of the last \linkterm{hidden layer}{layers_neural_nets} $\leadsto$ we can use gradient descent to update the weights of the \linkterm{output layer}{layers_neural_nets} directly based on the true targets. 
 }
 
 \problembox{
@@ -220,3 +217,233 @@ What about the \linkterm{hidden layers}{layers_neural_nets}? We do not have some
 \ideabox{
 The hidden node $j$ is \textit{"responsible"} for some fraction of the error proportional to the weight $w_{j,k}$
 }
+
+\commandnote{
+For the \linkterm{output layer}{layers_neural_nets}, the error is clear because we can compare the prediction directly against the true label $y_k^{(i)}$. For a \linkterm{hidden layer}{layers_neural_nets}, we do not have target labels. 
+}
+
+\ideabox{
+every \linkterm{hidden unit}{layers_neural_nets} $j$ contributes to the inputs of the next layer's units. Therefore, the total error observed at the \linkterm{output layer}{layers_neural_nets} is an accumulation of the errors \textbf{propagated forward} from the \linkterm{hidden layers}{layers_neural_nets}. 
+}
+
+\questionbox{
+Can we \textbf{Back Propagate} the error?
+}
+
+\answerbox{
+Yes, this is where the Backpropagation algorithm comes to the rescue.
+}
+\titledbox{Backpropagation Intuition}{
+The core intuition of the \textbf{Backpropagation algorithm} is to take the error from the output layer and pass it \textbf{backward} through the network matrix, reversing the direction of the forward pass. A hidden node $j$ is penalized based on how much it contributed to the error of the units in the subsequent layer, scaled by the strength of the connecting weight $w_{j,k}$.
+}
+
+\redbox{
+To achieve that, we need the \linkterm{activation function}{ann} of all units to be differentiable, hence we can no longer use the \linkterm{threshold function}{step_function}. Instead, we switch to a smooth, differentiable activation function, such as the \linkterm{logistic function}{sigmoid_function} $\sigma(r) = \frac{1}{1 + e^{-r}}$.
+}
+
+\titledbox{Remember}{
+We update the weights using online gradient descent:
+\[
+w_{j,k} \leftarrow w_{j,k} + \alpha\big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)\, g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)\, x_j^{(i)}.
+\]
+}
+
+\observationbox{
+The term $\big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)\, g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)$ represents the error at \linkterm{output unit}{layers_neural_nets} $k$. We refer to that as $\delta_k$.
+}
+
+\titledbox{Justification}{
+To understand the exact origin of the output error signal $\delta_k$, we derive the weight update directly from the foundational principles of gradient descent, parsing the network mechanics from the parameters upward to the loss function.
+}
+
+\paragraph{Step 1:}
+Our objective is to minimize the total squared error loss $L$ across all $K$ output units for a single training instance $\mathbf{x}^{(i)}$:
+\[
+L = \frac{1}{2}\sum_{m=1}^K \big(y_m^{(i)} - h_{\mathbf{w}_m}(\mathbf{x}^{(i)})\big)^2
+\]
+To optimize a specific weight $w_{j,k}$ connecting an incoming unit $j$ to an output unit $k$, the standard online gradient descent update rule dictates that we move in the negative direction of the gradient:
+\[
+w_{j,k} \leftarrow w_{j,k} - \alpha \frac{\partial L}{\partial w_{j,k}}
+\]
+
+\paragraph{Step 2: Chain Rule}
+Because the weight $w_{j,k}$ does not influence the loss directly, its impact passes through the net input (pre-activation sum) of output unit $k$, which we define as $r_k^{(i)} = \mathbf{w}_k^T\mathbf{x}^{(i)} = \sum_{m} w_{m,k} x_m^{(i)}$. 
+
+
+
+By applying the calculus chain rule, we can break down our target partial derivative into two operational components:
+\[
+\frac{\partial L}{\partial w_{j,k}} = \frac{\partial L}{\partial r_k^{(i)}} \cdot \frac{\partial r_k^{(i)}}{\partial w_{j,k}}
+\]
+
+\paragraph{Step 3:}
+The second term represents how changing the weight alters the linear combination passing into unit $k$. Since $r_k^{(i)} = w_{0,k}x_0^{(i)} + \cdots + w_{j,k}x_j^{(i)} + \cdots + w_{n,k}x_n^{(i)}$, differentiating with respect to $w_{j,k}$ treats all other components as constants and isolates the value of the incoming activation signal:
+\[
+\frac{\partial r_k^{(i)}}{\partial w_{j,k}} = x_j^{(i)}
+\]
+Substituting this back into our chain rule equation yields:
+\[
+\frac{\partial L}{\partial w_{j,k}} = \frac{\partial L}{\partial r_k^{(i)}} \cdot x_j^{(i)}
+\]
+
+\paragraph{Step 4:}
+The remaining partial derivative, $\frac{\partial L}{\partial r_k^{(i)}}$, measures how sensitive the total network loss is to changes in the pre-activation state of output unit $k$. Since the final output activation is determined by our smooth function $h_{\mathbf{w}_k}(\mathbf{x}^{(i)}) = g(r_k^{(i)})$, we apply the chain rule one final time:
+\[
+\frac{\partial L}{\partial r_k^{(i)}} = \frac{\partial L}{\partial h_{\mathbf{w}_k}(\mathbf{x}^{(i)})} \cdot \frac{\partial h_{\mathbf{w}_k}(\mathbf{x}^{(i)})}{\partial r_k^{(i)}}
+\]
+
+We evaluate these two simple derivatives independently:
+\begin{enumerate}
+    \item \textbf{Loss with respect to Activation:} When differentiating $\frac{1}{2}\sum_{m=1}^K \big(y_m^{(i)} - h_{\mathbf{w}_m}(\mathbf{x}^{(i)})\big)^2$ with respect to the specific output unit activation $h_{\mathbf{w}_k}$, all terms where $m \neq k$ become zero, leaving:
+    \[
+    \frac{\partial L}{\partial h_{\mathbf{w}_k}(\mathbf{x}^{(i)})} = 2 \cdot \frac{1}{2} \big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)^{2-1} \cdot (-1) = -\big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)
+    \]
+    \item \textbf{Activation with respect to Pre-Activation:} Differentiating the activation function with respect to its internal net input simply leaves the local derivative:
+    \[
+    \frac{\partial h_{\mathbf{w}_k}(\mathbf{x}^{(i)})}{\partial r_k^{(i)}} = g'\big(r_k^{(i)}\big) = g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)
+    \]
+\end{enumerate}
+
+Combining these two evaluations back together gives us:
+\[
+\frac{\partial L}{\partial r_k^{(i)}} = -\big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big) \cdot g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)
+\]
+
+\paragraph{Step 5:}
+We isolate this internal sensitivity term and define its negative value as the localized error signal, denoted by the shorthand variable $\delta_k$:
+\[
+\delta_k \equiv -\frac{\partial L}{\partial r_k^{(i)}} = \big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)\, g'\big(\mathbf{w}_k^T\mathbf{x}^{(i)}\big)
+\]
+
+Reassembling back into the total loss derivative from Step 3:
+\[
+\frac{\partial L}{\partial w_{j,k}} = -\delta_k x_j^{(i)}
+\]
+
+Finally, we substitute this back into our original gradient descent statement from Step 1. The two negative signs cancel out perfectly, yielding our final operational update rule:
+\[
+w_{j,k} \leftarrow w_{j,k} + \alpha \delta_k x_j^{(i)}
+\]
+
+
+\problembox{
+How do we define the error signal $\delta_j$ for a hidden unit $j$ when there is no true target $y_j^{(i)}$ available?
+}
+
+\paragraph{Step 1:}
+Let $j$ be a node in a hidden layer $L_{n-1}$. Just like we did for the output layer, we define its local error signal $\delta_j$ as the sensitivity of the total loss $L$ with respect to its pre-activation net input $r_j^{(i)}$:
+\[
+\delta_j \equiv -\frac{\partial L}{\partial r_j^{(i)}}
+\]
+We expand this using the chain rule. Because the pre-activation $r_j^{(i)}$ directly influences the loss only through its output activation $a_j^{(i)} = g(r_j^{(i)})$, we write:
+\[
+\delta_j = -\frac{\partial L}{\partial a_j^{(i)}} \cdot \frac{\partial a_j^{(i)}}{\partial r_j^{(i)}}
+\]
+
+\paragraph{Step 2:}
+The second term is straightforward. Since $a_j^{(i)} = g(r_j^{(i)})$, its partial derivative with respect to its pre-activation is simply the derivative of the activation function:
+\[
+\frac{\partial a_j^{(i)}}{\partial r_j^{(i)}} = g'\big(r_j^{(i)}\big)
+\]
+Substituting this back gives:
+\[
+\delta_j = -\frac{\partial L}{\partial a_j^{(i)}} \cdot g'\big(r_j^{(i)}\big)
+\]
+
+\paragraph{Step 3: Backpropagation}
+Now we face the core problem: finding $\frac{\partial L}{\partial a_j^{(i)}}$. How does a change in hidden unit $j$'s activation affect the final loss? 
+
+It affects the loss because unit $j$ sends its activation forward to \textbf{every single unit $k$ in the next layer}. Each unit $k$ computes a pre-activation $r_k^{(i)} = \sum_{m} w_{m,k} a_m^{(i)}$, which includes the term $w_{j,k} a_j^{(i)}$. 
+
+Therefore, a change in $a_j^{(i)}$ changes \textbf{all} pre-activations in the subsequent layer. By the multi-variable chain rule, we must sum up the gradients passing through all units $k$ that receive a link from node $j$:
+\[
+\frac{\partial L}{\partial a_j^{(i)}} = \sum_{k} \frac{\partial L}{\partial r_k^{(i)}} \cdot \frac{\partial r_k^{(i)}}{\partial a_j^{(i)}}
+\]
+
+
+
+\paragraph{Step 4:}
+We can simplify the terms inside this summation easily:
+\begin{enumerate}
+    \item From our output layer derivation, we already know that $\frac{\partial L}{\partial r_k^{(i)}} = -\delta_k$.
+    \item Differentiating the next layer's pre-activation $r_k^{(i)} = \dots + w_{j,k} a_j^{(i)} + \dots$ with respect to $a_j^{(i)}$ isolates the connecting weight parameter:
+    \[
+    \frac{\partial r_k^{(i)}}{\partial a_j^{(i)}} = w_{j,k}
+    \]
+\end{enumerate}
+
+Plugging these back into the sum yields:
+\[
+\frac{\partial L}{\partial a_j^{(i)}} = \sum_{k} (-\delta_k) \cdot w_{j,k} = -\sum_{k} w_{j,k} \delta_k
+\]
+
+\paragraph{Step 5:}
+Now, we substitute this summation result back into our equation for $\delta_j$ from Step 2. The two negative signs cancel out perfectly, giving us the elegant recurrence relation of backpropagation:
+\[
+\delta_j = g'\big(r_j^{(i)}\big) \sum_{k} w_{j,k} \delta_k
+\]
+
+\observationbox{
+This shows that the error signal $\delta_j$ of a hidden unit is simply the derivative of its activation function multiplied by the weighted sum of the error signals $\delta_k$ from the subsequent layer. The error is literally flowing \textbf{backward} through the weights!
+}
+
+
+\titledbox{Summary: The Four Core Equations}{
+For any feed-forward neural network using smooth differentiable activation functions, the entire learning workflow per training instance $\mathbf{x}^{(i)}$ can be summarized by four mathematical equations using our established indices $j$ (source hidden unit) and $k$ (destination unit):
+
+\begin{itemize}
+    \item Output Error: $\delta_k = \big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)\, g'\big(r_k^{(i)}\big)$
+    \item Hidden Error: $\delta_j = g'\big(r_j^{(i)}\big) \sum_{k} w_{j,k} \delta_k$
+    \item Gradient Calculation: $ \frac{\partial L}{\partial w_{j,k}} = -\delta_k a_j^{(i)}$
+    \item Weight Update: $w_{j,k} \leftarrow w_{j,k} + \alpha \delta_k a_j^{(i)}$
+\end{itemize}
+}
+
+\anondefinition{
+The \defemph{Back-Propagation Rule} for \linkterm{hidden nodes}{layers_neural_nets} of a \linkterm{multilayer perceptron}{mlps} is:
+\[
+\delta_j = g'\big(r_j^{(i)}\big) \sum_{k} w_{j,k} \delta_k
+\]
+and the update rule for weights in a \linkterm{hidden layer}{layers_neural_nets} is:
+\[
+w_{j,k} \leftarrow w_{j,k} + \alpha \delta_k a_j^{(i)}
+\]
+}{backpropagation}
+
+\anondefinition{
+The \defemph{Backpropagation Learning Algorithm} is given by the following pseudocode:
+\begin{algorithm}[H]
+\caption{Stochastic Backpropagation Algorithm}
+\label{alg:backprop}
+\begin{algorithmic}[1]
+\Function{Backpropagation}{examples, $\alpha$}
+\State inputs: \textit{examples}, a set of training pairs $(\mathbf{x}^{(i)}, \mathbf{y}^{(i)})$; $\alpha$, the learning rate
+\State local variables: network weights $w_{j,k}$ initialized to small random numbers
+\Repeat
+    \For{each training instance $(\mathbf{x}^{(i)}, \mathbf{y}^{(i)})$ in \textit{examples}}
+        \State \textbf{Forward Pass:}
+        \State Compute activation values layer-by-layer from input layer $L_0$ to output layer $L_n$
+        
+        \State \textbf{Backward Pass:}
+        \For{each unit $k$ in output layer $L_n$}
+            \State $\delta_k \leftarrow \big(y_k^{(i)} - h_{\mathbf{w}_k}(\mathbf{x}^{(i)})\big)\, g'\big(r_k^{(i)}\big)$
+        \EndFor
+        
+        \For{each hidden layer from $L_{n-1}$ down to $L_1$}
+            \For{each unit $j$ in current hidden layer}
+                \State $\delta_j \leftarrow g'\big(r_j^{(i)}\big) \sum_{k} w_{j,k} \delta_k$
+            \EndFor
+        \EndFor
+        
+        \State \textbf{Weight Update Step:}
+        \For{each weight $w_{j,k}$ in network}
+            \State $w_{j,k} \leftarrow w_{j,k} + \alpha \delta_k a_j^{(i)}$
+        \EndFor
+    \EndFor
+\Until{convergence criteria are satisfied}
+\State \Return network weights $w_{j,k}$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+}{backpropagation_alg}
+
