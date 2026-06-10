@@ -167,6 +167,25 @@ P(Y=4) = P\left(\set{\omega \in \Omega \mid \omega^2=4}\right) = P\left(\set{2}\
 \]
 }{prob_rv_example}
 
+\titledbox{Discrete vs. Continuous Random Variables}{
+Depending on the nature of the domain $\text{dom}(X)$, a random variable falls into one of two categories:
+\begin{itemize}
+    \item \textbf{Discrete Random Variable:} The domain consists of isolated values (e.g., boolean values $\set{0,1}$ or counts $\NN$). We describe its probabilities using a \textbf{Probability Mass Function (PMF)}, denoted $p(x) = P(X = x)$.
+    \item \textbf{Continuous Random Variable:} The domain spans an uncountable infinite continuum of real numbers (e.g., interval $[0, 1]$, height, or time). Because the probability of hitting an exact real number is mathematically $0$, we describe its behavior using a \textbf{Probability Density Function (PDF)}, denoted $f(x)$.
+\end{itemize}
+}
+
+\anondefinition{
+A \defemph{Probability Density Function (PDF)}, denoted as $f(x)$, describes the relative likelihood for a continuous random variable to take on a given value. The probability that an outcome falls within an interval $[a, b]$ is given by the area under the PDF curve:
+\[
+P(a \le X \le b) = \int_{a}^{b} f(x) \,dx
+\]
+}{pdf}
+
+\redbox{
+Most of the time we assume discrete \linkterm{random variable}{def:random_variable}
+}
+
 \definition{Probability of Negation}{
 For a \linkterm{random variable}{def:random_variable} $X$ and $x \in \text{dom}(X)$, we define the probability of the logical negation as:
 \[
@@ -231,7 +250,7 @@ This is a direct application of the axiom of countable additivity to the \linkte
 }{def:marginalization}
 
 \Example{
-Suppose I have a \linkterm{joint probability}{def:joint_prob} table for two \linkterm{random variables}{def:random_variable} $X$ and $Y$ representing a simplified weather/activity model:
+Suppose we have a \linkterm{joint probability}{def:joint_prob} table for two \linkterm{random variables}{def:random_variable} $X$ and $Y$ representing a simplified weather/activity model:
 
 \begin{table}[H]
 \centering
@@ -244,10 +263,23 @@ $X=1$ (Sun) & $0.1$ & $0.5$ & $P(X=1) = \mathbf{0.6}$ \\ \hline
 \caption{Marginalization Example}
 \end{table}
 
-To find $P(X=0)$, I marginalize over $Y$:
+To find $P(X=0)$, we marginalize over $Y$:
 \[ P(X=0) = P(X=0, Y=0) + P(X=0, Y=1) = 0.3 + 0.1 = 0.4 \]
 }{marginalization_example}
 
+\titledbox{Marginalization (Unified)}{
+For two random variables $X$ and $Y$, the marginal behavior of $X$ is calculated by integrating or summing out all possible states of $Y$ from their \linkterm{joint distribution}{def:joint_prob}:
+\begin{itemize}
+    \item \textbf{Discrete Case (PMF):}
+    \[
+    p(x) = \sum_{y \in \text{dom}(Y)} P(X=x, Y=y)
+    \]
+    \item \textbf{Continuous Case (\linkterm{PDF}{pdf}):}
+    \[
+    f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \,dy
+    \]
+\end{itemize}
+}
 
 \definition{Conditional Probability}{
 Let $A$ and $B$ be \linkterm{events}{def:event} in a \linkterm{probability space}{def:prob_space} where $P(B) > 0$. The \textbf{conditional probability} of $A$ given $B$ is defined as:
@@ -273,9 +305,6 @@ Let $A$ be the \linkterm{event}{def:event} that the outcome is 2, and $B$ be the
 The probability that I roll a 2 \textbf{given} I know the result is even is:
 \[ P(A \mid B) = \frac{P(A \cap B)}{P(B)} = \frac{1/6}{1/2} = \frac{1}{3} \]
 }{conditional_prob_example}
-
-
-
 
 
 
@@ -502,6 +531,11 @@ $C = \text{Drive}$ & $0.1 / 0.7 = 1/7$ & $0.25 / 0.3 = 5/6$ \\ \hline
 \end{tabular}
 \end{table}
 }{cond_prob_example}
+
+\commandnote{
+\textbf{In the continuous case (\linkterm{PDF}{pdf}):} the \linkterm{CPD}{def:cond_prob_distribution} consists of the density function $f(x \mid y) = \frac{f_{X,Y}(x,y)}{f_Y(y)}$, which satisfies the normalization integral:
+    \[ \int_{-\infty}^{\infty} f(x \mid y) \,dx = 1 \]
+}
 
 
 \anondefinition{
@@ -742,3 +776,98 @@ We call $Q$ the \defemph{query variable}, $E_1, \cdots, E_{ne}$ the \defemph{evi
     \item normalize the results to yield a \linkterm{probability distribution}{def:prob_distribution}
 \end{itemize}
 }
+
+\anondefinition{
+A \linkterm{probability distribution}{def:prob_distribution} or model is called \defemph{Parametric} if it assumes that the underlying data distribution belongs to a pre-specified family of functions defined by a fixed, finite set of adjustable values called \textbf{parameters} $\theta$. 
+}{parametric_def}
+
+\titledbox{The Intuition of Parameters}{
+Instead of managing a massive, unstructured table of individual probabilities for every possible outcome, a parametric approach uses a single mathematical formula. 
+
+We can think of the parameters $\theta$ as "knobs" on this formula. By turning these knobs, we change the characteristics of the distribution (like its center, its spread, or its peak) to match our data, without ever changing the core mathematical equation itself.
+}
+
+\commandnote{
+When working with discrete random variables, we plug the parameters $\theta$ directly into a Probability Mass Function (PMF).
+}
+
+\anondefinition{
+The \defemph{Binomial Distribution} models the number of successes $k$ in a fixed number $n$ of independent trials, where each individual trial has a constant success probability $p$.
+\begin{itemize}
+    \item \textbf{Parameters:} $\theta = \{n, p\}$, where $n \in \mathbb{N}$ and $p \in [0, 1]$.
+    \item \textbf{Domain:} $\text{dom}(X) = \{0, 1, \dots, n\}$
+    \item \textbf{Formula (PMF):} 
+    \[
+    P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}
+    \]
+\end{itemize}
+}{binomial_dist}
+
+\Example{
+Tossing a biased coin $10$ times where the probability of heads is $p = 0.7$. The number of total heads observed follows a Binomial distribution with parameters $\theta = \{10, 0.7\}$.
+}{}
+
+\anondefinition{
+The \defemph{Poisson Distribution} models the number of events $k$ occurring within a fixed interval of time or space, assuming these events occur independently at a known constant average rate $\lambda$.
+\begin{itemize}
+    \item \textbf{Parameters:} $\theta = \{\lambda\}$, where $\lambda > 0$ represents the average event rate.
+    \item \textbf{Domain:} $\text{dom}(X) = \mathbb{N}_0 = \{0, 1, 2, \dots\}$
+    \item \textbf{Formula (PMF):} 
+    \[
+    P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+    \]
+\end{itemize}
+}{poisson_dist}
+
+\Example{
+Monitoring a network server where an average of $\lambda = 5$ queries arrive per second. The number of actual queries received in any given second follows a Poisson distribution.
+}{}
+
+\commandnote{
+When working with continuous random variables, the parameters $\theta$ define the shape of a (\linkterm{Probability Density Function (PDF)}{pdf}).
+}
+
+\anondefinition{
+The \defemph{Normal (Gaussian) Distribution} models a continuous random variable whose values cluster symmetrically around a central mean $\mu$, forming a classic symmetric "bell curve" where the width or spread is dictated by the variance $\sigma^2$.
+\begin{itemize}
+    \item \textbf{Parameters:} $\theta = \{\mu, \sigma^2\}$, where $\mu \in \mathbb{R}$ is the mean and $\sigma^2 > 0$ is the variance.
+    \item \textbf{Domain:} $\text{dom}(X) = \mathbb{R}$
+    \item \textbf{Formula (PDF):} 
+    \[
+    f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
+    \]
+\end{itemize}
+}{normal_dist}
+
+\Example{
+Measuring a continuous point like physical heights, temperature fluctuations, or robotic sensor noise. In the real world, when many small, independent random factors combine, their cumulative effect naturally shapes the data into this characteristic symmetric bell curve.
+}{}
+
+\Theorem{\textbf{Central Limit Theorem (CLT)}:
+Let $X_1, X_2, \dots, X_n$ be a sequence of $n$ independent and identically distributed (\linkterm{IID}{def:iid}) random variables, each with a well-defined finite mean $\mu$ and finite variance $\sigma^2$. As the number of variables $n$ approaches infinity ($n \to \infty$), the normalized sum (or average) of these variables approaches a \linkterm{Normal distribution}{normal_dist}, regardless of the original shape of the distribution from which the variables were drawn.
+}{clt_theorem}
+
+\anondefinition{
+The \defemph{Bernoulli Distribution} models a single trial with a binary outcome: success (represented by $1$) or failure (represented by $0$). The distribution is governed by a single parameter $p$, which represents the probability of success.
+\begin{itemize}
+    \item \textbf{Parameters:} $\theta = \{p\}$, where $p \in [0, 1]$.
+    \item \textbf{Domain:} $\text{dom}(X) = \{0, 1\}$
+    \item \textbf{Formula (PMF):} 
+    \[
+    P(X = k) = p^k (1-p)^{1-k}
+    \]
+\end{itemize}
+}{bernoulli_dist}
+
+\commandnote{
+Let's see how the formula $p^k (1-p)^{1-k}$ works dynamically:
+\begin{itemize}
+    \item If we observe a success ($k=1$), the formula gives $p^1 (1-p)^0 = p$.
+    \item If we observe a failure ($k=0$), the formula gives $p^0 (1-p)^1 = 1-p$.
+\end{itemize}
+This mathematical trick allows us to write the probability of both outcomes in a single, compact equation without using a piecewise function.
+}
+
+\Example{
+Draining a single candy from a bag where the true, unknown fraction of cherry candies is $p$. If we treat picking a cherry candy as a success ($k=1$), this single draw follows a Bernoulli distribution.
+}{}
