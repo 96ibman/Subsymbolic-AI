@@ -297,7 +297,7 @@ Induction $\hat{=}$ learning general rules from \linkterm{examples}{supervised_l
     \centering
     \includegraphics[width=0.5\linewidth]{images/family_tree.png}
 \end{figure}
-}{}
+}{ex:family_tree}
 
 \linkterm{Descriptions}{logic_based_inductive_learning} include facts like
 \begin{itemize}
@@ -385,25 +385,445 @@ Standard \linkterm{attribute}{attribute_based_representations}-based algorithms 
 
 \questionbox{Why?}
 
-    Standard machine learning models expect each row in a dataset to represent a single, independent object. To learn a binary relation, the input "object" must be forced into an artificial tuple or pair, such as:
-    \[
-    O = \langle \text{Mum}, \text{Charles} \rangle
-    \]
-    
-    Because a standard decision tree cannot look up other rows dynamically or link variables across features, we cannot create an abstract column like $\text{parent}(X, Z)$. Instead, we are forced to engineer hyper-specific, hardcoded Boolean attributes for each specific individual in the domain:
-    \[
-    \text{FirstElementIsMotherOfElisabeth}(O) \rightarrow \text{True}
-    \]
-    \[
-    \text{SecondElementIsSonOfElisabeth}(O) \rightarrow \text{True}
-    \]
-    
-    Lacking the capacity for variables, the induced decision tree cannot uncover the underlying transitivity rule. It simply memorizes the training instances, collapsing into a massive, flat disjunction ($\lor$) of specific lookups:
-    \[
-    \text{Grandparent}(O) \Leftrightarrow \left(\text{First}(O) = \text{Mum} \land \text{Second}(O) = \text{Charles}\right) \lor \left(\text{First}(O) = \text{George} \land \text{Second}(O) = \text{Anne}\right) \lor \dots
-    \]
+Standard machine learning models expect each row in a dataset to represent a single, independent object. To learn a binary relation, the input "object" must be forced into an artificial tuple or pair, such as:
+\[
+O = \langle \text{Mum}, \text{Charles} \rangle
+\]
+
+Because a standard decision tree cannot look up other rows dynamically or link variables across features, we cannot create an abstract column like $\text{parent}(X, Z)$. Instead, we are forced to engineer hyper-specific, hardcoded Boolean attributes for each specific individual in the domain:
+\[
+\text{FirstElementIsMotherOfElisabeth}(O) \rightarrow \text{True}
+\]
+\[
+\text{SecondElementIsSonOfElisabeth}(O) \rightarrow \text{True}
+\]
+
+Lacking the capacity for variables, the induced decision tree cannot uncover the underlying transitivity rule. It simply memorizes the training instances, collapsing into a massive, flat disjunction ($\lor$) of specific lookups:
+\[
+\text{Grandparent}(O) \Leftrightarrow \left(\text{First}(O) = \text{Mum} \land \text{Second}(O) = \text{Charles}\right) \lor \left(\text{First}(O) = \text{George} \land \text{Second}(O) = \text{Anne}\right) \lor \dots
+\]
+
+
+
+\titledbox{The Takeaway}{
+Attribute-based learning algorithms learn concepts based entirely on the static \defemph{properties of objects}. They are structurally blind to the \defemph{relations between objects}. To effectively learn relational predicates, the hypothesis language must support variables and quantification ($\forall, \exists$), requiring a transition to First-Order Logic via Inductive Logic Programming.
+}
 
 
 \observationbox{
-\textbf{The Takeaway:} Attribute-based learning algorithms learn concepts based entirely on the static \defemph{properties of objects}. They are structurally blind to the \defemph{relations between objects}. To effectively learn relational predicates, the hypothesis language must support variables and quantification ($\forall, \exists$), requiring a transition to First-Order Logic via Inductive Logic Programming.
+A little bit of \linkterm{background knowledge}{bg_knowledge} helps a lot
+}
+
+\Example{
+If the \linkterm{background knowledge}{bg_knowledge} contains
+\[
+\text{parent}(x,y) \Leftrightarrow \text{mother}(x,y) \lor \text{father}(x,y)
+\]
+Then \texttt{grandparent} can be reduced to:
+\[
+\text{grandparent}(x,y) \Leftrightarrow (\exists z. \text{parent}(x,z) \land \text{parent}(z,y))
+\]
+}{}
+
+\anondefinition{
+A \defemph{constructive induction} algorithm creates new predicates to facilitate the expression of explanatory \linkterm{hypotheses}{supervised_learning}
+}{constructive_induction}
+
+\Example{
+Use \linkterm{constructive induction}{constructive_induction} to introduce a predicate \texttt{parent} to simplify the \linkterm{definition}{definitions} of the target \linkterm{predicates}{fol_sig_pl1}
+}{}
+
+\titledbox{Bottom-up vs Top-down learning}{
+\begin{itemize}
+    \item Bottom-up learning: e.g. \linkterm{DTL}{DTL}: start from the observations and work backwards. A \linkterm{DT}{decision_trees} is gradually grown until it is \linkterm{consistent}{consistent_hyp} with the observations
+    \item Top-down learning methods start from a general rule and specialize it on every \linkterm{example}{supervised_learning}
+\end{itemize}
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Excursion : Recall - Clauses}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+\anondefinition{
+A \textbf{clause} is a disjunction $l_1^{\alpha_1} \lor \cdots \lor l_n^{\alpha_n}$ of \linkterm{literals}{literal}. We use $\square$ for the \textit{"empty"} disjunction (no disjuncts) and call it the \textbf{empty clause}. A clause with exactly one \linkterm{literal}{literal} is called a \textbf{unit clause}.
+}{clause_resolution}
+
+\anondefinition{
+We often write a \textbf{clause set} $\set{C_1, \cdots, C_n}$ as $C_1 ; \cdots ; C_n$, and write $S ; T$ for the \linkterm{union}{set_union} of the clause sets $S$ and $T$, and $S ; C$ for the extension of $S$ by a \linkterm{clause}{clause_resolution} $C$.
+}{clause_set}
+
+\anondefinition{
+A \textbf{Horn clause} is a \linkterm{clause}{clause_resolution} with \textbf{at most} one \textbf{positive} \linkterm{literal}{literal}
+}{horn_clause}
+
+\titledbox{PROLOG Logic Programming}{
+\begin{itemize}
+    \item A rule in PROLOG $H:-B_1, \cdots, B_n$ correspond to $H^T \lor B_1^F \cdots B_n^F$, i.e. a \linkterm{Horn clause}{horn_clause}
+    \item A goal set (query) $?-G_1, \cdots, G_n$ corresponds to $G_1^F \cdots G_n^F$
+    \item A fact $F$ corresponds to the \linkterm{unit clause}{clause_resolution} $F^T$
+\end{itemize}
+}
+
+
+\begin{codeblocklst}[caption={PROLOG Example}, label={lst:prolog}]
+human(leibniz).
+human(sokrates).
+greek(sokrates).
+fallible(X):-human(X).
+\end{codeblocklst}
+
+\Example{
+Consider the PROLOG program in \Algref{lst:prolog}
+
+We have three facts, and one rule in the \linkterm{knowledge base}{bg_knowledge}. They translate to the following \linkterm{clause set}{clause_set}:
+\begin{enumerate}
+    \item $\text{human(leibniz)}^T$
+    \item $\text{human(sokrates)}^T$
+    \item $\text{greek(sokrates)}^T$
+    \item $\text{fallible}(X)^T \lor \text{human}(X)^F$ \hfill ($\text{human}(X) \Rightarrow \text{fallible}(X)$)
+\end{enumerate}
+}{}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Excursion}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
+\definition{FOIL}{
+\defemph{First-Order Inductive Learner (FOIL)} is a top-down learning algorithm used in \linkterm{ILP}{ILP}. Its main goal is to automatically learn general rules from a \linkterm{set}{def:set} of positive and negative \linkterm{examples}{supervised_learning}, while utilizing existing \linkterm{background knowledge}{bg_knowledge}
+}{FOIL}
+
+\ideabox{
+\linkterm{FOIL}{FOIL} starts with the most general rule possible and gradually adds \linkterm{literals}{literal} to narrow it down. It continues to make the rule more specific until it perfectly covers positive \linkterm{examples}{supervised_learning} while ruling out the negative ones. 
+}
+
+
+\questionbox{
+How would \linkterm{FOIL}{FOIL} learn the \linkterm{predicate}{fol_sig_pl1} \texttt{grandfather} from our family tree from \Exampleref{ex:family_tree}
+}
+
+\redbox{
+\linkterm{FOIL}{FOIL} constructs a \linkterm{set}{def:set} of \linkterm{Horn clauses}{horn_clause} with head $\text{grandfather}(x,y)$ such that the positive examples are instances of the \texttt{grandfather} relationship
+}
+
+We have $12$ total positive examples:
+\begin{itemize}
+    \item \textbf{Top-Generation Lineage (George \& Mum)}
+    \begin{enumerate}
+        \item $\text{grandfather}(\text{George}, \text{Charles})$
+        \item $\text{grandfather}(\text{George}, \text{Anne})$
+        \item $\text{grandfather}(\text{George}, \text{Andrew})$
+        \item $\text{grandfather}(\text{George}, \text{Edward})$
+    \end{enumerate}
+
+    \item \textbf{Central Royal Lineage (Elisabeth \& Philipp)}
+    \begin{enumerate}
+        \item $\text{grandfather}(\text{Philipp}, \text{William})$
+        \item $\text{grandfather}(\text{Philipp}, \text{Harry})$
+        \item $\text{grandfather}(\text{Philipp}, \text{Peter})$
+        \item $\text{grandfather}(\text{Philipp}, \text{Zara})$
+        \item $\text{grandfather}(\text{Philipp}, \text{Beatrice})$
+        \item $\text{grandfather}(\text{Philipp}, \text{Eugenie})$
+    \end{enumerate}
+
+    \item \textbf{Maternal Lineage (Spencer \& Kydd)}
+    \begin{enumerate}
+        \item $\text{grandfather}(\text{Spencer}, \text{William})$
+        \item $\text{grandfather}(\text{Spencer}, \text{Harry})$
+    \end{enumerate}
+\end{itemize}
+
+\textbf{1. Split the Examples}
+
+\begin{itemize}
+    \item Positive: e.g. $\tuple{\text{George}, \text{Anne}}, \tuple{\text{Philipp}, \text{Peter}}, \tuple{\text{Spencer}, \text{Harry}}$
+    \item Negative: e.g. $\tuple{\text{George}, \text{Elizabeth}}, \tuple{\text{Harry}, \text{Zara}}, \tuple{\text{Charles}, \text{Philipp}}$
+\end{itemize}
+
+\textbf{2. Start with the Broadcast Rule}
+
+\linkterm{FOIL}{FOIL} starts with an empty body rule, which basically guesses that everyone is a grandfather to everyone \hfill $\Rightarrow \text{grandfather}(x,y)$. 
+
+In PROLOG, this is equivalent to:
+
+\begin{verbatim}
+grandfather(x,y).
+\end{verbatim}
+
+or
+
+\begin{verbatim}
+grandfather(x,y):-.
+\end{verbatim}
+
+This will already include the positive examples but will misclassify all the negative examples.
+
+\textbf{3. Add the "Best" Literal  (Specialization)}
+
+To fix this, \linkterm{FOIL}{FOIL} looks at all possible \linkterm{literals}{literal} it could add to the body of the rule to knock out the negative \linkterm{examples}{supervised_learning}. It tests candidates like:
+
+$\text{father}(x,y) \Rightarrow \text{grandfather}(x,y)$
+
+\begin{verbatim}
+grandfather(x,y):-father(x,y)
+\end{verbatim}
+
+\redbox{
+This incorrectly cuts out 12 positive examples
+}
+
+$\text{parent}(x,z) \Rightarrow \text{grandfather}(x,y)$
+
+\begin{verbatim}
+grandfather(x,y):-parent(x,z)
+\end{verbatim}
+
+\redbox{
+This fails to eliminate enough negative examples
+}
+
+$\text{father}(x,z) \Rightarrow \text{grandfather}(x,y)$
+
+\begin{verbatim}
+grandfather(x,y):-father(x,z)
+\end{verbatim}
+
+\observationbox{
+This is the only promising candidate, it establishes that $x$ has to be a father to someone $z$
+}
+
+\commandnote{
+\linkterm{FOIL}{FOIL} uses a \linkterm{heuristic}{heuristic_search} similar to \linkterm{information gain}{information_gain} to mathematically pick the literal that filters out the most negative \linkterm{examples}{supervised_learning} while keeping the positive ones. 
+}
+
+\textbf{4. Keep Going}
+
+\linkterm{FOIL}{FOIL} chose the following rule for now $\text{father}(x,z) \Rightarrow \text{grandfather}(x,y)$. There are still some negative \linkterm{examples}{supervised_learning} since being a father doesn't automatically make someone a grandfather. \linkterm{FOIL}{FOIL} repeats the search and appends another \linkterm{literal}{literal} to specialize further. 
+
+Eventually it will find the following rule:
+
+\[
+\text{father}(x,z) \land \text{parent}(z,y) \Rightarrow \text{grandfather}(x,y)
+\]
+
+\begin{verbatim}
+grandfather(x,y):-father(x,z), parent(z,y)
+\end{verbatim}
+
+Now, this clause perfectly covers a bunch of positive examples and yields zero negative examples.
+
+\textbf{5. Remove Covered Examples}
+
+\linkterm{FOIL}{FOIL} saves this completed \linkterm{clause}{clause_resolution}
+\[
+\text{father}(x,z)^F \lor \text{parent}(z,y)^F \lor \text{grandfather}(x,y)^T
+\]
+
+It then removes all the positive \linkterm{examples}{supervised_learning} that are successfully explained by this new rule. If there are still unexplained positive \linkterm{examples}{supervised_learning} left, the entire loop starts over to find a second \linkterm{clause}{clause_resolution}
+
+\titledbox{Crucial Constraints}{
+Because constructing logical expressions has an incredibly massive branching factor, FOIL enforces strict boundaries to stay efficient:
+\begin{itemize}
+    \item Variable Connectivity: Any \linkterm{literal}{literal} added must share at least one variable with the variables already present in the \linkterm{clause}{clause_resolution} (either in the head or in a previous \linkterm{literal}{literal}). For example, if trying to define grandfather(x, y), adding married(u, v) is invalid because it introduces completely isolated variables.
+    \item Ockham's Razor: To avoid overly complex or "boring" rules, \linkterm{FOIL}{FOIL} limits the length of a \linkterm{clause}{clause_resolution}. If a \linkterm{clause}{clause_resolution} becomes longer than the total number of positive \linkterm{examples}{supervised_learning} it explains, \linkterm{FOIL}{FOIL} flags it as an invalid \linkterm{hypothesis}{supervised_learning} and throws it out.
+\end{itemize}
+}
+
+\observationbox{
+Unlike \linkterm{attribute}{attribute_based_representations}-based learning algorithms that require restructuring data into massive, specific disjunctions (which completely fail to generalize to new family trees), \linkterm{FOIL}{FOIL} outputs clean, highly readable first-order logic rules. Because it can utilize previously learned concepts as \linkterm{background knowledge}{bg_knowledge}, it can master complex structural tasks, e.g. writing correct PROLOG programs for list-processing, from just a handful of examples.
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : Inductive Learning}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the family tree given by the following relations:
+
+\begin{center}
+\begin{tabular}{|c|c|} \hline 
+    couple & children \\ \hline
+    A,B & E,F \\ \hline 
+    C,D & G,H \\ \hline 
+    F,G & I,J \\ \hline
+\end{tabular} 
+\end{center}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/family_tree_ex.png}
+\end{figure}
+
+Assume we already know the \linkterm{predicate}{fol_sig_pl1} $\texttt{par}(x,y)$ for $x$ being a parent of $y$. Our goal is to learn the \linkterm{predicate}{fol_sig_pl1} $\texttt{gp}(x,y)$ for $x$ being a grandparent of $y$. That means to find a formula $D$ such that $\forall x,y. \texttt{gp}(x,y) \Leftrightarrow D(x,y)$.
+
+We do not know $D$, but we have the following \linkterm{examples}{supervised_learning} for \texttt{gp}:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+person-pair & grandparent \\ \hline
+A, I        & yes         \\ 
+B, I        & yes         \\ 
+A, J        & yes         \\ 
+A, E        & no          \\ 
+A, F        & no          \\ 
+F, A        & no          \\ 
+A, A        & no          \\ 
+C, J        & yes         \\ 
+D, H        & no          \\ 
+I, A        & no          \\ \hline
+\end{tabular}
+\end{center}
+
+\questionbox{
+What is the intended formula (call it $D_1$), i.e. the correct definition of grandparent?
+}
+
+\answerbox{
+$D_1(x,y) = \exists u. \texttt{par}(x,u) \land \texttt{par}(u,y)$
+}
+
+\questionbox{
+Give a formula $D_2$ that covers exactly the positive \linkterm{examples}{supervised_learning}
+}
+
+\answerbox{
+\[
+D_2(x,y) = (x = A \land y = I) \lor (x = B \land y = I) \lor (x = A \land y = J) \lor (x=C \land y=J) 
+\]
+}
+
+We want to learn algorithmically the formula 
+\[
+D(x,y) = \exists u_1, \cdots u_l . L_1 \land \cdots \land L_k
+\]
+
+where each $L_i$ is a \linkterm{literal}{literal} of the form 
+\[
+P(x,y,u_1, \cdots ,u_l)
+\]
+
+or 
+
+\[
+\neg P(x,y,u_1, \cdots ,u_l)
+\]
+
+for some \linkterm{predicate constant}{fol_sig_pl1} $P \in \set{\texttt{par}, \texttt{gp}, =}$
+
+We do so by building the set $\set{L_1, \cdots L_k}$ of \linkterm{literals}{literal} gradually. Each $L_i$ can have free variables in addition to $x$ and $y$, which we will collect at the end as the $u_i$.
+
+\questionbox{
+If we start with the empty \linkterm{set}{def:set} of \linkterm{literals}{literal}, give all useful choices that we can make for the first \linkterm{literal}{literal}
+}
+
+\answerbox{
+If we build the predicate $P$ using only $x$ and $y$, we have the following choices:
+\begin{enumerate}
+    \item $P(x,y)$
+    \item $P(x,x)$
+    \item $P(y,x)$
+    \item $P(y,y)$
+\end{enumerate}
+
+And their negations, so we have total of $8$. 
+
+If we want to introduce a new variable $u$ with the variable connectivity constraint (i.e. at least $x$ or $y$ should be present), we have:
+\begin{enumerate}
+    \item $P(x,u)$
+    \item $P(y,u)$
+    \item $P(u,x)$
+    \item $P(u,y)$
+\end{enumerate}
+
+and their negations, hence another $8$ choices, so we have $16$ choices in total.
+
+Additionally, because $P$ can be the equality relation, we have:
+\begin{enumerate}
+    \item $x = y$
+    \item $x \neq y$
+\end{enumerate}
+
+Note that it is useless to add equality checks with a new variable or where both variables are the same.
+
+So we have $16$ choices for $P \in \set{\texttt{par}, \texttt{gp}}$ and $2$ choices for $P \in \set{=}$
+}
+
+\questionbox{
+For each choice $L$ that is:
+\begin{itemize}
+    \item non-recursive (i.e. $P$ is not the target predicate $\texttt{gp}$), 
+    \item positive (i.e. the \linkterm{literal}{literal} is not negated),
+    \item not an equality (i.e. $P \notin \set{=}$), and
+    \item does not introduce a new variable (i.e. only $x$ and $y$) 
+\end{itemize}
+Which \linkterm{examples}{supervised_learning} are falsely classified?
+}
+
+
+Now we are limited to these four choices:
+\begin{enumerate}
+    \item $\texttt{par}(x,x)$
+    \item $\texttt{par}(y,y)$
+    \item $\texttt{par}(x,y)$
+    \item $\texttt{par}(y,x)$
+\end{enumerate}
+
+Let's analyze each of these \linkterm{literals}{literal} to see which \linkterm{examples}{supervised_learning} they falsely classify:
+
+$\texttt{par}(x,x)$:
+
+i.e. we are saying that $\texttt{par}(x,x) \Rightarrow \texttt{gp}(x,y)$
+
+i.e. we are asserting in, e.g. PROLOG \inlinecode{gp(x,y) :- par(x,x)}. Meaning, $x$ is grandparent of $y$ if $x$ is parent of $x$. 
+
+Obviously, there are no \linkterm{examples}{supervised_learning} where this holds, hence it will be false for all \linkterm{examples}{supervised_learning}.
+
+It will not give true at all $\leadsto$ no false positives. It will always give false $\leadsto$ we will have $6$ true negatives and $4$ false negatives.
+
+\observationbox{
+We have a similar situation for $\texttt{par}(y,y)$ (4 falsely classified \linkterm{examples}{supervised_learning})
+}
+
+$\texttt{par}(x,y)$:
+
+i.e. we are saying that $\texttt{par}(x,y) \Rightarrow \texttt{gp}(x,y)$
+
+i.e. we are asserting in, e.g. PROLOG \inlinecode{gp(x,y) :- par(x,y)}. Meaning, $x$ is grandparent of $y$ if $x$ is parent of $y$. 
+
+We will have $4$ false negatives (for the actual grandparents in the data)
+
+For the six negative \linkterm{examples}{supervised_learning}, we have $\tuple{A,E}$, $\tuple{A,F}$, $\tuple{D,H}$ where $\texttt{par}(x,y)$ holds, this yields $3$ false positives.
+
+\observationbox{
+This has a higher number of falsely classified \linkterm{examples}{supervised_learning} ($7$)
+}
+
+$\texttt{par}(y,x)$:
+
+i.e. we are saying that $\texttt{par}(y,x) \Rightarrow \texttt{gp}(x,y)$
+
+i.e. we are asserting in, e.g. PROLOG \inlinecode{gp(x,y) :- par(y,x)}. Meaning, $x$ is grandparent of $y$ if $y$ is parent of $x$. 
+
+Again this will misclassify the actual positives we have $\leadsto 4$ false negatives. 
+
+For the negative \linkterm{examples}{supervised_learning}, $\texttt{par}(y,x)$ will hold for $\tuple{F,A}$, hence we have $1$ false positive.
+
+\observationbox{
+This \linkterm{literal}{literal} misclassify $5$ \linkterm{examples}{supervised_learning}
+}
+
+\commandnote{
+There were no true positives for all the 4 choices. The positive examples were always false negatives.
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
 }
