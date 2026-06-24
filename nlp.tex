@@ -479,3 +479,331 @@ F_1 = 2 \cdot \frac{\text{\linkterm{precision}{precision}} \cdot \text{\linkterm
 }
 \]
 }{f_1_score}
+
+\anondefinition{
+An \defemph{information need} is an individual or group's desire to locate and obtain information to satisfy a conscious or unconscious need. 
+}{information_need}
+
+\anondefinition{
+An \defemph{information object} is a medium that is mainly used to its information content.
+}{information_object}
+
+\anondefinition{
+\defemph{Information Retrieval (IR)} deals with the representation, organization, storage, and maintenance if \linkterm{information objects}{information_object} that provide users with easy access to the relevant information and satisfy their various \linkterm{information needs}{information_need}
+}{IR}
+
+\observationbox{
+\linkterm{Information need}{information_need} is closely related to relevance: if something is relevant for a person in relation to a given task, we might say that the person needs the information for that task
+}
+
+\anondefinition{
+\defemph{Relevance} denotes how well an \linkterm{information object}{information_object} meets the \linkterm{information need}{information_need} of the user. \defemph{Relevance} may include concerns such as timeliness, authority or novelty of the object.
+}{relevance_info}
+
+\anondefinition{
+\defemph{Web Search} is a fully automatic process that responds to a \defemph{user query} by returning a sorted document list \linkterm{relevant}{relevance_info} to the user requirements expressed in the query.
+}{web_search}
+
+\commandnote{
+For \linkterm{Web Search}{web_search}, we usually represent documents and queries as \linkterm{bags}{multiset} of words over a fixed vocabulary $V$. Given a query $Q$, we return all documents that are \textit{"similar"}
+}
+
+\anondefinition{
+Given a \defemph{vocabulary} (a list) $V$ of words, a word $w \in V$, and a document $d$, then we define the \defemph{raw term frequency} (often just called the \defemph{term frequency}) of $w$ in $d$ as the number of occurrences of $w$ in $d$.
+}{raw_term_frequency}
+
+\anondefinition{
+A \linkterm{multiset}{multiset} of words in $V = \set{t_1, \cdots, t_n}$ is called a \defemph{bag of words (BOW)}, and can be represented as \defemph{word frequency vector} in $\mathbb{N}^{\abs{V}}$: the vector of \linkterm{raw word frequencies}{raw_term_frequency}
+}{BOW}
+
+\Example{
+Let the vocabulary $V$ be a list of words defined as:
+\[
+V = \langle \text{``Have''}, \text{``a''}, \text{``good''}, \text{``great''}, \text{``day''} \rangle
+\]
+The size of the vocabulary is $|V| = 5$. Consider two documents, $d_1$ and $d_2$:
+\begin{itemize}
+    \item $d_1$: ``Have a good day!''
+    \item $d_2$: ``Have a great day!''
+\end{itemize}
+
+The \linkterm{raw term frequency}{raw_term_frequency} $m_i(x)$ counts the occurrences of each word $x \in V$ in document $d_i$.
+
+For $d_1$:
+\begin{align*}
+m_1(\text{``Have''}) &= 1, & m_1(\text{``a''}) &= 1, & m_1(\text{``good''}) &= 1, \\
+m_1(\text{``great''}) &= 0, & m_1(\text{``day''}) &= 1
+\end{align*}
+
+For $d_2$:
+\begin{align*}
+m_2(\text{``Have''}) &= 1, & m_2(\text{``a''}) &= 1, & m_2(\text{``good''}) &= 0, \\
+m_2(\text{``great''}) &= 1, & m_2(\text{``day''}) &= 1
+\end{align*}
+
+Each document can be modeled as a \linkterm{multiset}{multiset} over the domain $V$ (\linkterm{BOW}{BOW}):
+\begin{align*}
+\mathcal{M}_{d_1} &= \{ \text{``Have''}^1, \text{``a''}^1, \text{``good''}^1, \text{``great''}^0, \text{``day''}^1 \} \\
+\mathcal{M}_{d_2} &= \{ \text{``Have''}^1, \text{``a''}^1, \text{``good''}^0, \text{``great''}^1, \text{``day''}^1 \}
+\end{align*}
+
+We can map these \linkterm{multisets}{multiset} to vectors in $\mathbb{N}^{|V|}$ based on the ordering of $V$:
+\begin{align*}
+\vec{v}_{d_1} &= \begin{pmatrix} m_1(\text{``Have''}) \\ m_1(\text{``a''}) \\ m_1(\text{``good''}) \\ m_1(\text{``great''}) \\ m_1(\text{``day''}) \end{pmatrix} = \begin{pmatrix} 1 \\ 1 \\ 1 \\ 0 \\ 1 \end{pmatrix} \\[1ex]
+\vec{v}_{d_2} &= \begin{pmatrix} m_2(\text{``Have''}) \\ m_2(\text{``a''}) \\ m_2(\text{``good''}) \\ m_2(\text{``great''}) \\ m_2(\text{``day''}) \end{pmatrix} = \begin{pmatrix} 1 \\ 1 \\ 0 \\ 1 \\ 1 \end{pmatrix}
+\end{align*}
+}{}
+
+\commandnote{
+Words outside the vocabulary are ignored in the \linkterm{BOW}{BOW} approach. So the document
+$d3:$ ``What a day, a good day'' is represented as $[0, 2, 1, 0, 2]$.
+}
+
+\Lemma{
+\textbf{Euclidean Dot Product Formula}:
+
+\[
+A \cdot B = \norm{A}_2 \norm{B}_2 \cos \theta
+\]
+
+where $\theta$ is the angle between $A$ and $B$
+}{}
+
+\anondefinition{
+The \defemph{cosine similarity} of $A$ and $B$ is 
+\[
+\cos \theta = \frac{A \cdot B}{\norm{A}_2 \norm{B}_2}
+\]
+}{cosine_similarity}
+
+\ideabox{
+\linkterm{query}{web_search} and document are similar, iff the angle between their \linkterm{word frequency vectors}{BOW} is small (for some notion of small)
+}
+
+\problembox{
+\linkterm{word frequency vectors}{BOW} treat all words equally
+}
+
+\Example{
+In a \linkterm{query}{web_search} \textit{"the brown cow"}, the \textit{"the"} is less important than \textit{"brown cow"}
+}{}
+
+\ideabox{
+Introducing a weighting factor for the \linkterm{word frequency vector}{BOW} that de-emphasizes the dimension of the more (globally) frequent words
+}
+
+\anondefinition{
+Given a document $d$ and a word $w \in V$, the \defemph{normalized term frequency} $\text{tf}(t,d)$ is the \linkterm{raw term frequency}{raw_term_frequency} divided by $\abs{d}$
+}{tf}
+
+\anondefinition{
+Given a collection of documents $D = \set{d_1, \cdots, d_N}$ and a word $t \in V$ the \defemph{inverse document frequency} is given by 
+\[
+\text{idf}(t,D) = \log_{10} \left( \frac{N}{\abs{\set{d \in D \mid t \in d}}} \right)
+\]
+}{idf}
+
+\titledbox{Intuition}{
+\begin{itemize}
+    \item Note that we have $N$ (number of documents) in the numerator \hfill{hence, we call it inverse}
+    \item We are dividing $N$ by "how many documents where the word $t$ appears"
+    \item If "how many documents where the word $t$ appears" is close to $N$ then the expression inside the log is close to $1$. Taking the $\log_{10}$ of a number close to $1$ gives a number close to $0$. Therefore, indicating a "non-important" word. 
+    \item So, \linkterm{$\text{idf}(t,D)$}{idf} can be thought of a measure of \textit{"rarity"} of a word $t$ given documents $D$
+\end{itemize}
+}
+
+\definition{tfidf}{
+We define \defemph{Term Frequency-Inverse Document Frequency} as 
+\[
+\text{tfidf}(t, d, D) = \text{tf}(t,d) \cdot \text{idf}(t,D)
+\]
+}{tfidf}
+
+\titledbox{Intuition}{
+We are weighting the \linkterm{$\text{tf}(t,d)$}{tf} (normalized term frequency) by the \textit{importance / rarity} 
+}
+
+\anondefinition{
+Let $D$ be a collection of documents with vocabulary $V = \set{t_1, \cdots, t_{\abs{V}}}$, then the \defemph{tfidf-vector} $\overline{\text{tfidf}}(d, D) \in \mathbb{N}^{\abs{V}}$ is defined by 
+\[
+\overline{\text{tfidf}}(d, D)_i = \text{tfidf}(t_i, d, D)
+\]
+}{tfidf_vector}
+
+\ideabox{
+Use the \linkterm{tfidf-vector}{tfidf_vector} with \linkterm{cosine similarity}{cosine_similarity} for \linkterm{IR}{IR} instead
+}
+
+\Example{
+Let $D = \set{d_1, d_2}$ be a document \linkterm{corpus}{corpus} over the vocabulary:
+\[
+V = \set{\text{"this"}, \text{"is"}, \text{"a"}, \text{"sample"}, \text{"another"}, \text{"example"}}
+\]
+with \linkterm{word frequency vectors}{BOW}:
+\begin{itemize}
+    \item $\vec{v}_{d_1} = [1,1,1,2,0,0]$
+    \item $\vec{v}_{d_2} = [1,1,0,0,2,3]$
+\end{itemize}
+
+For the word $t=$ \textit{"this"} we compute \linkterm{$\text{tf}(t,d)$}{tf}
+\begin{itemize}
+    \item $\text{tf}(t,d_1) = \frac{1}{5} = 0.2$
+    \item $\text{tf}(t,d_2) = \frac{1}{7} \approx 0.14$
+\end{itemize}
+
+We also compute \linkterm{$\text{idf}(t,D)$}{idf}
+\begin{itemize}
+    \item $\text{idf}(t,D) = \log_{10} (\frac{2}{2}) = 0$
+\end{itemize}
+
+Now we can compute \linkterm{$\text{tfidf}(t, d, D)$}{tfidf}
+\begin{itemize}
+    \item $\text{tfidf}(t, d_1, D) = \text{tf}(t,d_1) \cdot \text{idf}(t,D) = 0.2 \cdot 0 = 0$
+    \item  $\text{tfidf}(t, d_2, D) = \text{tf}(t,d_2) \cdot \text{idf}(t,D) = 0.14 \cdot 0 = 0$
+\end{itemize}
+
+\redbox{Because \textit{"this"} appeared in all documents, it has no importance}
+
+Now for the word $t=$ \textit{"example"} we compute \linkterm{$\text{tf}(t,d)$}{tf}
+\begin{itemize}
+    \item $\text{tf}(t,d_1) = \frac{0}{5} = 0$
+    \item $\text{tf}(t,d_2) = \frac{3}{7} \approx 0.429$
+\end{itemize}
+
+We also compute \linkterm{$\text{idf}(t,D)$}{idf}
+\begin{itemize}
+    \item $\text{idf}(t,D) = \log_{10} (\frac{2}{1}) \approx 0.301$
+\end{itemize}
+
+Now we can compute \linkterm{$\text{tfidf}(t, d, D)$}{tfidf}
+\begin{itemize}
+    \item $\text{tfidf}(t, d_1, D) = \text{tf}(t,d_1) \cdot \text{idf}(t,D) = 0 \cdot 0.301 = 0$
+    \item  $\text{tfidf}(t, d_2, D) = \text{tf}(t,d_2) \cdot \text{idf}(t,D) = 0.429 \cdot 0.301 = 0.129$
+\end{itemize}
+
+\redbox{\textit{"example"} is more interesting because it only appears in $d_2$}
+}{}
+
+\problembox{
+There are many hits, we need to sort them \hfill{e.g. by importance}
+}
+
+\ideabox{
+A website is important if many other "important" sites hyperlink to it
+}
+
+\anondefinition{
+Let $A$ be a web page that is hyperlinked from web pages $S_1, \cdots, S_n$, then the \defemph{page rank} $\text{PR}$ of $A$ is defined as
+\[
+\text{PR}(A) = 1-d + d \left( \frac{\text{PR}(S_1)}{C(S_1)} + \cdots +  \frac{\text{PR}(S_n)}{C(S_n)}\right)
+\]
+where $C(W)$ is the number of links in a page $W$ and $d=0.85$
+}{page_rank}
+
+\commandnote{
+    $\text{PR}(A)$ is the probability of reaching $A$ by random browsing
+}
+
+\anondefinition{
+\defemph{Information extraction} is the process of acquiring information by skimming a text and looking for occurrences of a particular class of object and for relationships among objects.
+}{info_extraction}
+
+\Example{
+Extracting instances of addresses from web pages, with attributes for street, city, state, and zip code.
+}{}
+
+\Example{
+Extracting instances of storms from weather reports, with attributes for temperature, wind speed, and precipitation.
+}{}
+
+\observationbox{
+In a limited domain, this can be done with high accuracy
+}
+
+\anondefinition{
+In \defemph{attribute-based information extraction} we assume that the text refers to a single object and the task is to extract a \linkterm{factored}{state_repr} representation.
+}{ab_info_extraction}
+
+\Example{
+Extracting from the text 
+
+\begin{center}
+    \textit{"IBM ThinkBook 970. Our price: \$399.00"}
+\end{center}
+
+The \linkterm{attribute-based representation}{attribute_based_representations}
+\[
+\set{
+    \text{Manufacturer} = \text{IBM},
+    \text{Model} = \text{ThinkBook 970},
+    \text{Price} = \text{\$399.00}
+}
+\]
+}{}
+
+\ideabox{
+Try a \linkterm{template}{template}-based approach for each \linkterm{attribute}{attribute_based_representations}
+}
+
+\anondefinition{
+A \defemph{template} is a finite automaton that recognizes the information to be extracted. The \defemph{template} often consists of three sub-automata per \linkterm{attribute}{attribute_based_representations}:
+\begin{itemize}
+    \item the \defemph{prefix pattern} 
+    \item the \defemph{target pattern} \hfill{it matches the \linkterm{attribute}{attribute_based_representations} value}
+    \item the \defemph{postfix pattern}
+\end{itemize}
+}{template}
+
+\Example{
+When we want to extract computer price information, we could use regular expressions for the automata, concretely:
+\begin{itemize}
+    \item \linkterm{prefix pattern}{template}: \texttt{.*price[:]?}
+    \item \linkterm{target pattern}{template}: \texttt{[\$][0-9]+([.][0-9][0-9])?}
+    \item \linkterm{postfix pattern}{template}: \texttt{+ shipping|}
+\end{itemize}
+}{}
+
+\titledbox{Alternative}{
+Take all the target matches and choose among them
+}
+
+\Example{
+For 
+
+\begin{center}
+    \textit{"List price \$99.00, special sale price \$78.00, shipping \$3.00"}
+\end{center}
+
+take the lowest price that is within $50\%$ of the highest price $\leadsto$ \textit{"\$78.00"}
+}{}
+
+\questionbox{
+Can we also do \linkterm{structured}{state_repr} representations?
+}
+
+\answerbox{
+Yes, that is the next step up from \linkterm{attribute-based information extraction}{ab_info_extraction}
+}
+
+\anondefinition{
+The task of a \defemph{relational extraction} system is to extract multiple objects and the relationships among them from a text
+}{relational_extraction}
+
+\Example{
+When these systems see the text \textit{"\$249.99"}, they need to determine not just that it is a price, but also which object has that price.
+}{}
+
+\Example{
+FASTUS is a typical \linkterm{relational extraction}{relational_extraction} system, which handles news stories about corporate mergers and acquistions. It can read the story:
+
+\begin{center}
+    \textit{"Bridgestone Sports Co. said Friday it has set up a joint venture in Taiwan with a local concern and a Japanese trading house to produce golf clubs to be shipped to Japan."}
+\end{center}
+and extract the relations:
+
+\begin{itemize}
+    \item $e \in \text{JointVentures} \land \text{Product}(e, \text{"golfclubs"}) \land \text{Date}(e, \text{"Friday"})$
+    \item $\text{Member}(e, \text{"BridgestoneSportsCo"}) \land \text{Member}(e, \text{"alocalconcern"})$
+    \item $\text{Member}(e, \text{"aJapanesetradinghouse"})$
+\end{itemize}
+}{}
