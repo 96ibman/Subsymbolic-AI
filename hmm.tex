@@ -390,7 +390,7 @@ Gievn a \linkterm{Markov chain}{markov_chain} with state variables $X_t$ and \li
 \item \defemph{Filtering (Monitoring)}: The task of tracking / updating the \linkterm{probability distribution}{def:prob_distribution} $B_t (X) = \probd{X_t \mid E_{1:t}^{=e}}$ (\defemph{belief state}) over time. i.e. given sequence $e_1, \cdots, e_t$ of observations up until time $t$, we compute the likely state of the world at current time $t$.
 \item \defemph{Prediction (State Estimation)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the likely \textit{future} state of the world at time $t+k$ for $k > 0$. i.e. calculating the \linkterm{probability distribution}{def:prob_distribution} $\probd{X_{t+k} \mid E_{1:t}^{=e}}$.
 \item \defemph{Smoothing (Hindsight)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the likely \textit{past} state of the world at time $t-k$ for $0 < k < t$. i.e. calculate the \linkterm{probability distribution}{def:prob_distribution} $\probd{X_{t-k} \mid E_{1:t}^{=e}}$
-\item \defemph{Most Likely Explanation (MLE)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, copmute the most likely sequence of states that led to these observations, i.e. calculate:
+\item \defemph{Most Likely Explanation (MLE)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the most likely sequence of states that led to these observations, i.e. calculate:
 \[
 \argmax{x} P(X_{1:t}^{=x} \mid E_{1:t}^{=e})
 \]

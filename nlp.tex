@@ -807,3 +807,207 @@ and extract the relations:
     \item $\text{Member}(e, \text{"aJapanesetradinghouse"})$
 \end{itemize}
 }{}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : \linkterm{POS tagging}{POS_tagging}}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the following \linkterm{corpus}{corpus}
+\begin{center}
+    \textit{"A dog runs. The man sees the dog. The man shouts."}
+\end{center}
+
+And the following \linkterm{POS tags}{POS_tagging}: 
+\begin{itemize}
+    \item D (determiner)
+    \item N (Noun)
+    \item V (Verb)
+    \item E (End of Sentence)
+\end{itemize}
+
+\questionbox{Annotate the \linkterm{corpus}{corpus} with \linkterm{POS tags}{POS_tagging}}
+
+\begin{itemize}
+    \item Sentence 1: A (D) dog (N) runs (V) . (E) $\leadsto$ DNVE
+    \item Sentence 2: The (D) man (N) sees (V) the (D) dog (N) . (E) $\leadsto$ DNVDNE
+    \item Sentence 3: The (D) man (N) shouts (V) . (E) $\leadsto$ DNVE
+\end{itemize}
+
+Concatenating these gives the sequence: DNVE DNVDNE DNVE
+
+\questionbox{Compute the \linkterm{transition model}{transition_model_hmm} and the \linkterm{sensor model}{sensor_model_hmm} from the \linkterm{corpus}{corpus}}
+
+We want to build a \linkterm{HMM}{hmm} where the hidden \linkterm{stochastic process}{stochastic_process} (hidden process) is the \linkterm{POS tags}{POS_tagging} and the observations are the words we observe.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2.5cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
+  % Left ellipsis
+  \node at (-1.5, 2) {$\cdots$};
+  
+  % Rain nodes (top row)
+  \node[vertex] (rain_t_1) at (0, 2) {$\text{POS}_{t-1}$};
+  \node[vertex] (rain_t) at (2.5, 2) {$\text{POS}_t$};
+  \node[vertex] (rain_t1) at (5, 2) {$\text{POS}_{t+1}$};
+  
+  % Arrows between rain nodes
+  \draw[arc] (rain_t_1) -- (rain_t);
+  \draw[arc] (rain_t) -- (rain_t1);
+  
+  % Right ellipsis
+  \node at (6.5, 2) {$\cdots$};
+  
+  % Umbrella nodes (bottom row)
+  \node[vertex] (umb_t_1) at (0, 0) {$\text{Word}_{t-1}$};
+  \node[vertex] (umb_t) at (2.5, 0) {$\text{Word}_t$};
+  \node[vertex] (umb_t1) at (5, 0) {$\text{Word}_{t+1}$};
+  
+  % Vertical arrows from rain to umbrella
+  \draw[arc] (rain_t_1) -- (umb_t_1);
+  \draw[arc] (rain_t) -- (umb_t);
+  \draw[arc] (rain_t1) -- (umb_t1);
+\end{tikzpicture}
+\end{figure}
+
+For this we need a \linkterm{transition model}{transition_model_hmm} that captures the \linkterm{probability distribution}{def:prob_distribution} $\probd{\text{POS}_t \mid \text{POS}_{t-1}}$. And a \linkterm{sensor model}{sensor_model_hmm} that captures the \linkterm{probability distribution}{def:prob_distribution} $\probd{\text{Word}_t \mid \text{POS}_t}$.
+
+We use matrix representation of the \linkterm{transition model}{transition_model_hmm}. We fix an order for the different values as D,N,V,E. We want the following matrix:
+
+\[
+T =
+\begin{pmatrix}
+P(D_t \mid D_{t-1}) & P(N_t \mid D_{t-1}) & P(V_t \mid D_{t-1}) & P(E_t \mid D_{t-1})\\
+P(D_t \mid N_{t-1}) & P(N_t \mid N_{t-1}) & P(V_t \mid N_{t-1}) & P(E_t \mid N_{t-1}) \\
+P(D_t \mid V_{t-1}) & P(N_t \mid V_{t-1}) & P(V_t \mid V_{t-1}) & P(E_t \mid V_{t-1}) \\
+P(D_t \mid E_{t-1}) & P(N_t \mid E_{t-1}) & P(V_t \mid E_{t-1}) & P(E_t \mid E_{t-1}) \\
+\end{pmatrix}
+\] 
+
+For the \linkterm{sensor markov property}{sensor_markov_property}, we use the observation matrix representation. We have a total of $7$ unique words that can be observed plus the ".". So, we fix an order, say:
+\begin{center}
+    \textit{a, the, dog, man, runs, sees, shouts, .}
+\end{center}
+
+Then we need the following matrix:
+
+\[
+O =
+\begin{pmatrix}
+P(\text{"a"}_t \mid D_t) & P(\text{"the"}_t \mid D_t) & \cdots & P(\text{"."}_t \mid D_t) \\ 
+
+P(\text{"a"}_t \mid N_t) & P(\text{"the"}_t \mid N_t) & \cdots & P(\text{"."}_t \mid N_t) \\ 
+
+P(\text{"a"}_t \mid V_t) & P(\text{"the"}_t \mid V_t) & \cdots & P(\text{"."}_t \mid V_t) \\ 
+
+P(\text{"a"}_t \mid E_t) & P(\text{"the"}_t \mid E_t) & \cdots  & P(\text{"."}_t \mid E_t) 
+\end{pmatrix}
+\] 
+
+To calculate probabilities, we basically count. e.g. for $P(N_t \mid D_{t-1})$ this will be how many times did we have D followed by N divided by the total occurrences of D. In our corpus, we have "DNVE DNVDNE DNVE". That makes total of 4 occurrences of D, all of them were followed by N. So $P(N_t \mid D_{t-1}) = \frac{4}{4} = 1$
+
+\redbox{
+To handle the border cases, we assume that the text loops, i.e. the last tag of the last sentence is succeeded by the first tag of the first sentence $\leadsto$ this gives us the opportunity to consider the successor of "E" as the initial state.
+}
+
+Therefore, to calculate $P(D_t \mid E_{t-1})$. E occurred 3 times in total. All three were followed by D (not just two considering the loop).
+
+In the end, we will have the following \linkterm{transition model}{transition_model_hmm}:
+\[
+T =
+\begin{pmatrix}
+0/4 & 4/4 & 0/4 & 0/4\\
+0/4 & 0/4 & 3/4 & 1/4 \\
+1/3 & 0/3 & 0/3 & 2/3 \\
+3/3 & 0/3 & 0/3 & 0/3 \\
+\end{pmatrix}
+\] 
+
+Similarly, we follow the same logic to calculate the \linkterm{sensor model}{sensor_model_hmm} probabilities. For example $P(\text{"the"}_t \mid D_t)$. We have 4 occurrences of D, three of them were actually "the" $\leadsto 3/4$.
+
+\[
+O =
+\begin{pmatrix}
+1/4 & 3/4 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 2/4 & 2/4 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1/3 & 1/3 & 1/3 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 
+\end{pmatrix}
+\] 
+
+\questionbox{
+Now consider the sentence 
+\begin{center}
+    \textit{"The man runs."}
+\end{center}
+
+Explain how you can use the \linkterm{HMM}{hmm} from above to assign \linkterm{POS tags}{POS_tagging} to that sentence.
+}
+
+
+
+We want to know the  most likely sequence of hidden states (\linkterm{MLE}{markov_inference}) $\text{POS}_1, \cdots, \text{POS}_4$ given observations $\textit{"the"}_1, \cdots , \textit{"."}_4$
+
+
+We will assume that $\text{POS}_0 = $E (initial state)
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=2.5cm,
+    vertex/.style={
+        ellipse,
+        draw,
+        minimum width=60pt,
+        minimum height=40pt,
+        inner sep=0pt
+    }
+]
+
+
+% Top row
+\node[vertex] (start) at (0,2) {E};
+\node[vertex] (pos1) at (2.5,2) {$\text{POS}_1$};
+\node[vertex] (pos2) at (5,2) {$\text{POS}_2$};
+\node[vertex] (pos3) at (7.5,2) {$\text{POS}_3$};
+\node[vertex] (pos4) at (10,2) {$\text{POS}_4$};
+
+% Horizontal transitions
+\draw[arc] (start) -- (pos1);
+\draw[arc] (pos1) -- (pos2);
+\draw[arc] (pos2) -- (pos3);
+\draw[arc] (pos3) -- (pos4);
+
+
+% Bottom row
+\node[vertex] (word1) at (2.5,0) {$\textit{"the"}_1$};
+\node[vertex] (word2) at (5,0) {$\textit{"man"}_2$};
+\node[vertex] (word3) at (7.5,0) {$\textit{"runs"}_3$};
+\node[vertex] (word4) at (10,0) {$\textit{"."}_4$};
+
+% Emission edges
+\draw[arc] (pos1) -- (word1);
+\draw[arc] (pos2) -- (word2);
+\draw[arc] (pos3) -- (word3);
+\draw[arc] (pos4) -- (word4);
+
+\end{tikzpicture}
+\end{figure}
+
+\titledbox{Remember}{
+\defemph{Most Likely Explanation (MLE)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the most likely sequence of states that led to these observations, i.e. calculate:
+\[
+\argmax{x} P(X_{1:t}^{=x} \mid E_{1:t}^{=e})
+\]
+}
+
+\todo{
+TBC
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
