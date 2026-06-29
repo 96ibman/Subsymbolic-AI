@@ -421,6 +421,318 @@ This tells us that, across this specific \linkterm{sequence}{sequence}, the mode
 \defemph{Part-of-speech (POS) tagging} is the process of marking up a word in a \linkterm{corpus}{corpus} with tags (called \defemph{POS tags}) as corresponding to a particular \defemph{part of speech} based on both its definition and its context.
 }{POS_tagging}
 
+\redbox{
+Let's have fun with \linkterm{POS tagging}{POS_tagging} and \linkterm{HMM}{hmm}
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : \linkterm{POS tagging}{POS_tagging}}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the following \linkterm{corpus}{corpus}
+\begin{center}
+    \textit{"A dog runs. The man sees the dog. The man shouts."}
+\end{center}
+
+And the following \linkterm{POS tags}{POS_tagging}: 
+\begin{itemize}
+    \item D (determiner)
+    \item N (Noun)
+    \item V (Verb)
+    \item E (End of Sentence)
+\end{itemize}
+
+\questionbox{Annotate the \linkterm{corpus}{corpus} with \linkterm{POS tags}{POS_tagging}}
+
+\begin{itemize}
+    \item Sentence 1: A (D) dog (N) runs (V) . (E) $\leadsto$ DNVE
+    \item Sentence 2: The (D) man (N) sees (V) the (D) dog (N) . (E) $\leadsto$ DNVDNE
+    \item Sentence 3: The (D) man (N) shouts (V) . (E) $\leadsto$ DNVE
+\end{itemize}
+
+Concatenating these gives the sequence: DNVE DNVDNE DNVE
+
+\questionbox{Compute the \linkterm{transition model}{transition_model_hmm} and the \linkterm{sensor model}{sensor_model_hmm} from the \linkterm{corpus}{corpus}}
+
+We want to build a \linkterm{HMM}{hmm} where the hidden \linkterm{stochastic process}{stochastic_process} (hidden process) is the \linkterm{POS tags}{POS_tagging} and the observations are the words we observe.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2.5cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
+  % Left ellipsis
+  \node at (-1.5, 2) {$\cdots$};
+  
+  % Rain nodes (top row)
+  \node[vertex] (rain_t_1) at (0, 2) {$\text{POS}_{t-1}$};
+  \node[vertex] (rain_t) at (2.5, 2) {$\text{POS}_t$};
+  \node[vertex] (rain_t1) at (5, 2) {$\text{POS}_{t+1}$};
+  
+  % Arrows between rain nodes
+  \draw[arc] (rain_t_1) -- (rain_t);
+  \draw[arc] (rain_t) -- (rain_t1);
+  
+  % Right ellipsis
+  \node at (6.5, 2) {$\cdots$};
+  
+  % Umbrella nodes (bottom row)
+  \node[vertex] (umb_t_1) at (0, 0) {$\text{Word}_{t-1}$};
+  \node[vertex] (umb_t) at (2.5, 0) {$\text{Word}_t$};
+  \node[vertex] (umb_t1) at (5, 0) {$\text{Word}_{t+1}$};
+  
+  % Vertical arrows from rain to umbrella
+  \draw[arc] (rain_t_1) -- (umb_t_1);
+  \draw[arc] (rain_t) -- (umb_t);
+  \draw[arc] (rain_t1) -- (umb_t1);
+\end{tikzpicture}
+\end{figure}
+
+For this we need a \linkterm{transition model}{transition_model_hmm} that captures the \linkterm{probability distribution}{def:prob_distribution} $\probd{\text{POS}_t \mid \text{POS}_{t-1}}$. And a \linkterm{sensor model}{sensor_model_hmm} that captures the \linkterm{probability distribution}{def:prob_distribution} $\probd{\text{Word}_t \mid \text{POS}_t}$.
+
+We use matrix representation of the \linkterm{transition model}{transition_model_hmm}. We fix an order for the different values as D,N,V,E. We want the following matrix:
+
+\[
+T =
+\begin{pmatrix}
+P(D_t \mid D_{t-1}) & P(N_t \mid D_{t-1}) & P(V_t \mid D_{t-1}) & P(E_t \mid D_{t-1})\\
+P(D_t \mid N_{t-1}) & P(N_t \mid N_{t-1}) & P(V_t \mid N_{t-1}) & P(E_t \mid N_{t-1}) \\
+P(D_t \mid V_{t-1}) & P(N_t \mid V_{t-1}) & P(V_t \mid V_{t-1}) & P(E_t \mid V_{t-1}) \\
+P(D_t \mid E_{t-1}) & P(N_t \mid E_{t-1}) & P(V_t \mid E_{t-1}) & P(E_t \mid E_{t-1}) \\
+\end{pmatrix}
+\] 
+
+For the \linkterm{sensor markov property}{sensor_markov_property}, we use the observation matrix representation. We have a total of $7$ unique words that can be observed plus the ".". So, we fix an order, say:
+\begin{center}
+    \textit{a, the, dog, man, runs, sees, shouts, .}
+\end{center}
+
+Then we need the following matrix:
+
+\[
+O =
+\begin{pmatrix}
+P(\text{"a"}_t \mid D_t) & P(\text{"the"}_t \mid D_t) & \cdots & P(\text{"."}_t \mid D_t) \\ 
+
+P(\text{"a"}_t \mid N_t) & P(\text{"the"}_t \mid N_t) & \cdots & P(\text{"."}_t \mid N_t) \\ 
+
+P(\text{"a"}_t \mid V_t) & P(\text{"the"}_t \mid V_t) & \cdots & P(\text{"."}_t \mid V_t) \\ 
+
+P(\text{"a"}_t \mid E_t) & P(\text{"the"}_t \mid E_t) & \cdots  & P(\text{"."}_t \mid E_t) 
+\end{pmatrix}
+\] 
+
+To calculate probabilities, we basically count. e.g. for $P(N_t \mid D_{t-1})$ this will be how many times did we have D followed by N divided by the total occurrences of D. In our corpus, we have "DNVE DNVDNE DNVE". That makes total of 4 occurrences of D, all of them were followed by N. So $P(N_t \mid D_{t-1}) = \frac{4}{4} = 1$
+
+\redbox{
+To handle the border cases, we assume that the text loops, i.e. the last tag of the last sentence is succeeded by the first tag of the first sentence $\leadsto$ this gives us the opportunity to consider the successor of "E" as the initial state.
+}
+
+Therefore, to calculate $P(D_t \mid E_{t-1})$. E occurred 3 times in total. All three were followed by D (not just two considering the loop).
+
+In the end, we will have the following \linkterm{transition model}{transition_model_hmm}:
+\[
+T =
+\begin{pmatrix}
+0/4 & 4/4 & 0/4 & 0/4\\
+0/4 & 0/4 & 3/4 & 1/4 \\
+1/3 & 0/3 & 0/3 & 2/3 \\
+3/3 & 0/3 & 0/3 & 0/3 \\
+\end{pmatrix}
+\] 
+
+Similarly, we follow the same logic to calculate the \linkterm{sensor model}{sensor_model_hmm} probabilities. For example $P(\text{"the"}_t \mid D_t)$. We have 4 occurrences of D, three of them were actually "the" $\leadsto 3/4$.
+
+\[
+O =
+\begin{pmatrix}
+1/4 & 3/4 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 2/4 & 2/4 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1/3 & 1/3 & 1/3 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 
+\end{pmatrix}
+\] 
+
+\questionbox{
+Now consider the sentence 
+\begin{center}
+    \textit{"The man runs."}
+\end{center}
+
+Explain how you can use the \linkterm{HMM}{hmm} from above to assign \linkterm{POS tags}{POS_tagging} to that sentence.
+}
+
+
+
+We want to know the  most likely sequence of hidden states (\linkterm{MLE}{markov_inference}) $\text{POS}_1, \cdots, \text{POS}_4$ given observations $\textit{"the"}_1, \cdots , \textit{"."}_4$
+
+
+We will assume that $\text{POS}_0 = $E (initial state)
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=2.5cm,
+    vertex/.style={
+        ellipse,
+        draw,
+        minimum width=60pt,
+        minimum height=40pt,
+        inner sep=0pt
+    }
+]
+
+
+% Top row
+\node[vertex] (start) at (0,2) {E};
+\node[vertex] (pos1) at (2.5,2) {$\text{POS}_1$};
+\node[vertex] (pos2) at (5,2) {$\text{POS}_2$};
+\node[vertex] (pos3) at (7.5,2) {$\text{POS}_3$};
+\node[vertex] (pos4) at (10,2) {$\text{POS}_4$};
+
+% Horizontal transitions
+\draw[arc] (start) -- (pos1);
+\draw[arc] (pos1) -- (pos2);
+\draw[arc] (pos2) -- (pos3);
+\draw[arc] (pos3) -- (pos4);
+
+
+% Bottom row
+\node[vertex] (word1) at (2.5,0) {$\textit{"the"}_1$};
+\node[vertex] (word2) at (5,0) {$\textit{"man"}_2$};
+\node[vertex] (word3) at (7.5,0) {$\textit{"runs"}_3$};
+\node[vertex] (word4) at (10,0) {$\textit{"."}_4$};
+
+% Emission edges
+\draw[arc] (pos1) -- (word1);
+\draw[arc] (pos2) -- (word2);
+\draw[arc] (pos3) -- (word3);
+\draw[arc] (pos4) -- (word4);
+
+\end{tikzpicture}
+\end{figure}
+
+\titledbox{Remember}{
+\defemph{Most Likely Explanation (MLE)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the most likely sequence of states that led to these observations, i.e. calculate:
+\[
+\argmax{x} P(X_{1:t}^{=x} \mid E_{1:t}^{=e})
+\]
+}
+
+This will be equivalent to
+\[
+\argmax{x} P(X_{1:t}^{=x} , E_{1:t}^{=e})
+\] 
+
+Let's call $\text{POS}_i \equiv t_i$ and $w_i$ for the observed words:
+\[
+\argmax{x} P(t_0,t_1, t_2, t_3, t_4, w_1, w_2, w_3, w_4)
+\] 
+
+The joint will be in a big product of the conditional probabilities
+\[
+\argmax{t_1 \cdots t_4} P(t_1 \mid E) \cdot P(w_1 \mid t_1) \cdot 
+P(t_2 \mid t_1) \cdot P(w_2 \mid t_2) \cdot 
+P(t_3 \mid t_2) \cdot P(w_3 \mid t_3) \cdot 
+P(t_4 \mid t_3) \cdot P(w_4 \mid t_4)
+\] 
+
+To find \linkterm{MLE}{markov_inference}, we need to test different \linkterm{POS tags}{POS_tagging} sequences to see which one makes this giant multiplication result in the highest number.
+
+We can uses our matrices for the \linkterm{transition model}{transition_model_hmm} and \linkterm{sensor model}{sensor_model_hmm} as lookup tables. If any single factor in the chain is $0$, the entire product becomes $0$.
+
+\commandnote{
+Because we have a very small \linkterm{corpus}{corpus}, almost all \linkterm{transitions}{transition_model_hmm} and \linkterm{observations}{sensor_model_hmm} are $0$. This allows us to find the maximum sequence without actually calculating all $4^4 = 256$ possible combinations
+}
+
+For $w_1 = \textit{"the"}$, we look at our options for $t_1$. The \linkterm{transition}{transition_model_hmm} $P(t_1 \mid t_0 = E)$ is only non-zero when $t_1 = D$ ($=3/3$). Every other choice for $t_1$ instantly multiplies the whole equation by $0$.
+
+For $w_2 = \textit{"man"}$. We look at our options for $t_2$ given that $t_1 = D$. The transition $P(t_2 \mid D)$ is only non-zero when $t_2 = N$ ($=4/4$)
+
+\redbox{
+At this point, any sequence that does not start with "DN" has a \linkterm{joint probability}{def:joint_prob} of exactly $0$. So we know for sure that $\text{POS}_1$ and $\text{POS}_2$ are D and N respectively. 
+}
+
+Now we look at where $w_3 = \textit{"runs"}$. We have two non-zero transitions, namely $P(V \mid N) = 3/4$ and $P(E \mid N) = 1/4$
+
+\commandnote{
+Here we need to branch our calculations. Two possible sequences for $t_1, t_2, t_3$:
+\begin{enumerate}
+    \item DNV 
+    \item DNE
+\end{enumerate}
+For each we need to figure out what possible $t_4$ can we have given that the observation $w_4 = \textit{"."}$.
+}
+
+\textbf{Option 1: ($t_1=D, t_2 = N, t_3 = V, t_4 = ?$)}
+
+To transition from $t_3 = V$ to $t_4$, we have two non-zero transitions
+\begin{enumerate}
+    \item $P(D \mid V) = 1/3$
+    \item $P(E \mid V) = 2/3$
+\end{enumerate}
+
+For the sequence DNVD we have (given $t_0 = E$):
+
+\begin{align*}
+P(t_1, \cdots, t_4) &= \prod_{i=1}^{4} P(t_i \mid t_{i-1}) \\
+P(\text{DNVD}) &= P(D \mid E) \cdot P(N \mid D) \cdot P(V \mid N) \cdot P(D \mid V) \\ 
+&= 1 \cdot 1 \cdot 3/4 \cdot 1/3 = 1/4
+\end{align*}
+
+For the sequence DNVE we have (given $t_0 = E$):
+\begin{align*}
+P(t_1, \cdots, t_4) &= \prod_{i=1}^{4} P(t_i \mid t_{i-1}) \\
+P(\text{DNVE}) &= P(D \mid E) \cdot P(N \mid D) \cdot P(V \mid N) \cdot P(E \mid V) \\ 
+&= 1 \cdot 1 \cdot 3/4 \cdot 2/3 = 1/2
+\end{align*}
+
+
+\textbf{Option 2: ($t_1=D, t_2 = N, t_3 = E, t_4 = ?$)}
+
+To transition from $t_3 = E$ to $t_4$, we have one non-zero transition where $P(D \mid E) = 1$
+
+For the sequence DNED we have (given $t_0 = E$):
+\begin{align*}
+P(t_1, \cdots, t_4) &= \prod_{i=1}^{4} P(t_i \mid t_{i-1}) \\
+P(\text{DNED}) &= P(D \mid E) \cdot P(N \mid D) \cdot P(E \mid N) \cdot P(D \mid E) \\ 
+&= 1 \cdot 1 \cdot 1/4 \cdot 1 = 1/4
+\end{align*}
+
+\redbox{
+So the most probable sequence is DNVE
+}
+
+\commandnote{
+Notice that from the observation matrix, to observe \textit{"."}. Only $P(\textit{"."} \mid E) = 1$ and all other are zero. $\leadsto$ DNVE is the \textbf{only} possible sequence. 
+}
+
+
+This gives us the following \linkterm{joint probability}{def:joint_prob}:
+
+\[
+P(D \mid E) \cdot P(\textit{"the"} \mid D) \cdot 
+P(N \mid D) \cdot P(\textit{"man"} \mid N) \cdot 
+P(V \mid N) \cdot P(\textit{"runs"} \mid V) \cdot 
+P(E \mid V) \cdot P(\textit{"."} \mid E)
+\]
+
+And that will give us:
+\[
+\left[ 1 \cdot 3/4 \right] \cdot
+\left[ 1 \cdot 2/4 \right] \cdot
+\left[ 3/4 \cdot 1/3 \right] \cdot
+\left[ 2/3 \cdot 1 \right] \cdot
+= \frac{1}{16}
+\]
+
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
 \anondefinition{
 \defemph{Spam Detection} classifying email messages as \defemph{spam} or \defemph{ham} (not spam)
 }{spam_detection}
@@ -808,310 +1120,140 @@ and extract the relations:
 \end{itemize}
 }{}
 
-\noindent\makebox[\textwidth]{%
-\rule{0.25\textwidth}{0.4pt}\hfill
-\textbf{Exercise : \linkterm{POS tagging}{POS_tagging}}\hfill
-\rule{0.25\textwidth}{0.4pt}%
+
+\problembox{
+We do not have enough text to build word sequence \linkterm{language models}{lang_model}
 }
 
-Consider the following \linkterm{corpus}{corpus}
-\begin{center}
-    \textit{"A dog runs. The man sees the dog. The man shouts."}
-\end{center}
+\ideabox{
+Categorize words into classes and then generalize "acceptable word sequences" into "acceptable word class sequences" $\leadsto$ \linkterm{phrase structure grammar}{phrase_structure_grammar}
+}
 
-And the following \linkterm{POS tags}{POS_tagging}: 
-\begin{itemize}
-    \item D (determiner)
-    \item N (Noun)
-    \item V (Verb)
-    \item E (End of Sentence)
-\end{itemize}
-
-\questionbox{Annotate the \linkterm{corpus}{corpus} with \linkterm{POS tags}{POS_tagging}}
-
-\begin{itemize}
-    \item Sentence 1: A (D) dog (N) runs (V) . (E) $\leadsto$ DNVE
-    \item Sentence 2: The (D) man (N) sees (V) the (D) dog (N) . (E) $\leadsto$ DNVDNE
-    \item Sentence 3: The (D) man (N) shouts (V) . (E) $\leadsto$ DNVE
-\end{itemize}
-
-Concatenating these gives the sequence: DNVE DNVDNE DNVE
-
-\questionbox{Compute the \linkterm{transition model}{transition_model_hmm} and the \linkterm{sensor model}{sensor_model_hmm} from the \linkterm{corpus}{corpus}}
-
-We want to build a \linkterm{HMM}{hmm} where the hidden \linkterm{stochastic process}{stochastic_process} (hidden process) is the \linkterm{POS tags}{POS_tagging} and the observations are the words we observe.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[node distance=2.5cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
-  % Left ellipsis
-  \node at (-1.5, 2) {$\cdots$};
-  
-  % Rain nodes (top row)
-  \node[vertex] (rain_t_1) at (0, 2) {$\text{POS}_{t-1}$};
-  \node[vertex] (rain_t) at (2.5, 2) {$\text{POS}_t$};
-  \node[vertex] (rain_t1) at (5, 2) {$\text{POS}_{t+1}$};
-  
-  % Arrows between rain nodes
-  \draw[arc] (rain_t_1) -- (rain_t);
-  \draw[arc] (rain_t) -- (rain_t1);
-  
-  % Right ellipsis
-  \node at (6.5, 2) {$\cdots$};
-  
-  % Umbrella nodes (bottom row)
-  \node[vertex] (umb_t_1) at (0, 0) {$\text{Word}_{t-1}$};
-  \node[vertex] (umb_t) at (2.5, 0) {$\text{Word}_t$};
-  \node[vertex] (umb_t1) at (5, 0) {$\text{Word}_{t+1}$};
-  
-  % Vertical arrows from rain to umbrella
-  \draw[arc] (rain_t_1) -- (umb_t_1);
-  \draw[arc] (rain_t) -- (umb_t);
-  \draw[arc] (rain_t1) -- (umb_t1);
-\end{tikzpicture}
-\end{figure}
-
-For this we need a \linkterm{transition model}{transition_model_hmm} that captures the \linkterm{probability distribution}{def:prob_distribution} $\probd{\text{POS}_t \mid \text{POS}_{t-1}}$. And a \linkterm{sensor model}{sensor_model_hmm} that captures the \linkterm{probability distribution}{def:prob_distribution} $\probd{\text{Word}_t \mid \text{POS}_t}$.
-
-We use matrix representation of the \linkterm{transition model}{transition_model_hmm}. We fix an order for the different values as D,N,V,E. We want the following matrix:
-
-\[
-T =
-\begin{pmatrix}
-P(D_t \mid D_{t-1}) & P(N_t \mid D_{t-1}) & P(V_t \mid D_{t-1}) & P(E_t \mid D_{t-1})\\
-P(D_t \mid N_{t-1}) & P(N_t \mid N_{t-1}) & P(V_t \mid N_{t-1}) & P(E_t \mid N_{t-1}) \\
-P(D_t \mid V_{t-1}) & P(N_t \mid V_{t-1}) & P(V_t \mid V_{t-1}) & P(E_t \mid V_{t-1}) \\
-P(D_t \mid E_{t-1}) & P(N_t \mid E_{t-1}) & P(V_t \mid E_{t-1}) & P(E_t \mid E_{t-1}) \\
-\end{pmatrix}
-\] 
-
-For the \linkterm{sensor markov property}{sensor_markov_property}, we use the observation matrix representation. We have a total of $7$ unique words that can be observed plus the ".". So, we fix an order, say:
-\begin{center}
-    \textit{a, the, dog, man, runs, sees, shouts, .}
-\end{center}
-
-Then we need the following matrix:
-
-\[
-O =
-\begin{pmatrix}
-P(\text{"a"}_t \mid D_t) & P(\text{"the"}_t \mid D_t) & \cdots & P(\text{"."}_t \mid D_t) \\ 
-
-P(\text{"a"}_t \mid N_t) & P(\text{"the"}_t \mid N_t) & \cdots & P(\text{"."}_t \mid N_t) \\ 
-
-P(\text{"a"}_t \mid V_t) & P(\text{"the"}_t \mid V_t) & \cdots & P(\text{"."}_t \mid V_t) \\ 
-
-P(\text{"a"}_t \mid E_t) & P(\text{"the"}_t \mid E_t) & \cdots  & P(\text{"."}_t \mid E_t) 
-\end{pmatrix}
-\] 
-
-To calculate probabilities, we basically count. e.g. for $P(N_t \mid D_{t-1})$ this will be how many times did we have D followed by N divided by the total occurrences of D. In our corpus, we have "DNVE DNVDNE DNVE". That makes total of 4 occurrences of D, all of them were followed by N. So $P(N_t \mid D_{t-1}) = \frac{4}{4} = 1$
+\commandnote{
+If we use \linkterm{grammars}{phrase_structure_grammar}, we have the advantage that we can get by with much less information but \linkterm{grammars}{phrase_structure_grammar} may over generalize or under generalize.
+}
 
 \redbox{
-To handle the border cases, we assume that the text loops, i.e. the last tag of the last sentence is succeeded by the first tag of the first sentence $\leadsto$ this gives us the opportunity to consider the successor of "E" as the initial state.
+Recall Appendix \ref{sec:formal_langs_grammars}
 }
-
-Therefore, to calculate $P(D_t \mid E_{t-1})$. E occurred 3 times in total. All three were followed by D (not just two considering the loop).
-
-In the end, we will have the following \linkterm{transition model}{transition_model_hmm}:
-\[
-T =
-\begin{pmatrix}
-0/4 & 4/4 & 0/4 & 0/4\\
-0/4 & 0/4 & 3/4 & 1/4 \\
-1/3 & 0/3 & 0/3 & 2/3 \\
-3/3 & 0/3 & 0/3 & 0/3 \\
-\end{pmatrix}
-\] 
-
-Similarly, we follow the same logic to calculate the \linkterm{sensor model}{sensor_model_hmm} probabilities. For example $P(\text{"the"}_t \mid D_t)$. We have 4 occurrences of D, three of them were actually "the" $\leadsto 3/4$.
-
-\[
-O =
-\begin{pmatrix}
-1/4 & 3/4 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 2/4 & 2/4 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 1/3 & 1/3 & 1/3 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 
-\end{pmatrix}
-\] 
-
-\questionbox{
-Now consider the sentence 
-\begin{center}
-    \textit{"The man runs."}
-\end{center}
-
-Explain how you can use the \linkterm{HMM}{hmm} from above to assign \linkterm{POS tags}{POS_tagging} to that sentence.
-}
-
-
-
-We want to know the  most likely sequence of hidden states (\linkterm{MLE}{markov_inference}) $\text{POS}_1, \cdots, \text{POS}_4$ given observations $\textit{"the"}_1, \cdots , \textit{"."}_4$
-
-
-We will assume that $\text{POS}_0 = $E (initial state)
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-    node distance=2.5cm,
-    vertex/.style={
-        ellipse,
-        draw,
-        minimum width=60pt,
-        minimum height=40pt,
-        inner sep=0pt
-    }
-]
-
-
-% Top row
-\node[vertex] (start) at (0,2) {E};
-\node[vertex] (pos1) at (2.5,2) {$\text{POS}_1$};
-\node[vertex] (pos2) at (5,2) {$\text{POS}_2$};
-\node[vertex] (pos3) at (7.5,2) {$\text{POS}_3$};
-\node[vertex] (pos4) at (10,2) {$\text{POS}_4$};
-
-% Horizontal transitions
-\draw[arc] (start) -- (pos1);
-\draw[arc] (pos1) -- (pos2);
-\draw[arc] (pos2) -- (pos3);
-\draw[arc] (pos3) -- (pos4);
-
-
-% Bottom row
-\node[vertex] (word1) at (2.5,0) {$\textit{"the"}_1$};
-\node[vertex] (word2) at (5,0) {$\textit{"man"}_2$};
-\node[vertex] (word3) at (7.5,0) {$\textit{"runs"}_3$};
-\node[vertex] (word4) at (10,0) {$\textit{"."}_4$};
-
-% Emission edges
-\draw[arc] (pos1) -- (word1);
-\draw[arc] (pos2) -- (word2);
-\draw[arc] (pos3) -- (word3);
-\draw[arc] (pos4) -- (word4);
-
-\end{tikzpicture}
-\end{figure}
 
 \titledbox{Remember}{
-\defemph{Most Likely Explanation (MLE)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the most likely sequence of states that led to these observations, i.e. calculate:
-\[
-\argmax{x} P(X_{1:t}^{=x} \mid E_{1:t}^{=e})
-\]
+The \linkterm{sentences}{sentence_grammar} accepted by a \linkterm{grammar}{phrase_structure_grammar} are those the \linkterm{start symbol}{phrase_structure_grammar} can be rewritten into.
 }
 
-This will be equivalent to
-\[
-\argmax{x} P(X_{1:t}^{=x} , E_{1:t}^{=e})
-\] 
+\anondefinition{
+\defemph{Top-down} \linkterm{parsing algorithms}{parsing_grammar} work by systematically searching the space of derivation (or \linkterm{parse trees}{parse_tree_grammar}) from the \linkterm{start symbol}{phrase_structure_grammar} (downwards)
+}{top_down_parsing}
 
-Let's call $\text{POS}_i \equiv t_i$ and $w_i$ for the observed words:
-\[
-\argmax{x} P(t_0,t_1, t_2, t_3, t_4, w_1, w_2, w_3, w_4)
-\] 
-
-The joint will be in a big product of the conditional probabilities
-\[
-\argmax{t_1 \cdots t_4} P(t_1 \mid E) \cdot P(w_1 \mid t_1) \cdot 
-P(t_2 \mid t_1) \cdot P(w_2 \mid t_2) \cdot 
-P(t_3 \mid t_2) \cdot P(w_3 \mid t_3) \cdot 
-P(t_4 \mid t_3) \cdot P(w_4 \mid t_4)
-\] 
-
-To find \linkterm{MLE}{markov_inference}, we need to test different \linkterm{POS tags}{POS_tagging} sequences to see which one makes this giant multiplication result in the highest number.
-
-We can uses our matrices for the \linkterm{transition model}{transition_model_hmm} and \linkterm{sensor model}{sensor_model_hmm} as lookup tables. If any single factor in the chain is $0$, the entire product becomes $0$.
+\anondefinition{
+\defemph{Bottom-up}  \linkterm{parsing algorithms}{parsing_grammar} work by replacing any substring that matches the body of a \linkterm{production rule}{phrase_structure_grammar} with its head.
+}{bottom_up_parsing}
 
 \commandnote{
-Because we have a very small \linkterm{corpus}{corpus}, almost all \linkterm{transitions}{transition_model_hmm} and \linkterm{observations}{sensor_model_hmm} are $0$. This allows us to find the maximum sequence without actually calculating all $4^4 = 256$ possible combinations
+\linkterm{Bottom-up parsing algorithms}{bottom_up_parsing} tend to be more efficient than \linkterm{top-down parsing algorithms}{top_down_parsing}
 }
 
-For $w_1 = \textit{"the"}$, we look at our options for $t_1$. The \linkterm{transition}{transition_model_hmm} $P(t_1 \mid t_0 = E)$ is only non-zero when $t_1 = D$ ($=3/3$). Every other choice for $t_1$ instantly multiplies the whole equation by $0$.
+\problembox{
+The \linkterm{formal language}{formal_language} $L(G)$ accepted by a \linkterm{grammar}{phrase_structure_grammar} $G$ may differ from the \linkterm{natural language}{natural_language} $L_n$ it supposedly models
+}
 
-For $w_2 = \textit{"man"}$. We look at our options for $t_2$ given that $t_1 = D$. The transition $P(t_2 \mid D)$ is only non-zero when $t_2 = N$ ($=4/4$)
+\anondefinition{
+We say that a \linkterm{grammar}{phrase_structure_grammar} $G$ \defemph{over-generates}, iff it accepts strings outside of $L_n$ (\linkterm{false positives}{cm_elements}) and \defemph{under-generates}, iff there are $L_n$ strings that $L(G)$ does not accept (\linkterm{false negatives}{cm_elements}).
+}{over_and_under_generation}
 
 \redbox{
-At this point, any sequence that does not start with "DN" has a \linkterm{joint probability}{def:joint_prob} of exactly $0$. So we know for sure that $\text{POS}_1$ and $\text{POS}_2$ are D and N respectively. 
+Adjusting $L(G)$ to agree with $L_n$ is an \linkterm{inductive learning}{supervised_learning} problem!
 }
 
-Now we look at where $w_3 = \textit{"runs"}$. We have two non-zero transitions, namely $P(V \mid N) = 3/4$ and $P(E \mid N) = 1/4$
-
-\commandnote{
-Here we need to branch our calculations. Two possible sequences for $t_1, t_2, t_3$:
-\begin{enumerate}
-    \item DNV 
-    \item DNE
-\end{enumerate}
-For each we need to figure out what possible $t_4$ can we have given that the observation $w_4 = \textit{"."}$.
+\problembox{
+We introduced \linkterm{grammars}{phrase_structure_grammar} as an efficient substitute for \linkterm{language models}{lang_model} but \linkterm{grammars}{phrase_structure_grammar} are deterministic \linkterm{language models}{lang_model}!
 }
 
-\textbf{Option 1: ($t_1=D, t_2 = N, t_3 = V, t_4 = ?$)}
+\ideabox{
+Add a probabilistic component to \linkterm{grammars}{phrase_structure_grammar}
+}
 
-To transition from $t_3 = V$ to $t_4$, we have two non-zero transitions
-\begin{enumerate}
-    \item $P(D \mid V) = 1/3$
-    \item $P(E \mid V) = 2/3$
-\end{enumerate}
+\anondefinition{
+A \defemph{Probabilistic Context-Free Grammar (PCFG)} is a \linkterm{phrase structure grammar}{phrase_structure_grammar}, where every \linkterm{production rule}{phrase_structure_grammar} is associated with a probability. For a \linkterm{production rule}{phrase_structure_grammar} $h \to b$ with probability $p$ we write $h \to b[p]$
+}{PCFG}
 
-For the sequence DNVD we have (given $t_0 = E$):
+\ideabox{
+A \linkterm{PCFG}{PCFG} induces a \linkterm{language model}{lang_model} by assigning probabilities to its \linkterm{sentences}{sentence_grammar}
+}
 
+\anondefinition{
+Let $G$ be a \linkterm{PCFG}{PCFG}, $S$ a \linkterm{sentence}{sentence_grammar} of $G$, and $D$ a \linkterm{$G-$derivation}{g_derivation_grammar} of $S$, then the \defemph{probability} of $D$ is the product of the probabilities of the \linkterm{Product Rules}{def:product_rule} in all steps of $D$. The \defemph{probability} of $S$ is the sum of the probabilities of \textbf{all} its \linkterm{derivations}{g_derivation_grammar}
+}{probability_grammar}
+
+\Example{
+Consider the following \linkterm{PCFG}{PCFG}:
 \begin{align*}
-P(t_1, \cdots, t_4) &= \prod_{i=1}^{4} P(t_i \mid t_{i-1}) \\
-P(\text{DNVD}) &= P(D \mid E) \cdot P(N \mid D) \cdot P(V \mid N) \cdot P(D \mid V) \\ 
-&= 1 \cdot 1 \cdot 3/4 \cdot 1/3 = 1/4
+\text{S} &::= \text{NP} \text{ VP} [1] \\
+\text{NP} &::= \text{Article Noun} [0.6] \mid \text{Name} [0.4] \\
+\text{VP} &::= \text{Verb} [0.5] \mid \text{TransVerb} \text{ NP} [0.5] \\
+\text{Article} &::= \text{the} [0.7] \mid \text{a} [0.3]\\
+\text{Noun} &::= \text{stench} [0.2] \mid \text{breeze} [0.3] \mid \text{wumpus} [0.5]\\
+\text{Name} &::= \text{John} [0.3] \mid \text{Mary} [0.7] \\
+\text{Verb} &::= \text{smells} [1]  \\
+\text{TransVerb} &::= \text{sees} [0.6] \mid \text{shoots} [0.4] \\
 \end{align*}
 
-For the sequence DNVE we have (given $t_0 = E$):
-\begin{align*}
-P(t_1, \cdots, t_4) &= \prod_{i=1}^{4} P(t_i \mid t_{i-1}) \\
-P(\text{DNVE}) &= P(D \mid E) \cdot P(N \mid D) \cdot P(V \mid N) \cdot P(E \mid V) \\ 
-&= 1 \cdot 1 \cdot 3/4 \cdot 2/3 = 1/2
-\end{align*}
+The probability of the \linkterm{sentence}{sentence_grammar}:
 
+\begin{center}
+    \textit{John sees the wumpus}
+\end{center}
 
-\textbf{Option 2: ($t_1=D, t_2 = N, t_3 = E, t_4 = ?$)}
+Can be calculated from its derivation (it has only one derivation)
 
-To transition from $t_3 = E$ to $t_4$, we have one non-zero transition where $P(D \mid E) = 1$
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/derivation.png}
+\end{figure}
 
-For the sequence DNED we have (given $t_0 = E$):
-\begin{align*}
-P(t_1, \cdots, t_4) &= \prod_{i=1}^{4} P(t_i \mid t_{i-1}) \\
-P(\text{DNED}) &= P(D \mid E) \cdot P(N \mid D) \cdot P(E \mid N) \cdot P(D \mid E) \\ 
-&= 1 \cdot 1 \cdot 1/4 \cdot 1 = 1/4
-\end{align*}
-
-\redbox{
-So the most probable sequence is DNVE
-}
-
-\commandnote{
-Notice that from the observation matrix, to observe \textit{"."}. Only $P(\textit{"."} \mid E) = 1$ and all other are zero. $\leadsto$ DNVE is the \textbf{only} possible sequence. 
-}
-
-
-This gives us the following \linkterm{joint probability}{def:joint_prob}:
-
+We have:
 \[
-P(D \mid E) \cdot P(\textit{"the"} \mid D) \cdot 
-P(N \mid D) \cdot P(\textit{"man"} \mid N) \cdot 
-P(V \mid N) \cdot P(\textit{"runs"} \mid V) \cdot 
-P(E \mid V) \cdot P(\textit{"."} \mid E)
+1 \cdot 0.4 \cdot 0.3 \cdot 0.5 \cdot 0.6 \cdot 0.6 \cdot 0.7 \cdot 0.5 = 0.00756
 \]
-
-And that will give us:
-\[
-\left[ 1 \cdot 3/4 \right] \cdot
-\left[ 1 \cdot 2/4 \right] \cdot
-\left[ 3/4 \cdot 1/3 \right] \cdot
-\left[ 2/3 \cdot 1 \right] \cdot
-= \frac{1}{16}
-\]
+}{}
 
 
-\noindent\makebox[\textwidth]{%
-\rule{0.3\textwidth}{0.4pt}\hfill
-\textbf{End of Exercise}\hfill
-\rule{0.3\textwidth}{0.4pt}%
+\problembox{
+Where these probabilities come from?
 }
+
+\ideabox{
+Learn / sample them from data
+}
+
+\anondefinition{
+A \defemph{tree bank} is a \linkterm{parsed}{parse_tree_grammar} \linkterm{text corpus}{corpus} that annotates syntatic or semantic \linkterm{sentence}{sentence_grammar} structure.
+}{tree_bank}
+
+\ideabox{
+To learn the probability for the rule $R := H \to B$, look for \linkterm{parse subtrees}{parse_tree_grammar} that match $R$ (i.e. with root category $H$) in the \linkterm{tree bank}{tree_bank}. If it has $N$ subtrees and $n$ match $R$, then annotate $R$ with probability $n/N$
+}
+
+\Example{
+Consider the previous example. Assume we do not know the probabilities of the \linkterm{production}{phrase_structure_grammar}, and our \linkterm{corpus}{corpus} is:
+\begin{center}
+    \textit{John sees the wumpus.} \textit{The wumpus smells.} \textit{John shoots the wumpus}
+\end{center}
+
+\questionbox{
+What is the probability that we can learn for 
+\[
+\text{NP} ::=  \text{Name}
+\]
+from this \linkterm{corpus}{corpus}?
+}
+
+\answerbox{
+We count all subtrees of type NP (say we have $N$ of those). Among those we count the ones of type Name (say those are $n$), then we learn the probability $n/N$. That yields $\frac{2}{5}$ 
+}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/derivation_prob.png}
+\end{figure}
+}{}

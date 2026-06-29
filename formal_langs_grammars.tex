@@ -219,3 +219,15 @@ By extension, a \linkterm{formal language}{formal_language} $L$ is called \texti
 }
 
 \textbf{Observation: }\linkterm{Natural languages}{natural_language} are probably \linkterm{context sensitive}{contex_sensitive_grammar} but parsable in real time!
+
+\anondefinition{
+Let $G$ be a \linkterm{CFG}{contex_free_grammar} and $D := S \to_G^{*} t$ a \linkterm{$G$-derivation}{g_derivation_grammar} where $t$ is a \linkterm{sentence}{sentence_grammar} of $G$. We define the \defemph{parse tree} $P_D$ of $D$ recursively:
+\begin{itemize}
+    \item If $D = S \to_G^p t$, then $p$ is a \linkterm{lexical rule}{lexical_rule_grammar} $S \to t$ and $t$ conists of a single \linkterm{terminal}{phrase_structure_grammar}. Then $P_D$ is the \linkterm{tree}{tree} whose \linkterm{root}{tree} has \linkterm{label}{labeled_graph} $S$ with one child \linkterm{labeled}{labeled_graph} with $t$.
+    \item If $D=S \to_G^p s' \to_G^{*} t, D' = s' \to_G^{*} t$, and $p = h \to a_1 \cdots a_n$, then the \linkterm{root}{tree} of $P_D$ has \linkterm{label}{labeled_graph} $h$ and it has children are the \defemph{parse trees} for the subdervation for the $a_i$ in $D'$
+\end{itemize}
+}{parse_tree_grammar}
+
+\anondefinition{
+Given a string $s$, we call the process of generating \linkterm{parse trees}{parse_tree_grammar} for $s$ \defemph{parsing} (also \defemph{syntax analysis} or \defemph{syntactic analysis}) and a program that does this a \defemph{parser}. The dual process of generating a string from an expression (such as a \linkterm{parse tree}{parse_tree_grammar}) is called \defemph{linearization}
+}{parsing_grammar}
