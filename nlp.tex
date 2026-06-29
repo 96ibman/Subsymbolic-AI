@@ -905,7 +905,7 @@ Introducing a weighting factor for the \linkterm{word frequency vector}{BOW} tha
 }
 
 \anondefinition{
-Given a document $d$ and a word $w \in V$, the \defemph{normalized term frequency} $\text{tf}(t,d)$ is the \linkterm{raw term frequency}{raw_term_frequency} divided by $\abs{d}$
+Given a document $d$ and a word $t \in V$, the \defemph{normalized term frequency} $\text{tf}(t,d)$ is the \linkterm{raw term frequency}{raw_term_frequency} divided by $\abs{d}$
 }{tf}
 
 \anondefinition{
@@ -936,7 +936,7 @@ We are weighting the \linkterm{$\text{tf}(t,d)$}{tf} (normalized term frequency)
 }
 
 \anondefinition{
-Let $D$ be a collection of documents with vocabulary $V = \set{t_1, \cdots, t_{\abs{V}}}$, then the \defemph{tfidf-vector} $\overline{\text{tfidf}}(d, D) \in \mathbb{N}^{\abs{V}}$ is defined by 
+Let $D$ be a collection of documents with vocabulary $V = \set{t_1, \cdots, t_{\abs{V}}}$, then the \defemph{tfidf-vector} $\overline{\text{tfidf}}(d, D) \in \mathbb{R}^{\abs{V}}$ is defined by 
 \[
 \overline{\text{tfidf}}(d, D)_i = \text{tfidf}(t_i, d, D)
 \]
