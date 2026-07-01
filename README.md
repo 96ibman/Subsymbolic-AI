@@ -17,7 +17,7 @@ It is not an official course document, and the material is provided as an auxili
 - Probability Theory and Bayesian Networks
 - Decision Networks
 - HMMs and MDPs
-- Intro, Decision Trees, and Computational Learning Theory
+- Intro to ML, Decision Trees, and Computational Learning Theory
 - Regression, SVMs, and ANNs
 - Statistical Learning
 - Reinforcement learning
