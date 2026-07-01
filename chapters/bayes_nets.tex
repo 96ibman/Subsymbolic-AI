@@ -1,0 +1,489 @@
+\labeledsection{Bayesian Networks}{sec:bayes_nets}
+\anondefinition{
+A \defemph{Bayesian Network} consists of
+\begin{enumerate}
+\item a \linkterm{DAG}{dag} $\tuple{\cX ,E}$ of \linkterm{random variables}{def:random_variable} $\cX = \set{X_1, \cdots, X_n}$, and
+\item a \linkterm{CPD}{def:cond_prob_distribution} $\probd{X_i \mid \text{Parents}(X_i)}$ for every $X_i \in \cX$,
+\end{enumerate}
+such that every $X_i$ is \linkterm{conditionally independent}{def:cond_independence} of any conjunctions of \linkterm{non-descendants}{non_descendants} of $X_i$ given $\text{Parents}(X_i)$
+}{def:bayes_net}
+
+\commandnote{
+\linkterm{Roots}{tree} of the \linkterm{DAG}{dag} are \linkterm{conditionally independent}{def:cond_independence} given the empty set $\emptyset$; i.e. they are \linkterm{independent}{def:independence}. This follows directly from the definition:
+\begin{itemize}
+    \item By definition, a root node $X_i$ has no parents, meaning $\text{Parents}(X_i) = \emptyset$.
+    \item Any other root node $X_j$ is a \linkterm{non-descendant}{non_descendants} of $X_i$ (since there are no directed paths between roots).
+    \item By the definition of the \linkterm{Bayesian Network}{def:bayes_net}, $X_i$ is conditionally independent of its non-descendant $X_j$ given its parents ($\emptyset$).
+    \item Conditional independence given the empty set is exactly equivalent to marginal \linkterm{independence}{def:independence}.
+\end{itemize}
+}
+
+\Example{
+Consider a simple \linkterm{Bayesian Network}{def:bayes_net} modeling a security system with variables: $B$ (Burglar), $E$ (Earthquake), $A$ (Alarm rings), and $C$ (Call Police).
+
+\begin{minipage}[t]{0.35\textwidth}
+\vspace{0pt}
+\begin{tikzpicture}[>=stealth, node distance=1.5cm]
+  \node[vertex] (B) {B};
+  \node[vertex, right=2cm of B] (E) {E};
+  \node[vertex, below right=1cm and 0.5cm of B] (A) {A};
+  \node[vertex, below=1cm of A] (C) {C};
+
+  \draw[->] (B) -- (A);
+  \draw[->] (E) -- (A);
+  \draw[->] (A) -- (C);
+\end{tikzpicture}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.6\textwidth}
+\vspace{0pt}
+\begin{itemize}
+    \item Variables $\cX = \set{B, E, A, C}$
+    \item Edges $E = \set{(B,A), (E,A), (A,C)}$
+    \item \linkterm{CPDs}{def:cond_prob_distribution}: $\probd{B}$, $\probd{E}$, $\probd{A \mid B, E}$, and $\probd{C \mid A}$
+\end{itemize}
+\end{minipage}
+
+\vspace{10pt}
+By definition, each node is \linkterm{conditionally independent}{def:cond_independence} of its \linkterm{non-descendants}{non_descendants} given its parents. Let's analyze each node:
+\begin{itemize}
+    \item \textbf{Node $B$:} $\text{Parents}(B) = \emptyset$, $\text{NonDesc}(B) = \set{E}$.
+    \newline Property: $B$ is independent of $E$ given $\emptyset \quad \implies \probd{B \mid E} = \probd{B}$.
+    
+    \item \textbf{Node $E$:} $\text{Parents}(E) = \emptyset$, $\text{NonDesc}(E) = \set{B}$.
+    \newline Property: $E$ is independent of $B$ given $\emptyset \quad \implies \probd{E \mid B} = \probd{E}$.
+    
+    \item \textbf{Node $A$:} $\text{Parents}(A) = \set{B, E}$, $\text{NonDesc}(A) = \emptyset$.
+    \newline Property: Vacuously true (no non-descendants exists to be independent from).
+    
+    \item \textbf{Node $C$:} $\text{Parents}(C) = \set{A}$, $\text{NonDesc}(C) = \set{B, E}$.
+    \newline Property: $C$ is independent of $\set{B, E}$ given $A \quad \implies \probd{C \mid A, B, E} = \probd{C \mid A}$. 
+    \newline \emph{(Intuition: Once we know the alarm rang, knowing exactly \textbf{why} it rang doesn't give us any extra information about whether the police will be called).}
+\end{itemize}
+}{bayes_net_example}
+
+
+
+\Theorem{
+The \linkterm{JPD}{def:full_joint_prob_distribution} of a \linkterm{Bayesian Network}{def:bayes_net} $\tuple{\cX, E}$ is given by:
+\[
+\probd{X_1, \cdots, X_n} = \prod_{X_i \in \cX} \probd{X_i \mid \text{Parents}(X_i)}
+\]
+}{jpd_BN}
+
+\Proof{
+\begin{enumerate}
+    \item Let $X_1, X_2, \dots, X_n$ be a \textbf{topological sort} (an ordering) of the variables in the \linkterm{DAG}{dag}. This ordering guarantees that if $X_i \to X_j$ is an edge (meaning $X_i$ is a parent of $X_j$), then $i < j$.
+    \item Because joint probability is commutative, we can examine the variables in the \linkterm{JPD}{def:full_joint_prob_distribution} as $\probd{X_n, \dots, X_1}$. Applying the \linkterm{Chain Rule}{lem:chain_rule}, we get:
+    \begin{align*}
+        \probd{X_n, \dots, X_1} &= \probd{X_n \mid X_{n-1}, \dots, X_1} \cdot \probd{X_{n-1} \mid X_{n-2}, \dots, X_1} \cdots \probd{X_2 \mid X_1} \cdot \probd{X_1} \\
+        &= \prod_{i=1}^{n} \probd{X_i \mid X_{i-1}, \dots, X_1}
+    \end{align*}
+    \item Because we used a topological sort, all variables $X_{i-1}, \dots, X_1$ appear before $X_i$ in the ordering. This guarantees they must be \linkterm{non-descendants}{non_descendants} of $X_i$ (since descendants can only appear \emph{after} $X_i$).
+    \item Thus, the conditioning set $\set{X_{i-1}, \dots, X_1}$ consists exactly of $\text{Parents}(X_i)$ plus some other non-descendants of $X_i$.
+    \item By the definition of \linkterm{Bayesian Networks}{def:bayes_net}, $X_i$ is \linkterm{conditionally independent}{def:cond_independence} of its \linkterm{non-descendants}{non_descendants} given its parents. Therefore, the extra \linkterm{non-descendants}{non_descendants} drop out of the probability:
+    \[ \probd{X_i \mid X_{i-1}, \dots, X_1} = \probd{X_i \mid \text{Parents}(X_i)} \]
+    \item Substituting this back into the \linkterm{Chain Rule}{lem:chain_rule} from Step 2 yields:
+    \[ \probd{X_n, \dots, X_1} = \prod_{i=1}^{n} \probd{X_i \mid \text{Parents}(X_i)} \]
+    By commutativity of the joint probability, this is equivalent to $\probd{X_1, \dots, X_n}$. Validating the theorem.
+\end{enumerate}
+}
+
+\anondefinition{
+Given \linkterm{random variables}{def:random_variable} $X_1, \cdots X_n$ with \linkterm{finite}{set_cardinality} \linkterm{domains}{domain_of_discourse} $D_1, \cdots, D_n$, the \defemph{size} of the \linkterm{Bayesian Network}{def:bayes_net} $\cB=\tuple{\set{X_1, \cdots, X_n}, E}$ is defined as:
+\[
+\text{size}(\cB) := \sum_{i=1}^{n} \abs{D_i} \cdot \left( \prod_{X_j \in \text{Parents}(X_i)} \abs{D_j} \right)
+\]
+}{}
+
+\commandnote{
+\begin{itemize}
+    \item $\text{size}(\cB) \hat{=}$ The total number of entries in the \linkterm{CPD}{def:cond_prob_distribution}.
+    \item Smaller \linkterm{Bayesian Networks}{def:bayes_net} need to estimate less probabilities $\leadsto$ more efficient inference.
+    \item Explicit Full \linkterm{JPD}{def:full_joint_prob_distribution} has size $\prod_{i=1}^{n} \abs{D_i}$
+    \item If $\abs{\text{Parents}(X_i)} \leq k$ for every $X_i$, and $D_{\text{max}}$ is the largest \linkterm{random variable}{def:random_variable} \linkterm{domain}{domain_of_discourse}, then $\text{size}(\cB) \leq n \abs{D_{\text{max}}}^{k+1}$
+    \item In the worst case, $\text{size}(\cB) = \sum_{i=1}^{n} \prod_{j=1}^{i} \abs{D_j}$, namely if every variable depends on all its predecessors in the chosen variable ordering.
+    \item \linkterm{Bayesian Networks}{def:bayes_net} are compact if each variable is directly influenced only by few of its predecessor variables.
+\end{itemize}
+}
+
+\Example{
+Consider a \linkterm{Bayesian Network}{def:bayes_net} $\cB$ with $4$ boolean \linkterm{random variables}{def:random_variable} (meaning their domain sizes are $\abs{D_i} = 2$ for all $i$) arranged in a simple chain: $X_1 \to X_2 \to X_3 \to X_4$.
+
+We execute the formula term by term:
+\begin{itemize}
+    \item \textbf{Node $X_1$}: No parents ($\text{Parents}(X_1) = \emptyset \implies$ independent product is $1$). 
+    \newline Term expands to: $\abs{D_1} \cdot 1 = 2 \cdot 1 = 2$
+    \item \textbf{Node $X_2$}: One parent ($\text{Parents}(X_2) = \set{X_1}$). 
+    \newline Term expands to: $\abs{D_2} \cdot \abs{D_1} = 2 \cdot 2 = 4$
+    \item \textbf{Node $X_3$}: One parent ($\text{Parents}(X_3) = \set{X_2}$). 
+    \newline Term expands to: $\abs{D_3} \cdot \abs{D_2} = 2 \cdot 2 = 4$
+    \item \textbf{Node $X_4$}: One parent ($\text{Parents}(X_4) = \set{X_3}$). 
+    \newline Term expands to: $\abs{D_4} \cdot \abs{D_3} = 2 \cdot 2 = 4$
+\end{itemize}
+
+Summing these up gives the total size of the probability tables to be stored:
+\[ \text{size}(\cB) = 2 + 4 + 4 + 4 = 14 \text{ probability entries} \]
+
+We can verify the efficiency by comparing it to an explicit Full \linkterm{JPD}{def:full_joint_prob_distribution}:
+\[ \text{Full JPD Size} = \prod_{i=1}^{4} \abs{D_i} = 2 \cdot 2 \cdot 2 \cdot 2 = 16 \text{ entries} \]
+Even on just $4$ variables, the conditional independencies in the \linkterm{Bayesian Network}{def:bayes_net} make it tangibly more compact.
+
+
+\begin{tcolorbox}[
+    colback=blue!3!white,
+    colframe=blue!70!white,
+    title=Upper Bound Analysis
+]
+In our chain, no node has more than $1$ parent, so the maximum in-degree is $k=1$. The largest domain is $D_{\text{max}} = 2$ (because all variables are boolean). For our $n=4$ nodes, the sparsity upper bound formula yields:
+\[ \text{size}(\cB) \leq n \cdot \abs{D_{\text{max}}}^{k+1} = 4 \cdot 2^{1+1} = 4 \cdot 4 = 16 \]
+Our actual calculated size of $14$ is indeed strictly bounded by $16$. 
+
+To see the real power of this bound, imagine extending this exact chain to $n=100$ boolean variables. The Full JPD would require $2^{100}$ entries (a computational impossibility). In contrast, our \linkterm{Bayesian Network}{def:bayes_net} upper bound guarantees the memory footprint is simply $\leq 100 \cdot 2^2 = 400$ entries. This demonstrates why bounding the maximum number of parents $k$ is critical for scalability!
+\end{tcolorbox}
+}{bayes_net_size_example}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+How to keep our \linkterm{Bayesian Network}{def:bayes_net} small?
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      % Changed: Light green background
+    colframe=green!40!black,    % Changed: Dark green border
+    colbacktitle=red!80!black,  % Kept: Same red title background
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} % Kept: Same title border
+]
+\begin{itemize}
+\item Reduce the number of edges $\leadsto$ Order the variables to allow for exploiting \linkterm{conditional independence}{def:cond_independence} (causes before effects), or 
+\item Represent the \linkterm{CPD}{def:cond_prob_distribution} efficiently:
+\begin{itemize}
+    \item For a Boolean \linkterm{random variable}{def:random_variable} $X$, we only need to store $P(X=T \mid \text{Parents}(X))$
+    \item Introduce different kinds of nodes exploiting domain knowledge.
+\end{itemize}
+\end{itemize}
+\end{tcolorbox}
+
+\definition{BN Construction Algorithm}{
+\begin{enumerate}
+\item Initialize $BN=\tuple{\set{X_1, \cdots, X_n},E}$ where $E=\emptyset$
+\item Fix any variable ordering, $X_1, \cdots, X_n$
+\item \textbf{for} $i:=1, \cdots, n$ \textbf{do}:
+\begin{enumerate}
+    \item Choose a minimal set $\text{Parents}(X_i) \subseteq \set{X_1, \cdots, X_{i-1}}$ such that:
+    \[
+    \probd{X_i \mid X_{i-1}, \cdots, X_1} = \probd{X_i \mid \text{Parents}(X_i)}
+    \] 
+    \item For each $X_j \in \text{Parents}(X_i)$, insert $\tuple{X_j, X_i}$ into $E$
+    \item Associate $X_i$ with $\probd{X_i \mid \text{Parents}(X_i)}$
+\end{enumerate} 
+\end{enumerate}
+}{BN_construction}
+
+\commandnote{
+The size of the resulting \linkterm{Bayesian Network}{def:bayes_net} depends on the chosen \textbf{variable ordering}. The size of a \linkterm{Bayesian Network}{def:bayes_net} is not a fixed property (it depends on the skill of the designer)
+}
+
+\begin{tcolorbox}[
+    colback=blue!3!white,
+    colframe=blue!70!white,
+    title=Rule of Thumb]
+Order \textit{causes} before \textit{effects}
+\end{tcolorbox}
+
+\anondefinition{
+A node $X$ in a \linkterm{Bayesian Network}{def:bayes_net} is called \defemph{deterministic}, if its value is completely determined by the values of $\text{Parents}(X)$
+}{deterministic_node_BN}
+
+\Example{
+The sum of two dice throws $S$ is entirely determined by the values of the two dice \texttt{First} and \texttt{Second}
+}{}
+
+\commandnote{
+\begin{itemize}
+\item  \linkterm{Deterministic}{deterministic_node_BN} nodes model direct, causal relationships. 
+\item If $X$ is \linkterm{deterministic}{deterministic_node_BN}, then $P(X \mid \text{Parents}(X)) \in \set{0,1}$
+\item We can replace the \linkterm{CPD}{def:cond_prob_distribution} $\probd{X \mid \text{Parents}(X)}$ by a boolean function
+\end{itemize}
+}
+
+\begin{tcolorbox}[
+    colback=blue!3!white,
+    colframe=blue!70!white,
+    title=Noisy Nodes]
+Sometimes, values of nodes are \textit{almost} \linkterm{deterministic}{deterministic_node_BN}. For example, assume we have a network that model all causes of fever:
+
+\begin{figure}[H]
+\begin{tikzpicture}[>=stealth]
+  \tikzset{uniform vertex/.style={vertex, minimum width=1.2cm, align=center}}
+
+  \node[uniform vertex] (flu) {Flu};
+  \node[uniform vertex, above left=0.1cm and 1cm of flu] (cold) {Cold};
+  \node[uniform vertex, above right=0.1cm and 1cm of flu] (malaria) {Malaria};
+  
+  % Child node centered below
+  \node[uniform vertex, below=1.5cm of flu] (fever) {Fever};
+
+  % Directed edges
+  \draw[->] (cold) -- (fever);
+  \draw[->] (flu) -- (fever);
+  \draw[->] (malaria) -- (fever);
+\end{tikzpicture}
+\end{figure}
+
+If there is a fever, then one of them (at least) must be the cause, but none of them necessarily cause a fever. We say that the causal relation between parent and child is \textbf{inhibited}. We can model \textbf{inhibition} by individual inhibition factors $q_d$
+\end{tcolorbox}
+
+\anondefinition{
+The \linkterm{CPD}{def:cond_prob_distribution} of a \defemph{noisy disjunction node} $X$ with $\text{Parents}(X)=\set{X_1, \cdots, X_n}$ in a \linkterm{Bayesian Network}{def:bayes_net} is given by:
+\[
+P(X \mid X_1, \cdots, X_n)  = 1 - \left( \prod_{\set{j \mid X_j=T}} q_j \right)
+\]
+where the $q_i$ are the \defemph{inhibition factors} of $X_i \in \text{Parents}(X)$, defined as:
+\[
+q_i := P(\neg X \mid \neg X_1, \cdots, \neg X_{i-1}, X_i, \neg X_{i+1}, \cdots, \neg X_n)
+\]
+}{noisy_node_BN}
+
+\commandnote{
+Instead of a distribution with $2^k$ parameters, we only need $k$ parameters.
+}
+
+\Example{
+Assume the following \linkterm{inhibition factors}{noisy_node_BN}:
+\begin{align*}
+q_\text{cold} &= P(\neg \text{fever} \mid \text{cold}, \neg \text{flu}, \neg \text{malaria}) = 0.6 \\ 
+q_\text{flu} &= P(\neg \text{fever} \mid \neg \text{cold}, \text{flu}, \neg \text{malaria}) = 0.2 \\
+q_\text{malaria} &= P(\neg \text{fever} \mid \neg \text{cold}, \neg \text{flu}, \text{malaria}) = 0.1 \\
+\end{align*}
+If we model \textit{fever} as a \linkterm{noisy disjunction node}{noisy_node_BN}, then the general rule for the \linkterm{CPD}{def:cond_prob_distribution}
+\[
+P(X_i \mid \text{Parents}(X_i)) = \prod_{\set{j \mid X_j=T}} q_j
+\]
+gives the following table:
+
+\begin{tabular}{||c|c|c|l|l||}
+\hline
+Cold & Flu & Malaria & $P(\text{Fever})$ & $P(\neg\text{Fever})$ \\
+\hline
+F & F & F & 0.0 & 1.0 \\
+F & F & T & 0.9 & \textbf{0.1} \\
+F & T & F & 0.8 & \textbf{0.2} \\
+F & T & T & 0.98 & $0.02 = 0.2 \cdot 0.1$ \\
+T & F & F & 0.4 & \textbf{0.6} \\
+T & F & T & 0.94 & $0.06 = 0.6 \cdot 0.1$ \\
+T & T & F & 0.88 & $0.12 = 0.6 \cdot 0.2$ \\
+T & T & T & 0.988 & $0.012 = 0.6 \cdot 0.2 \cdot 0.1$ \\
+\hline
+\end{tabular}
+}{}
+
+\definition{John, Mary and the Alarm}{
+This is the well-known \linkterm{Bayesian Network}{def:bayes_net} example found in textbooks. It goes as follows:
+\begin{itemize}
+\item  I got very valuable stuff at home. So I bought an alarm. Unfortunately, the alarm just rings at home,
+doesn't call me on my mobile.
+\item I've got two neighbors, Mary and John, who'll call me if they hear the alarm.
+\item The problem is that, sometimes, the alarm is caused by an earthquake.
+\item Also, John might confuse the alarm with his telephone, and Mary might miss the alarm altogether because
+she typically listens to loud music.
+\end{itemize}
+$\leadsto$ \linkterm{Random variables}{def:random_variable}: $B,E,A,J,M$ for Burglary, Earthquake, Alarm, John, and Mary, respectively.
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+Given that both John and Mary call me, what is the probability of burglary?
+\end{tcolorbox}
+}{Burglary_example}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    % Define the style for the nodes
+    node distance=1.5cm and 1cm,
+    every node/.style={
+        ellipse,
+        draw,
+        minimum width=2.5cm,
+        minimum height=1cm,
+        font=\ttfamily\large,
+        text=blue!70!black % Matching the blueish hue of the text
+    },
+    % Define the style for the arrows
+    arrow/.style={
+        ->,
+        >={Stealth[round]},
+        semithick
+    }
+]
+
+    % Nodes
+    \node (alarm) {Alarm};
+    
+    % Positioning top nodes relative to Alarm
+    \node (burglary) [above left=of alarm] {Burglary};
+    \node (earthquake) [above right=of alarm] {Earthquake};
+    
+    % Positioning bottom nodes relative to Alarm
+    \node (john) [below left=of alarm] {John};
+    \node (mary) [below right=of alarm] {Mary};
+
+    % Edges
+    \draw [arrow] (burglary) -- (alarm);
+    \draw [arrow] (earthquake) -- (alarm);
+    \draw [arrow] (alarm) -- (john);
+    \draw [arrow] (alarm) -- (mary);
+
+\end{tikzpicture}
+\caption{Burglary-Earthquake Example}
+\end{figure}
+
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+How to calculate $\probd{B \mid J,M}$ ? \hfill (How inference in \linkterm{Bayesian Networks}{def:bayes_net} works?)
+\end{tcolorbox}
+
+Let's use Enumeration (\Thmref{enumeration}):
+\[
+\probd{Q \mid E_1=e_1, \cdots E_{ne} = e_{ne}} = \alpha \left( \sum_{u \in D_u} \probd{Q, E_1=e_1, \cdots E_{ne} = e_{ne}, U_1=u_1, \cdots, U_{nu} = u_{n_u}} \right)
+\]
+with $Q=B, E=\set{J,M}, U=\set{A,E}$
+
+\[
+\probd{B \mid J, M} = \alpha \left( \sum_{b_a, b_e \in \set{T,F}} \probd{B, J,M, A=b_a, E=b_e}\right)
+\]
+
+Let's exploit \Thmref{jpd_BN}
+\[
+\probd{X_1, \cdots, X_n} = \prod_{X_i \in \cX} \probd{X_i \mid \text{Parents}(X_i)}
+\]
+
+\[
+\probd{B \mid J, M} = \alpha \left( \sum_{b_a, b_e \in \set{T,F}} P(J \mid A=b_a) \cdot P(M \mid A=b_a) \cdot \probd{A=b_a \mid E=b_e, B} \cdot P(E=b_e) \cdot \probd{B} \right)
+\]
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+These are $5$ factors in $4$ summands over two cases for Burglary $\leadsto 38$ arithmetic operations $+3$ for $\alpha$ $\leadsto$ General worst case: $\bigo{n \cdot 2^n}$
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+Can we do better?
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      
+    colframe=green!40!black,    
+    colbacktitle=red!80!black,  
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black}
+]
+We can optimize a little bit:
+\[
+\probd{B \mid J, M} = \alpha \left(
+\probd{B} \cdot \left(
+\sum_{b_a, b_e \in \set{T,F}}
+P(J \mid A=b_a) \cdot
+P(M \mid A=b_a) \cdot
+\probd{A=b_a \mid E=b_e, B}
+\cdot P(E=b_e)
+\right)
+\right)
+\]
+
+\[
+\probd{B \mid J, M} = \alpha \left(
+\probd{B} \cdot \left(
+\sum_{b_e \in \set{T,F}} 
+P(E=b_e) \cdot
+\sum_{b_a \in \set{T,F}}
+\probd{A=b_a \mid E=b_e, B} \cdot
+P(J \mid A=b_a) \cdot
+P(M \mid A=b_a) 
+\right)
+\right)
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+This way, we have $3$ factors in $2$ summands $+$ two factors in the outer product, over two cases $\leadsto 28$ arithmetic operations $+3$ for $\alpha$
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=red!80!black,
+    title=Question,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black} 
+]
+Can we do better?
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
+    colback=green!5!white,      
+    colframe=green!40!black,    
+    colbacktitle=red!80!black,  
+    title=Answer,
+    fonttitle=\bfseries,
+    boxed title style={size=small, colframe=red!50!black}
+]
+Yes! $\leadsto$ \textbf{Variable Elimination}
+\end{tcolorbox}
+
+Notice that enumeration corresponds to a depth-first traversal of an arithmetic expression tree, here is an example with some example probabilities:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\linewidth]{images/arithmetic_tree.png}
+\end{figure}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+Notice the redundancies!
+\begin{itemize}
+\item $P(e)$ and $P(\neg e)$ (No need for both!)
+\item $P(j \mid \neg a), P(j \mid a), P(m \mid \neg a), P(m \mid a)$ each is being computed twice! That is because $P(J \mid A=b_a)$ and $P(M \mid A=b_a)$ only depends on $A$, but they are trapped behind the summation over $E$, hence computed twice.
+\end{itemize}
+We can precompute these and store them (trading time complexity by space complexity) $\leadsto$ Variable Elimination. 
+
+The idea is, instead of left-to-right (top-down DFS), we operate right-to-left (bottom-up) and store intermediate \textit{factors} (\textit{functions}) along with their \textit{dependencies}
+\end{tcolorbox}
+
+\Lemma{
+Given a query $\probd{Q_1, \cdots, Q_{n_Q} \mid E_1 = e_1, \cdots, E_{n_E}=e_{n_e}}$, we can ignore and remove all hidden vavriables that are not ancestors of any of the $Q_1, \cdots, Q_{n_Q}$ or $E_1, \cdots, E_{n_E}$
+}{}
+

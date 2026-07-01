@@ -11,45 +11,45 @@
 \maketitle
 %\setcounter{tocdepth}{1}
 \tableofcontents
-%\include{disclaimer}
+\include{disclaimer}
 \clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
-\include{intro}
-\include{probability_theory}
-\include{bayes_nets}
-\include{decision_nets}
-\include{hmm}
-\include{mdp}
-\include{ml_intro}
-\include{regression}
-\include{svm}
-\include{ann}
-\include{statistical_learning}
-\include{rl}
-\include{inductive_logic}
-\include{nlp}
-\include{dl}
+\include{chapters/intro}
+\include{chapters/probability_theory}
+\include{chapters/bayes_nets}
+\include{chapters/decision_nets}
+\include{chapters/hmm}
+\include{chapters/mdp}
+\include{chapters/ml_intro}
+\include{chapters/regression}
+\include{chapters/svm}
+\include{chapters/ann}
+\include{chapters/statistical_learning}
+\include{chapters/rl}
+\include{chapters/inductive_logic}
+\include{chapters/nlp}
+\include{chapters/dl}
 
 %======Appendices======%
 \clearpage
 \appendix
 \addcontentsline{toc}{part}{Appendices}
 \section{Mathematical Vernacular and Induction}
-\input{mathlanguage}
-\include{unarynatnums}
+\input{appendices/mathlanguage}
+\include{appendices/unarynatnums}
 
 \newpage
 \section{Set Theory and Foundations of Mathematics}
-\input{sets}
-\include{relations}
-\include{functions}
-\include{equiv}
-\include{math_structures}
+\input{appendices/sets}
+\include{appendices/relations}
+\include{appendices/functions}
+\include{appendices/equiv}
+\include{appendices/math_structures}
 \section{Topics in Computer Science}
-\input{graphs_trees}
-\include{complexity_analysis}
-\include{formal_langs_grammars}
+\input{appendices/graphs_trees}
+\include{appendices/complexity_analysis}
+\include{appendices/formal_langs_grammars}
 
 
 \printbibliography
