@@ -20,7 +20,7 @@ It is not an official course document, and the material is provided as an auxili
 - Intro to ML, Decision Trees, and Computational Learning Theory
 - Regression, SVMs, and ANNs
 - Statistical Learning
-- Reinforcement learning
+- Reinforcement Learning
 - Inductive Logic
 - NLP and Deep Learning for NLP
 
