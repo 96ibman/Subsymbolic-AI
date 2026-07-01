@@ -227,6 +227,14 @@
   "prefix": "pairwise_disjoint",
   "body": "\\linkterm{pairwise disjoint}{pairwise_disjoint}"
   },
+  "multiset":{
+  "prefix": "multiset",
+  "body": "\\linkterm{multiset}{multiset}"
+  },
+  "bag":{
+  "prefix": "bag",
+  "body": "\\linkterm{bag}{multiset}"
+  },
   "relation":{
   "prefix": "relation",
   "body": "\\linkterm{relation}{relation}"
@@ -526,6 +534,30 @@
   "regular_grammar":{
   "prefix": "regular_grammar",
   "body": "\\linkterm{regular grammar}{regular_grammar}"
+  },
+  "parse_tree_grammar":{
+  "prefix": "parse_tree_grammar",
+  "body": "\\linkterm{parse tree}{parse_tree_grammar}"
+  },
+  "parse_trees_grammar":{
+  "prefix": "parse_trees_grammar",
+  "body": "\\linkterm{parse trees}{parse_tree_grammar}"
+  },
+  "parsing_grammar":{
+  "prefix": "parsing_grammar",
+  "body": "\\linkterm{parsing}{parsing_grammar}"
+  },
+  "parser_grammar":{
+  "prefix": "parser_grammar",
+  "body": "\\linkterm{parser}{parsing_grammar}"
+  },
+  "syntax_analysis_grammar":{
+  "prefix": "syntax_analysis_grammar",
+  "body": "\\linkterm{syntax analysis}{parsing_grammar}"
+  },
+  "linearization_grammar":{
+  "prefix": "linearization_grammar",
+  "body": "\\linkterm{linearization}{parsing_grammar}"
   },
   "directed_graph":{
   "prefix": "directed_graph",
@@ -2659,7 +2691,545 @@
   "prefix": "FOIL",
   "body": "\\linkterm{FOIL}{FOIL}"
   },
+  "NLP":{
+  "prefix": "NLP",
+  "body": "\\linkterm{NLP}{NLP}"
+  },
+  "NLU":{
+  "prefix": "NLU",
+  "body": "\\linkterm{NLU}{NLP}"
+  },
+  "NLG":{
+  "prefix": "NLG",
+  "body": "\\linkterm{NLG}{NLP}"
+  },
+  "representations":{
+  "prefix": "representations",
+  "body": "\\linkterm{representations}{representation}"
+  },
+  "utterance":{
+  "prefix": "utterance",
+  "body": "\\linkterm{utterance}{utterance}"
+  },
+  "utterances":{
+  "prefix": "utterances",
+  "body": "\\linkterm{utterances}{utterance}"
+  },
+  "abstraction":{
+  "prefix": "abstraction",
+  "body": "\\linkterm{abstraction}{abstraction}"
+  },
+  "ambiguity":{
+  "prefix": "ambiguity",
+  "body": "\\linkterm{ambiguity}{ambiguity}"
+  },
+  "compositionality":{
+  "prefix": "compositionality",
+  "body": "\\linkterm{compositionality}{composition}"
+  },
+  "linguistically_realized":{
+  "prefix": "linguistically_realized",
+  "body": "\\linkterm{linguistically realized}{linguistically_realized}"
+  },
+  "semantic_analysis":{
+  "prefix": "semantic_analysis",
+  "body": "\\linkterm{semantic analysis}{semantic_analysis}"
+  },
+  "pragmatic_analysis":{
+  "prefix": "pragmatic_analysis",
+  "body": "\\linkterm{pragmatic analysis}{semantic_analysis}"
+  },
+  "readings":{
+  "prefix": "readings",
+  "body": "\\linkterm{readings}{readings}"
+  },
+  "ambiguous":{
+  "prefix": "ambiguous",
+  "body": "\\linkterm{ambiguous}{readings}"
+  },
+  "anaphor":{
+  "prefix": "anaphor",
+  "body": "\\linkterm{anaphor}{anaphor}"
+  },
+  "antecedent_anaphor":{
+  "prefix": "antecedent_anaphor",
+  "body": "\\linkterm{antecedent}{anaphor}"
+  },
+  "cataphor":{
+  "prefix": "cataphor",
+  "body": "\\linkterm{cataphor}{cataphor}"
+  },
+  "postcedent_cataphor":{
+  "prefix": "postcedent_cataphor",
+  "body": "\\linkterm{postcedent}{cataphor}"
+  },
+  "anaphoric_phrase":{
+  "prefix": "anaphoric_phrase",
+  "body": "\\linkterm{anaphoric phrase}{anaphoric_phrase}"
+  },
+  "anaphoric":{
+  "prefix": "anaphoric",
+  "body": "\\linkterm{anaphoric}{anaphoric_phrase}"
+  },
+  "anaphor_resolution":{
+  "prefix": "anaphor_resolution",
+  "body": "\\linkterm{anaphor resolution}{anaphor_resolution}"
+  },
+  "lang_model":{
+  "prefix": "lang_model",
+  "body": "\\linkterm{language model}{lang_model}"
+  },
+  "lang_models":{
+  "prefix": "lang_models",
+  "body": "\\linkterm{language models}{lang_model}"
+  },
+  "corpus":{
+  "prefix": "corpus",
+  "body": "\\linkterm{corpus}{corpus}"
+  },
+  "text_corpus":{
+  "prefix": "text_corpus",
+  "body": "\\linkterm{text corpus}{corpus}"
+  },
+  "corpora":{
+  "prefix": "corpora",
+  "body": "\\linkterm{corpora}{corpus}"
+  },
+  "text_corpora":{
+  "prefix": "text_corpora",
+  "body": "\\linkterm{text corpora}{corpus}"
+  },
+  "corpus_linguistics":{
+  "prefix": "corpus_linguistics",
+  "body": "\\linkterm{corpus linguistics}{corpus_linguistics}"
+  },
+  "n-gram":{
+  "prefix": "n-gram",
+  "body": "\\linkterm{n-gram}{n-gram}"
+  },
+  "unigram":{
+  "prefix": "unigram",
+  "body": "\\linkterm{unigram}{n-gram}"
+  },
+  "bigram":{
+  "prefix": "bigram",
+  "body": "\\linkterm{bigram}{n-gram}"
+  },
+  "trigram":{
+  "prefix": "trigram",
+  "body": "\\linkterm{trigram}{n-gram}"
+  },
+  "n_gram_model":{
+  "prefix": "n_gram_model",
+  "body": "\\linkterm{n-gram model}{n_gram_model}"
+  },
+  "unigram_model":{
+  "prefix": "unigram_model",
+  "body": "\\linkterm{unigram model}{n_gram_model}"
+  },
+  "bigram_model":{
+  "prefix": "bigram_model",
+  "body": "\\linkterm{bigram model}{n_gram_model}"
+  },
+  "trigram_model":{
+  "prefix": "trigram_model",
+  "body": "\\linkterm{trigram model}{n_gram_model}"
+  },
+  "language_identification":{
+  "prefix": "language_identification",
+  "body": "\\linkterm{language identification}{language_identification}"
+  },
+  "OOV":{
+  "prefix": "OOV",
+  "body": "\\linkterm{OOV}{OOV}"
+  },
+  "perplexity":{
+  "prefix": "perplexity",
+  "body": "\\linkterm{perplexity}{perplexity}"
+  },
+  "geometric_mean":{
+  "prefix": "geometric_mean",
+  "body": "\\linkterm{geometric mean}{geometric_mean}"
+  },
+  "reciprocal":{
+  "prefix": "reciprocal",
+  "body": "\\linkterm{reciprocal}{reciprocal}"
+  },
+  "POS_tagging":{
+  "prefix": "POS_tagging",
+  "body": "\\linkterm{POS tagging}{POS_tagging}"
+  },
+  "POS_tag":{
+  "prefix": "POS_tag",
+  "body": "\\linkterm{POS tag}{POS_tagging}"
+  },
+  "POS_tags":{
+  "prefix": "POS_tags",
+  "body": "\\linkterm{POS tags}{POS_tagging}"
+  },
+  "spam_detection":{
+  "prefix": "spam_detection",
+  "body": "\\linkterm{spam detection}{spam_detection}"
+  },
+  "spam":{
+  "prefix": "spam",
+  "body": "\\linkterm{spam}{spam_detection}"
+  },
+  "ham":{
+  "prefix": "ham",
+  "body": "\\linkterm{ham}{spam_detection}"
+  },
+  "TP":{
+  "prefix": "TP",
+  "body": "\\linkterm{TP}{cm_elements}"
+  },
+  "FP":{
+  "prefix": "FP",
+  "body": "\\linkterm{FP}{cm_elements}"
+  },
+  "TN":{
+  "prefix": "TN",
+  "body": "\\linkterm{TN}{cm_elements}"
+  },
+  "FN":{
+  "prefix": "FN",
+  "body": "\\linkterm{FN}{cm_elements}"
+  },
+  "true_positive":{
+  "prefix": "true_positive",
+  "body": "\\linkterm{true positive}{cm_elements}"
+  },
+  "false_positive":{
+  "prefix": "false_positive",
+  "body": "\\linkterm{false positive}{cm_elements}"
+  },
+  "true_negative":{
+  "prefix": "true_negative",
+  "body": "\\linkterm{true negative}{cm_elements}"
+  },
+  "false_negative":{
+  "prefix": "false_negative",
+  "body": "\\linkterm{false negative}{cm_elements}"
+  },
+  "true_positives":{
+  "prefix": "true_positives",
+  "body": "\\linkterm{true positives}{cm_elements}"
+  },
+  "false_positives":{
+  "prefix": "false_positives",
+  "body": "\\linkterm{false positives}{cm_elements}"
+  },
+  "true_negatives":{
+  "prefix": "true_negatives",
+  "body": "\\linkterm{true negatives}{cm_elements}"
+  },
+  "false_negatives":{
+  "prefix": "false_negatives",
+  "body": "\\linkterm{false negatives}{cm_elements}"
+  },
+  "precision":{
+  "prefix": "precision",
+  "body": "\\linkterm{precision}{precision}"
+  },
+  "recall":{
+  "prefix": "recall",
+  "body": "\\linkterm{recall}{recall}"
+  },
+  "f_1_score":{
+  "prefix": "f_1_score",
+  "body": "\\linkterm{\\$F_1\\$ score}{f_1_score}"
+  },
+  "information_need":{
+  "prefix": "information_need",
+  "body": "\\linkterm{information need}{information_need}"
+  },
+  "information_needs":{
+  "prefix": "information_needs",
+  "body": "\\linkterm{information needs}{information_need}"
+  },
+  "information_object":{
+  "prefix": "information_object",
+  "body": "\\linkterm{information object}{information_object}"
+  },
+  "information_objects":{
+  "prefix": "information_objects",
+  "body": "\\linkterm{information objects}{information_object}"
+  },
+  "IR":{
+  "prefix": "IR",
+  "body": "\\linkterm{IR}{IR}"
+  },
+  "relevance_info":{
+  "prefix": "relevance_info",
+  "body": "\\linkterm{relevance}{relevance_info}"
+  },
+  "relevant_info":{
+  "prefix": "relevant_info",
+  "body": "\\linkterm{relevant}{relevance_info}"
+  },
+  "web_search":{
+  "prefix": "web_search",
+  "body": "\\linkterm{Web Search}{web_search}"
+  },
+  "user_query_web_search":{
+  "prefix": "user_query_web_search",
+  "body": "\\linkterm{user query}{web_search}"
+  },
+  "query_web_search":{
+  "prefix": "query_web_search",
+  "body": "\\linkterm{query}{web_search}"
+  },
+  "raw_term_frequency":{
+  "prefix": "raw_term_frequency",
+  "body": "\\linkterm{raw term frequency}{raw_term_frequency}"
+  },
+  "term_frequency":{
+  "prefix": "term_frequency",
+  "body": "\\linkterm{term frequency}{raw_term_frequency}"
+  },
+  "BOW":{
+  "prefix": "BOW",
+  "body": "\\linkterm{BOW}{BOW}"
+  },
+  "word frequency vector":{
+  "prefix": "word frequency vector",
+  "body": "\\linkterm{word frequency vector}{BOW}"
+  },
+  "cosine_similarity":{
+  "prefix": "cosine_similarity",
+  "body": "\\linkterm{cosine similarity}{cosine_similarity}"
+  },
+  "tf":{
+  "prefix": "tf",
+  "body": "\\linkterm{\\$\\text{tf}(t,d)\\$}{tf}"
+  },
+  "idf":{
+  "prefix": "idf",
+  "body": "\\linkterm{\\$\\text{idf}(t,D)\\$}{idf}"
+  },
+  "tfidf":{
+  "prefix": "tfidf",
+  "body": "\\linkterm{\\$\\text{tfidf}(t, d, D)\\$}{tfidf}"
+  },
+  "tfidf_vector":{
+  "prefix": "tfidf_vector",
+  "body": "\\linkterm{tfidf-vector}{tfidf_vector}"
+  },
+  "page_rank":{
+  "prefix": "page_rank",
+  "body": "\\linkterm{page rank}{page_rank}"
+  },
+  "info_extraction":{
+  "prefix": "info_extraction",
+  "body": "\\linkterm{information extraction}{info_extraction}"
+  },
+  "attribute-based information extraction":{
+  "prefix": "attribute-based information extraction",
+  "body": "\\linkterm{attribute-based information extraction}{ab_info_extraction}"
+  },
+  "template":{
+  "prefix": "template",
+  "body": "\\linkterm{template}{template}"
+  },
+  "prefix pattern":{
+  "prefix": "prefix pattern",
+  "body": "\\linkterm{prefix pattern}{template}"
+  },
+  "target pattern":{
+  "prefix": "target pattern",
+  "body": "\\linkterm{target pattern}{template}"
+  },
+  "postfix pattern":{
+  "prefix": "postfix pattern",
+  "body": "\\linkterm{postfix pattern}{template}"
+  },
+  "relational_extraction":{
+  "prefix": "relational_extraction",
+  "body": "\\linkterm{relational extraction}{relational_extraction}"
+  },
+  "top_down_parsing":{
+  "prefix": "top_down_parsing",
+  "body": "\\linkterm{top-down parsing}{top_down_parsing}"
+  },
+  "bottom_up_parsing":{
+  "prefix": "bottom_up_parsing",
+  "body": "\\linkterm{bottom-up parsing}{bottom_up_parsing}"
+  },
+  "over-generate":{
+  "prefix": "over-generate",
+  "body": "\\linkterm{over-generate}{over_and_under_generation}"
+  },
+  "under-generate":{
+  "prefix": "under-generate",
+  "body": "\\linkterm{under-generate}{over_and_under_generation}"
+  },
+  "PCFG":{
+  "prefix": "PCFG",
+  "body": "\\linkterm{PCFG}{PCFG}"
+  },
+  "word_embedding":{
+  "prefix": "word_embedding",
+  "body": "\\linkterm{word embedding}{word_embedding}"
+  },
+  "word_embeddings":{
+  "prefix": "word_embeddings",
+  "body": "\\linkterm{word embeddings}{word_embedding}"
+  },
+  "one_hot":{
+  "prefix": "one_hot",
+  "body": "\\linkterm{one hot}{one_hot}"
+  },
+  "one_hot_word_embeddings":{
+  "prefix": "one_hot_word_embeddings",
+  "body": "\\linkterm{one hot word embeddings}{one_hot_word_embedding}"
+  },
+  "softmax":{
+  "prefix": "softmax",
+  "body": "\\linkterm{softmax}{softmax}"
+  },
+  "word2vec":{
+  "prefix": "word2vec",
+  "body": "\\linkterm{word2vec}{word2vec}"
+  },
+  "CBOW":{
+  "prefix": "CBOW",
+  "body": "\\linkterm{CBOW}{CBOW}"
+  },
+  "RNN":{
+  "prefix": "RNN",
+  "body": "\\linkterm{RNN}{RNN}"
+  },
+  "BPTT":{
+  "prefix": "BPTT",
+  "body": "\\linkterm{BPTT}{BPTT}"
+  },
+  "BRNN":{
+  "prefix": "BRNN",
+  "body": "\\linkterm{BRNN}{BRNN}"
+  },
+  "LSTM":{
+  "prefix": "LSTM",
+  "body": "\\linkterm{LSTM}{LSTM}"
+  },
+  "LSTMs":{
+  "prefix": "LSTMs",
+  "body": "\\linkterm{LSTMs}{LSTM}"
+  },
+  "seq2seq":{
+  "prefix": "seq2seq",
+  "body": "\\linkterm{seq2seq}{seq2seq}"
+  },
+  "encoder_seq2seq":{
+  "prefix": "encoder_seq2seq",
+  "body": "\\linkterm{encoder}{seq2seq}"
+  },
+  "decoder_seq2seq":{
+  "prefix": "decoder_seq2seq",
+  "body": "\\linkterm{decoder}{seq2seq}"
+  },
+  "attention":{
+  "prefix": "attention",
+  "body": "\\linkterm{attention}{attention}"
+  },
+  "attentional_seq2seq":{
+  "prefix": "attentional_seq2seq",
+  "body": "\\linkterm{attentional seq2seq}{attention}"
+  },
+  "context_vector_attention":{
+  "prefix": "context_vector_attention",
+  "body": "\\linkterm{context vector}{attention}"
+  },
+  "greedy_decoding":{
+  "prefix": "greedy_decoding",
+  "body": "\\linkterm{greedy decoding}{greedy_decoding}"
+  },
+  "local_beam_search":{
+  "prefix": "local_beam_search",
+  "body": "\\linkterm{localbeam search}{local_beam_search}"
+  },
+  "self_attention":{
+  "prefix": "self_attention",
+  "body": "\\linkterm{self-attention}{self_attention}"
+  },
+  "transformer":{
+  "prefix": "transformer",
+  "body": "\\linkterm{transformer}{transformer}"
+  },
+  "transformers":{
+  "prefix": "transformers",
+  "body": "\\linkterm{transformers}{transformer}"
+  },
+  "transformer_layer":{
+  "prefix": "transformer_layer",
+  "body": "\\linkterm{transformer layer}{transformer_layer}"
+  },
+  "transformer_layers":{
+  "prefix": "transformer_layers",
+  "body": "\\linkterm{transformer layers}{transformer_layer}"
+  },
+  "transfer_learning":{
+  "prefix": "transfer_learning",
+  "body": "\\linkterm{transfer learning}{transfer_learning}"
+  },
+  "pretraining":{
+  "prefix": "pretraining",
+  "body": "\\linkterm{pretraining}{pretraining}"
+  },
+  "pretrained":{
+  "prefix": "pretrained",
+  "body": "\\linkterm{pretrained}{pretraining}"
+  },
+  "fine_tuning":{
+  "prefix": "fine_tuning",
+  "body": "\\linkterm{fine-tuning}{pretraining}"
+  },
+  "fine_tuned":{
+  "prefix": "fine_tuned",
+  "body": "\\linkterm{fine-tuned}{pretraining}"
+  },
+  "tokenization":{
+  "prefix": "tokenization",
+  "body": "\\linkterm{tokenization}{tokenization}"
+  },
+  "token":{
+  "prefix": "token",
+  "body": "\\linkterm{token}{tokenization}"
+  },
+  "tokens":{
+  "prefix": "tokens",
+  "body": "\\linkterm{tokens}{tokenization}"
+  },
+  "positional_embeddings":{
+  "prefix": "positional_embeddings",
+  "body": "\\linkterm{positional embeddings}{positional_embeddings}"
+  },
+  "positional_embedding":{
+  "prefix": "positional_embedding",
+  "body": "\\linkterm{positional embedding}{positional_embeddings}"
+  },
+  "Masked Language Modeling":{
+  "prefix": "Masked Language Modeling",
+  "body": "\\linkterm{Masked Language Modeling}{Masked Language Modeling}"
+  },
+  "LLM":{
+  "prefix": "LLM",
+  "body": "\\linkterm{LLM}{LLM}"
+  },
+  "LLMs":{
+  "prefix": "LLMs",
+  "body": "\\linkterm{LLMs}{LLM}"
+  },
+  "BPE":{
+  "prefix": "BPE",
+  "body": "\\linkterm{BPE}{BPE}"
+  },
+  "positional_encoding":{
+  "prefix": "positional_encoding",
+  "body": "\\linkterm{positional encoding}{positional_encoding}"
+  }
 }
+
+
 
 
 
