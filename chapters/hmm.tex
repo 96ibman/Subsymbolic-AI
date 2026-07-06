@@ -136,7 +136,7 @@ Consider we represent the weather as a \linkterm{Markov chain}{markov_chain}, we
 }{weather_example_hmm}
 
 \titledbox{Different ways of representing transition models}{
-If a \linkterm{Markov chain}{markov_chain} $X$ is \linkterm{stationary}{stationary_hmm} and with \linkterm{finite}{set_cardinality} \linkterm{domain}{domain_of_discourse}, we can represent the \linkterm{transition model}{transition_model_hmm} as a matrix $T$ where $T_{ij} := P(X_{t=j} \mid X_{t-1=i})$ 
+If a \linkterm{Markov chain}{markov_chain} $X$ is \linkterm{stationary}{stationary_hmm} and with \linkterm{finite}{set_cardinality} \linkterm{domain}{domain_of_discourse}, we can represent the \linkterm{transition model}{transition_model_hmm} as a matrix $T$ where $T_{ij} := P(X_{t} =j \mid X_{t-1} = i)$ 
 
 \[
 T =
@@ -1068,3 +1068,323 @@ A \linkterm{Bayesian Network}{def:bayes_net} $\mathcal{D}$ is called \defemph{dy
 \end{itemize}
 }
 
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : HMMs}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+On any given day $d$, your roommate \textit{Moody} is either happy or sad, so $M_d \in \set{h,s}$. Usually when he is sad, he stays sad for a while, and $P(M_{d+1} = s \mid M_d = s) = 0.7$. But aside from that he is a cherry guy, and $P(M_{d+1} = h \mid M_d = h) = 0.85$. 
+
+He either listens to jazz or metal music, so $L_d \in \set{j,m}$. On a happy day he usually listens to jazz, and $P(L_d = j \mid M_d = h) = 0.7$. On a sad day, he slightly prefers metal, and $P(L_d = m \mid M_d = s) = 0.6$.
+
+\questionbox{
+Model this situation as a \linkterm{HMM}{hmm}
+}
+
+Let's first complete our probabilities entries from what we know.
+
+We know that $P(M_{t} = s \mid M_{t-1} = s) = 0.7$
+\begin{itemize}
+  \item Which means $P(M_{t} = h \mid M_{t-1} = s) = 0.3$
+\end{itemize}
+
+We know that $P(M_{t} = h \mid M_{t-1} = h) = 0.85$
+\begin{itemize}
+  \item Which means $P(M_{t} = s \mid M_{t-1} = h) = 0.15$
+\end{itemize}
+
+We know that $P(L_t = j \mid M_t = h) = 0.7$
+\begin{itemize}
+  \item Which means $P(L_t = m \mid M_t = h) = 0.3$
+\end{itemize}
+
+We know that $P(L_t = m \mid M_t = s) = 0.6$
+\begin{itemize}
+  \item Which means $P(L_t = j \mid M_t = s) = 0.4$
+\end{itemize}
+
+We represent this as follows:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=7cm, vertex/.style={ellipse, draw, minimum width=60pt, minimum height=40pt, inner sep=0pt}]
+  % Left ellipsis
+  \node at (-2, 4) {$\cdots$};
+  
+  % Mood nodes (top row)
+  \node[vertex] (rain_t_1) at (0, 4) {$\text{M}_{t-1}$};
+  \node[vertex] (rain_t) at (5, 4) {$\text{M}_t$};
+  \node[vertex] (rain_t1) at (10, 4) {$\text{M}_{t+1}$};
+  
+  % Arrows between mood nodes
+  \draw[arc] (rain_t_1) -- node[above=0.7cm] {
+    \begin{tabular}{|c|c|} \hline
+        $M_{t-1}$ & $P(M_t = h \mid M_{t-1})$ \\ \hline 
+        $h$ & $0.85$ \\ \hline
+        $s$ & $0.3$ \\ \hline
+    \end{tabular}
+  } (rain_t);
+  \draw[arc] (rain_t) -- (rain_t1);
+  
+  % Right ellipsis
+  \node at (12, 4) {$\cdots$};
+  
+  % Music nodes (bottom row)
+  \node[vertex] (umb_t_1) at (0, 0) {$\text{L}_{t-1}$};
+  \node[vertex] (umb_t) at (5, 0) {$\text{L}_t$};
+  \node[vertex] (umb_t1) at (10, 0) {$\text{L}_{t+1}$};
+  
+  % Vertical arrows from mood to music
+  \draw[arc] (rain_t_1) -- (umb_t_1);
+  \draw[arc] (rain_t) -- node[right=0.2cm] {
+    \begin{tabular}{|c|c|} \hline
+        $M_{t}$ & $P(L_t = j \mid M_t)$ \\ \hline 
+        $h$ & $0.7$ \\ \hline
+        $s$ & $0.4$ \\ \hline
+    \end{tabular}
+  } (umb_t);
+  \draw[arc] (rain_t1) -- (umb_t1);
+\end{tikzpicture}
+\end{figure}
+
+\questionbox{
+What is the formula for the full \linkterm{JPD}{def:full_joint_prob_distribution} ?
+}
+
+\[
+\probd{M_{0:t}, L_{1:t}} = \probd{M_0} \cdot \left( \prod_{i=1}^{t} \probd{M_i \mid M_{i-1}} \cdot \probd{L_i \mid M_i} \right)
+\]
+
+\questionbox{
+Given that you know that he was happy at day $d_0$. What is the probability that he is happy and plays Jazz for the next two days?
+}
+
+We know that $M_0 = h$, hence $\probd{M_0} = \tuple{1, 0}$ for order $\tuple{h,s}$. Two days have past so $t=2$. Therefore, we want:
+
+\begin{align*}
+&P(M_0 = h, M_1 = h, M_2 = h, L_1 = j, L_2 = j) = \\ 
+&P(M_0 = h) \cdot \\
+&P(M_1 = h \mid M_0 = h) \cdot P(L_1 = j \mid M_1 = h) \cdot \\ 
+&P(M_2 = h \mid M_1 = h) \cdot P(L_2 = j \mid M_2 = h)
+\end{align*}
+
+Concretely:
+\[
+1 \cdot 0.85 \cdot 0.7 \cdot 0.85 \cdot 0.7 = 0.85^2 \cdot 0.7^2 \approx 0.35
+\]
+
+\questionbox{
+Give the transition matrix $T$
+}
+
+We fix the order $\set{h,s}$ and we build the matrix $T$ such that $T_{ij} := P(M_t = j \mid M_{t-1} = i)$
+
+\[
+T =
+\begin{pmatrix}
+P(h_t \mid h_{t-1}) & P(s_t \mid h_{t-1}) \\
+P(h_t  \mid s_{t-1}) & P(s_t \mid s_{t-1})
+\end{pmatrix}
+\qquad
+\text{e.g. } T_{hs} = P(M_t = s \mid M_{t-1} = h)
+\] 
+
+Therefore, we have:
+\[
+T = \begin{pmatrix}
+0.85 & 0.15 \\
+0.3 & 0.7
+\end{pmatrix}
+\]
+
+\questionbox{
+Give the sensor matrix $S$
+}
+
+We fix the order $\set{j,m}$ and we build the matrix $S$ such that $S_{ij} := P(L_t = j \mid M_t = i)$
+
+\[
+S =
+\begin{pmatrix}
+P(j_t \mid h_t) & P(m_t \mid h_t) \\
+P(j_t  \mid s_t) & P(m_t \mid s_t)
+\end{pmatrix}
+\qquad
+\text{e.g. } S_{sj} = P(L_t = j \mid M_t = s)
+\] 
+
+Therefore, we have:
+\[
+S = \begin{pmatrix}
+0.7 & 0.3 \\
+0.4 & 0.6
+\end{pmatrix}
+\]
+
+\questionbox{
+Consider a fixed sequence $L_1 = e_1, L_2 = e_2$ of observations that we have made for two days. You heard \textit{Moody} plays metal on day $d=1$ and jazz on day $d=2$. Give the diagonal sensor matrices $O_1$ and $O_2$ corresponding to our observations.
+}
+
+We have $e_1 = m$ and $e_2 = j$, so, 
+\[
+O_1 = O_m = 
+\begin{pmatrix}
+0.3 & 0 \\
+0 & 0.6
+\end{pmatrix} \qquad 
+O_2 = O_j = 
+\begin{pmatrix}
+0.7 & 0 \\
+0 & 0.4
+\end{pmatrix}
+\]
+
+\questionbox{
+Assume now $\probd{M_0} = \tuple{0.5, 0.5}$ and we observed the same observation for two days as above. What is the probability distribution of \textit{Moody's} mood on day $d=1$?
+}
+
+We want to apply \linkterm{smoothing}{markov_inference}. Remember:
+
+\[
+\probd{X_{t-k} \mid E_{1:t}^{=e}} = \alpha \left( f_{1:t-k} \times b_{t-k+1:t} \right)
+\]
+
+In our case we want $X_1$ and we observed two observations for $t_1$ and $t_2$. For $t-k$ to be $1$ with $t=2$, we need to smooth where $k=1$.
+
+\[
+\probd{M_{2-1} \mid L_{1:2}^{=e}} = \alpha \left( f_{1:2-1} \times b_{2-1+1:2} \right)
+\]
+
+\[
+\probd{M_{1} \mid L_1 = m, L_2 = j} = \alpha \left( f_{1:1} \times b_{2:2} \right)
+\]
+
+We need to calculate $f_{1:1}$, remember:
+\[
+f_{1:t} = 
+\alpha \left(
+O_t \cdot T^T \cdot \probd{X_{t-1} \mid E_{1:t-1}^{=e}}
+\right)
+\]
+
+In our case:
+\[
+f_{1:1} = 
+\alpha \left(
+O_1 \cdot T^T \cdot \probd{M_0}
+\right)
+\]
+
+With $O_1 = O_m$, we have:
+
+\[
+f_{1:1} = 
+\alpha \left(
+\begin{pmatrix}
+0.3 & 0 \\
+0 & 0.6
+\end{pmatrix} \cdot 
+\begin{pmatrix}
+0.85 & 0.3 \\
+0.15 & 0.7
+\end{pmatrix} \cdot 
+\begin{pmatrix}
+0.5\\ 
+0.5
+\end{pmatrix}
+\right) =
+\alpha \left(
+\begin{pmatrix}
+0.1725 \\ 
+0.255
+\end{pmatrix}
+\right) \approx
+\begin{pmatrix}
+0.4 \\ 
+0.6
+\end{pmatrix}
+\]
+
+We need to calculate $b_{2:2}$. Remember:
+\[
+b_{t-k+1:t} = T \cdot O_{t-k+1} \cdot b_{t-k+2:t}
+\]
+
+In our case $t = 2, k=1$:
+\[
+b_{2-1+1:2} = T \cdot O_{2-1+1} \cdot b_{2-1+2:2}
+\]
+
+\[
+b_{2:2} = T \cdot O_{2} \cdot b_{3:2}
+\]
+
+$b_{3:2}$ is the starting vector of the backward iteration $\tuple{1, 1}$ and $O_2 = O_j$. Therefore, we have:
+
+\[
+b_{2:2} = 
+\begin{pmatrix}
+0.85 & 0.15 \\
+0.3 & 0.7
+\end{pmatrix} \cdot 
+\begin{pmatrix}
+0.7 & 0 \\
+0 & 0.4
+\end{pmatrix} \cdot 
+\begin{pmatrix}
+1 \\ 
+1
+\end{pmatrix} = 
+\begin{pmatrix}
+0.655 \\ 
+0.49
+\end{pmatrix}
+\]
+
+We have computed the necessary vectors for 
+\[
+\probd{M_{1} \mid L_1 = m, L_2 = j} = \alpha \left( f_{1:1} \times b_{2:2} \right)
+\]
+
+We plug the values in:
+\[
+\probd{M_{1} \mid L_1 = m, L_2 = j} = 
+\alpha \left( 
+\begin{pmatrix}
+0.4 \\ 
+0.6
+\end{pmatrix}
+\times
+\begin{pmatrix}
+0.655 \\ 
+0.49
+\end{pmatrix}
+\right) = 
+\alpha \left(
+\begin{pmatrix}
+0.4 \cdot 0.655 \\ 
+0.6 \cdot 0.49
+\end{pmatrix}
+\right) = 
+\alpha \left(
+\begin{pmatrix}
+  0.262 \\ 
+  0.294
+\end{pmatrix}
+\right) \approx 
+\begin{pmatrix}
+  0.47 \\
+  0.53
+\end{pmatrix}
+\]
+
+i.e. he was most likely sad in day $d=1$.
+
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}

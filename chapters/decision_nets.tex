@@ -466,18 +466,10 @@ We can model this a \linkterm{Decision Network}{def:dn} with one chance node (oi
 
 \end{tikzpicture}
 
-\begin{tcolorbox}[
-    enhanced,
-    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
-    colback=blue!5!white,
-    colframe=blue!75!black,
-    colbacktitle=red!80!black,
-    title=Question,
-    fonttitle=\bfseries,
-    boxed title style={size=small, colframe=red!50!black} 
-]
+\questionbox{
 Without any information, what is the action that \linkterm{MEU}{def:MEU}?
-\end{tcolorbox}
+}
+
 \begin{align*}
 \text{EU}(D=a) &= P(O=a) \cdot U(D=a,O=a) + P(O=b) \cdot U(D=a,O=b) \\
 &= 0.5 \cdot K + 0.5 \cdot 0 = \frac{K}{2} \\
@@ -485,44 +477,19 @@ Without any information, what is the action that \linkterm{MEU}{def:MEU}?
 &= 0.5 \cdot 0 + 0.5 \cdot K = \frac{K}{2}
 \end{align*}
 
-\begin{tcolorbox}[
-    enhanced,
-    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
-    colback=green!5!white,      
-    colframe=green!40!black,    
-    colbacktitle=red!80!black,  
-    title=Answer,
-    fonttitle=\bfseries,
-    boxed title style={size=small, colframe=red!50!black}
-]
+\answerbox{
 Which means, without any additional information, both actions have the same expected utility. We write $\text{MEU}(\emptyset)$ for the maximum expected utility given no extra information:
 
 \[
-\text{MEU}(\emptyset) = \argmax{a} \text{EU}(a) = \frac{K}{2}
+\text{MEU}(\emptyset) = \max_a \text{EU}(A=a) = \frac{K}{2}
 \]
-\end{tcolorbox}
-\begin{tcolorbox}[
-    enhanced,
-    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
-    colback=blue!5!white,
-    colframe=blue!75!black,
-    colbacktitle=red!80!black,
-    title=Question,
-    fonttitle=\bfseries,
-    boxed title style={size=small, colframe=red!50!black} 
-]
+}
+
+\questionbox{
 What if someone offered to give us information about where the oil is. What is the value of that information? i.e. How much we are willing to pay to get such information?
-\end{tcolorbox}
-\begin{tcolorbox}[
-    enhanced,
-    attach boxed title to top left={xshift=5mm, yshift=-3mm, yshifttext=-1mm},
-    colback=green!5!white,      
-    colframe=green!40!black,    
-    colbacktitle=red!80!black,  
-    title=Answer,
-    fonttitle=\bfseries,
-    boxed title style={size=small, colframe=red!50!black}
-]
+}
+
+\answerbox{
 Assume we have information that says \textit{the oil location is b} (our \linkterm{evidence}{def:bayesian_terms}), then we get EU of 0 for $D=a$ and we get EU of $K$ for $D=b$ and we will choose to dig in $b$ immediately.
 
 The value of this perfect information is simply what we get with information ($K$) minus what we would get without it ($\frac{K}{2}$).
@@ -530,5 +497,91 @@ The value of this perfect information is simply what we get with information ($K
 \[
 \text{VPI}(E) = \text{MEU}(A \mid E) - \text{MEU}(\emptyset)
 \]
-\end{tcolorbox}
+}
 }{}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : VPI}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Chef Giordana runs a kitchen that provides food for a large organization. A salad is sold for $\$ 6$ and costs $\$ 4$ to prepare. So a sold salad is a profit of $\$ 2$, and an unsold salad is a loss of $\$ 4$. Actual demand will be $40$ (with probability $0.5$) or $60$ (same probability) each day. 
+
+Each day, Giordana must decide in advance between two options: prepare $40$ or $60$ salads. 
+
+\questionbox{
+In the absence of additional information, compute the expected utility of each decision option, and choose the best option
+}
+
+We have two actions $A = \set{40, 60}$ and two possible demands $D = \set{40,60}$. We calculate the \linkterm{expected utility}{expected_utility} of each action. 
+
+\begin{align*}
+\text{EU}(A = 40) &= P(D = 40) \cdot U(D = 40, A = 40) \\ 
+&+ P(D = 60) \cdot U(D = 60, A = 40) \\ 
+&= 0.5 \cdot 80 + 0.5 \cdot 80 = 80 \\ 
+\text{EU}(A = 60) &= P(D = 40) \cdot U(D = 40, A = 60) \\
+&+ P(D = 60) \cdot U(D = 60, A = 60) \\
+&= 0.5 \cdot 0 + 0.5 \cdot 120 = 60
+\end{align*}
+
+\answerbox{
+The action that \linkterm{maximizes expected utility}{def:MEU} without any additional information is to prepare $40$ salads, with:
+
+\[
+\text{MEU}(\emptyset) = \max_a \text{EU}(A=a) = 80
+\]
+}
+
+\questionbox{
+She is considering a new ordering system, where she knows the demand perfectly in advance. So she can always choose the better of the two options. How much she is willing to pay for such system that provides perfect information?
+}
+
+We need to compute the maximum expected utility with perfect information and subtract from it the one without any information ($80$).
+
+\[
+\text{VPI}(E) = \text{MEU}(A \mid E) - \text{MEU}(\emptyset)
+\]
+
+What is the masimum expected utility given that we know what the demand is? Well, the demand will be either $40$ or $60$, and if it is $40$ we will take the action $A=40$ and the same goes for if the demand is $60$. So we have:
+
+\begin{align*}
+\text{VPI}(E) &= \left(P(D=60) \cdot U(A=60, D=60) + P(D=40) \cdot U(A=40, D=40)\right) - 80 \\
+&= \left( 0.5 \cdot 120 + 0.5 \cdot 80 \right) - 80 \\
+&= \left( 60 + 40 \right) - 80 \\
+&= 100  - 80 = \$20
+\end{align*}
+
+\answerbox{
+We are willing to pay $\$ 20$ for such perfect information about the demand.
+}
+
+Another way to look at this is as follows:
+
+We have two possible scenarios: 
+\begin{enumerate}
+    \item The system tells us demand is $40$:
+    \begin{itemize}
+        \item without information, we already make $40$ salads and make $\$80$ profit
+        \item with this information, nothing changes, we will make the $40$ salads and get the $\$80$ profit. Hence the value of this information will be $80 - 80 = 0$
+    \end{itemize}
+    \item The system tells us demand is $60$:
+    \begin{itemize}
+        \item without information, we are making $40$ salads and make $\$80$ profit.
+        \item with this information, we will make $60$ and profit $\$120$
+        \item Hence the value of this information in this scenario is $120 - 80 = \$40$.
+    \end{itemize}
+\end{enumerate}
+
+
+Since we cannot predict which scenario will happen tomorrow, we take the expected value of these two outcomes across our \linkterm{prior}{def:bayesian_terms} uncertainty:
+\[
+\text{VPI} = P(\text{scenario 1}) \cdot 0 + P(\text{scenario 2}) \cdot 40 = 0.5 \cdot 0 + 0.5 \cdot 40 = \$20
+\]
+
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
