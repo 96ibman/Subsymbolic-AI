@@ -311,7 +311,13 @@ Given \linkterm{discounted rewards}{discounted_rewards} with $\gamma=0.5$, what 
 $U([3,2,1]) >  U([1,2,3])$ (the sooner the better)
 }
 
-\minititle{Dicounting Exercise}
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : Discounting}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+
 Consider the following world:
 \begin{figure}[H]
     \centering
@@ -360,6 +366,150 @@ For which $\gamma$ are West and East equally good when agent in state $d$?
     \item $1 = 10 \cdot \gamma^2$
     \item $\gamma^2 = \frac{1}{10} \leadsto \gamma = \frac{1}{\sqrt{10}}$
 \end{itemize}
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : MDP}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the following world:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/mdp_exercise.png}
+\end{figure}
+
+\begin{itemize}
+    \item The world is $101$ fields wide 
+    \begin{itemize}
+        \item We have $101$ top and $101$ bottom, that makes $202$
+        \item We also have the \textit{Start} state, we have $203$ total fields
+    \end{itemize}
+    \item In the \textit{Start} state, an agent has two possible actions, \texttt{up} and \texttt{down}.
+    \item It can't return to \textit{Start} and can't pass any gray fields.
+    \item After the first move, the only possible action is \texttt{right}.
+\end{itemize}
+
+\questionbox{
+Model this world as a \linkterm{MDP}{MDP}.
+}
+
+We model states as integers. e.g. the start state is $0$ and then we have $1,\cdots 101$ representing the top fields and $-1, \cdots -101$ representing the bottom fields. 
+
+\begin{align*}
+\mathcal{S} &:= \set{-101, \cdots, -1, 0, 1, \cdots 101} \\ 
+\mathcal{I} &:= \set{0}
+\end{align*}
+
+For actions, we have:
+\begin{align*}
+A(0) &= \set{\texttt{up}, \texttt{down}} \\
+A(s) &= \set{\texttt{right}} \quad \forall s \in \mathcal{S} \setminus \set{0}
+\end{align*}
+
+We define the \linkterm{reward function}{MDP}:
+\begin{align*}
+R(0) &= 0 \qquad R(1) = 50 \qquad R(-1)=-50 \\ 
+R(s) &= -1 \qquad \forall s \in \set{2,3, \cdots 101} \\
+R(s) &= +1 \qquad \forall s \in \set{-2,-3, \cdots -101} \\
+\end{align*}
+
+We have a \linkterm{deterministic}{env_types} \linkterm{transition model}{transition_model_hmm}:
+
+\textbf{Initial State $s=0$}:
+
+\begin{align*}
+P(1 \mid 0, \texttt{up}) &= 1 \qquad P(1 \mid 0, \texttt{down}) = 0 \\ 
+P(-1 \mid 0, \texttt{up}) &= 0 \qquad P(-1 \mid 0, \texttt{down}) = 1 \\ 
+P(s' \mid 0,a) &= 0 \qquad \forall s' \in \mathcal{S} \setminus \set{-1,0,1}, \quad a \in \set{\texttt{up}, \texttt{down}}
+\end{align*}
+
+\textbf{Other States $s\neq 0$}:
+
+\begin{align*}
+P(s+1 \mid s, \texttt{right}) &= 1 \qquad \forall s \in \set{1, \cdots 100} \\ 
+P(s-1 \mid s, \texttt{right}) &= 1 \qquad \forall s \in \set{-1, \cdots -100} \\
+P(101 \mid 101, \texttt{right}) &= P(-101 \mid -101, \texttt{right}) = 1 \qquad \text{(terminal states)} \\ 
+\end{align*}
+
+\commandnote{
+All other probabilities are $0$
+}
+
+\questionbox{
+For what \linkterm{discount factors}{discounted_rewards} $\gamma$ should the agent choose \texttt{up} and for which \texttt{down}?
+}
+
+If the agent chooses \texttt{up}. We compute $U([1, \cdots 101])$:
+\begin{align*}
+U([1, \cdots 101]) &= 50 + \gamma (-1) + \gamma^2 (-1) + \gamma^3 (-1) + \cdots + \gamma^{100} (-1) \\
+U([1, \cdots 101]) &= 50 - \sum_{i=1}^{100} \gamma^i
+\end{align*}
+
+If the agent chooses \texttt{down}. We compute $U([-1, \cdots -101])$:
+\begin{align*}
+U([-1, \cdots -101]) &= -50 + \gamma (1) + \gamma^2 (1) + \gamma^3 (1) + \cdots + \gamma^{100} (1) \\
+U([-1, \cdots -101]) &= -50 + \sum_{i=1}^{100} \gamma^i
+\end{align*}
+
+\redbox{
+In order to know for what \linkterm{discount factor}{discounted_rewards} should the agent choose \texttt{up/down}. We need first to compute the \linkterm{discount factor}{discounted_rewards} that make the agent indifferent.
+}
+
+The agent will be indifferent when
+\[
+U([1, \cdots 101]) = U([-1, \cdots -101])
+\]
+
+i.e. when:
+\begin{align*}
+50 - \sum_{i=1}^{100} \gamma^i &= -50 + \sum_{i=1}^{100} \gamma^i \\
+50 + 50 &=  \sum_{i=1}^{100} \gamma^i + \sum_{i=1}^{100} \gamma^i \\
+100 &=  2 \cdot \sum_{i=1}^{100} \gamma^i \\
+50 &= \sum_{i=1}^{100} \gamma^i \\ 
+\gamma &\approx 0.98 \qquad \text{(solve for $\gamma$)}
+\end{align*}
+
+\commandnote{
+Solving such equations is beyond the scope of this course. Here is one way to compute this with Python:
+}
+
+\begin{codeblocklst}[language=Python, numbers=left, numberstyle=\tiny\color{gray}]
+import scipy.optimize as opt
+
+def f(gamma):
+    return sum(gamma**i for i in range(1, 101)) - 50
+
+sol = opt.root_scalar(f, bracket=[0.001, 0.999])
+print("Root:", sol.root)
+\end{codeblocklst}
+
+This will output \inlinecode{Root: 0.9843976692056645}
+
+Therefore, the agent will choose \texttt{up} if $\gamma < 0.98$. When $\gamma$ is smaller, the agent places less emphasis on future rewards. When $\gamma$ is larger, the agent places more emphasis on future rewards.
+
+\questionbox{
+What is the \linkterm{optimal policy}{optimal_policy_mdp} if the upper path is better?
+}
+
+\begin{align*}
+\pi^{*}(0) &= \texttt{up} \\ 
+\pi^{*}(s) &= \texttt{right} \qquad \forall s \in \mathcal{S} \setminus \set{0}
+\end{align*}
+
+
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
 }
 
 \redbox{
