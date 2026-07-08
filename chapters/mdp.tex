@@ -94,6 +94,160 @@ For $R(s) = -0.4$, the cost now is much higher, the agent will try to finish as 
 For $R(s) = -2$, life is very painful, the agent might commit suicide to alleviate the pain.
 }{}
 
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : Optimal Policy}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Give an optimal policy $\pi^{*}$ for the following \linkterm{MDP}{MDP}:
+\begin{itemize}
+    \item \linkterm{set}{def:set} of states $\mathcal{S} = \set{0,1,2,3,4,5}$ with $\mathcal{I} = \set{0}$
+    \item \linkterm{set}{def:set} of actions $\mathcal{A} = \set{-1,1}$
+    \item transition model defined as:
+    \begin{itemize}
+        \item $P((s+a) \mod 6 \mid s,a) = \frac{2}{3}$
+        \item $P((s+3) \mod 6 \mid s,a) = \frac{1}{3}$
+    \end{itemize}
+    \item \linkterm{reward function}{MDP} defined as: $R(5) = 1$ and $R(s) = -0.1 \forall s \in \mathcal{S}\setminus\set{5}$
+\end{itemize}
+
+\titledbox{Remember}{
+\[
+a \bmod b := a - (b \cdot \floor{\frac{a}{b}})
+\]
+}
+
+\textbf{State $0$}:
+
+\begin{itemize}
+    \item $a = -1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(0 + (-1)) \bmod 6 = 5$
+        \item with prob. $1/3$ we move to $(0 + 3) \bmod 6 = 3$
+    \end{itemize}
+    \item $a = 1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(0 + 1) \bmod 6 = 1$
+        \item with prob. $1/3$ we move to $(0 + 3) \bmod 6 = 3$
+    \end{itemize}
+\end{itemize}
+
+\redbox{
+Optimal action is $a = -1$
+}
+
+\textbf{State $1$}:
+
+\begin{itemize}
+    \item $a = -1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(1 + (-1)) \bmod 6 = 0$
+        \item with prob. $1/3$ we move to $(1 + 3) \bmod 6 = 4$
+    \end{itemize}
+    \item $a = 1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(1 + 1) \bmod 6 = 2$
+        \item with prob. $1/3$ we move to $(1 + 3) \bmod 6 = 4$
+    \end{itemize}
+\end{itemize}
+
+\redbox{
+Optimal action is $a = -1$ because with prob. $2/3$ we can go to $0$ and from there we have higher chance to get to $5$.
+}
+
+\textbf{State $2$}:
+
+\begin{itemize}
+    \item $a = -1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(2 + (-1)) \bmod 6 = 1$
+        \item with prob. $1/3$ we move to $(2 + 3) \bmod 6 = 5$
+    \end{itemize}
+    \item $a = 1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(2 + 1) \bmod 6 = 3$
+        \item with prob. $1/3$ we move to $(2 + 3) \bmod 6 = 5$
+    \end{itemize}
+\end{itemize}
+
+\redbox{
+No optimal action, same prob. of ending up in $5$, we choose arbitrary
+}
+
+\textbf{State $3$}:
+
+\begin{itemize}
+    \item $a = -1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(3 + (-1)) \bmod 6 = 2$
+        \item with prob. $1/3$ we move to $(3 + 3) \bmod 6 = 0$
+    \end{itemize}
+    \item $a = 1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(3 + 1) \bmod 6 = 4$
+        \item with prob. $1/3$ we move to $(3 + 3) \bmod 6 = 0$
+    \end{itemize}
+\end{itemize}
+
+\redbox{
+Optimal action is $a = 1$
+}
+
+\textbf{State $4$}:
+
+\begin{itemize}
+    \item $a = -1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(4 + (-1)) \bmod 6 = 3$
+        \item with prob. $1/3$ we move to $(4 + 3) \bmod 6 = 1$
+    \end{itemize}
+    \item $a = 1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(4 + 1) \bmod 6 = 5$
+        \item with prob. $1/3$ we move to $(4 + 3) \bmod 6 = 1$
+    \end{itemize}
+\end{itemize}
+
+\redbox{
+Optimal action is $a = 1$
+}
+
+\textbf{State $5$}:
+
+\begin{itemize}
+    \item $a = -1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(5 + (-1)) \bmod 6 = 4$
+        \item with prob. $1/3$ we move to $(5 + 3) \bmod 6 = 2$
+    \end{itemize}
+    \item $a = 1$
+    \begin{itemize}
+        \item with prob. $2/3$ we move to $(5 + 1) \bmod 6 = 0$
+        \item with prob. $1/3$ we move to $(5 + 3) \bmod 6 = 2$
+    \end{itemize}
+\end{itemize}
+
+\redbox{
+No optimal action, we end up in states that have equal rewards, we choose arbitrary
+}
+
+Therefore, the optimal policy is:
+\begin{itemize}
+    \item $\pi^{*}(s) = -1 \quad \forall s \in \set{0,1}$
+    \item $\pi^{*}(s) = 1 \quad \forall s \in \set{3,4}$
+    \item arbitrary $\quad \forall s \in \set{2,5}$
+\end{itemize}
+ 
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
+
+
 \questionbox{
 Assume we have two sequences of three actions, the first one will collect the rewards $1,2,2$, and second one will collect $2,3,4$. Which sequence should the agent choose?
 }
