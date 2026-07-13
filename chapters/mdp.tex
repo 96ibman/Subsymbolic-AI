@@ -376,6 +376,72 @@ For which $\gamma$ are West and East equally good when agent in state $d$?
 
 \noindent\makebox[\textwidth]{%
 \rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Excursion : Recall - Geometric Series}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+\anondefinition{
+A \textbf{geometric series} is the sum of an infinite sequence where each term is found by multiplying the previous one by a fixed, non-zero constant $r$, called the \textbf{common ratio}. Given an initial term $a \neq 0$, the series is expressed as:
+\[ \sum_{n=0}^{\infty} ar^n = a + ar + ar^2 + ar^3 + \dots \]
+}{geometric_series}
+
+To determine if the infinite sum exists, we define the \textbf{$k$-th partial sum}, $S_k$, as the sum of the first $k$ terms:
+\[ S_k = \sum_{n=0}^{k-1} ar^n = a + ar + ar^2 + \dots + ar^{k-1} \]
+
+Multiply the entire equation by the common ratio $r$:
+\begin{align*}
+   S_k &=  a + ar + ar^2 + \dots + ar^{k-1} \\ 
+   r \cdot S_k &=  ar + ar^2 + ar^3 + \dots + ar^{k}
+\end{align*}
+
+Subtract ($S_k - rS_k$)
+\[
+S_k - rS_k =  (a + ar + ar^2 + \dots + ar^{k-1}) - (ar + ar^2 + ar^3 + \dots + ar^{k})
+\]
+
+\redbox{
+Every middle term cancels, leaving only the first term from the first sum and the last term from the second sum:
+}
+
+\[
+S_k - rS_k = a-ar^k
+\]
+
+Factor out $S_k$ on the left side and $a$ on the right side:
+\[
+S_k (1 - r) = a (1-r^k)
+\]
+
+Divide by $(1 - r)$ (valid as long as $r \neq 1$):
+
+\[ S_k = a \left( \frac{1-r^k}{1-r} \right) \quad \text{for } r \neq 1 \]
+
+\redbox{
+This allows the calculation of the sum of the first $k$ terms instantly, without adding them individually.
+}
+
+The infinite series converges if the limit of the partial sums exists and is finite:
+\[ S = \lim_{k \to \infty} S_k \]
+
+If the magnitude of the ratio is less than one ($|r| < 1$), then the term $r^k$ vanishes as $k$ approaches infinity:
+\[ \lim_{k \to \infty} r^k = 0 \]
+
+Substituting this into the partial sum formula yields the \textbf{sum of the infinite geometric series}:
+\[ S = \lim_{k \to \infty} a \left( \frac{1-r^k}{1-r} \right) = a \left( \frac{1-0}{1-r} \right) = \frac{a}{1-r} \]
+
+\begin{itemize}
+    \item If \textbf{$|r| < 1$}, the series \textbf{converges} to $\frac{a}{1-r}$.
+    \item If \textbf{$|r| \geq 1$}, the series \textbf{diverges} (the sum does not approach a finite limit).
+\end{itemize}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Excursion}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
 \textbf{Exercise : MDP}\hfill
 \rule{0.25\textwidth}{0.4pt}%
 }
@@ -512,6 +578,153 @@ What is the \linkterm{optimal policy}{optimal_policy_mdp} if the upper path is b
 \rule{0.3\textwidth}{0.4pt}%
 }
 
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Excursion : The story of approximating $\gamma$}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+We have: 
+\[
+50 = \sum_{i=1}^{100} \gamma^i
+\]
+
+Let's expand the summation $\sum_{i=1}^{100} \gamma^i$ by plugging in $i = 1, 2, 3, \dots, 100$:
+\[
+\sum_{i=1}^{100} \gamma^i = \gamma^1 + \gamma^2 + \gamma^3 + \dots + \gamma^{100}
+\]
+
+This can be rewritten as:
+\[
+\gamma^1 + \gamma^2 + \gamma^3 + \dots + \gamma^{100} = \gamma \cdot \left( 1 + \gamma^1 + \gamma^2 + \dots + \gamma^{99} \right)
+\]
+
+Notice that this is exactly:
+\[
+\gamma \cdot \left( \gamma^0 + \gamma^1 + \gamma^2 + \dots + \gamma^{99} \right)
+\]
+
+Now, the terms inside the parentheses perfectly match the definition of a $k$-th partial sum of a geometric series (\Defref{geometric_series}).
+
+\titledbox{Remember}{
+Geometric Series:
+\[ \sum_{n=0}^{\infty} ar^n = a + ar + ar^2 + ar^3 + \dots \]
+
+$k$-th partial sum:
+\[ S_k = \sum_{n=0}^{k-1} ar^n = a + ar + ar^2 + \dots + ar^{k-1} \]
+
+Closed form of the $k$-th partial sum:
+\[ S_k = a \left( \frac{1-r^k}{1-r} \right) \quad \text{for } r \neq 1 \]
+}
+
+\commandnote{
+In our case, $a = 1$,  $r = \gamma$,  and $k = 100$ $\leadsto$ the term inside the parentheses is $S_{100}$
+}
+
+We write in its closed form:
+\[
+S_{100} = 1 \cdot \left( \frac{1-\gamma^{100}}{1-\gamma} \right)
+\]
+
+Back to what we had:
+\begin{align*}
+    \sum_{i=1}^{100} \gamma^i &= \gamma \cdot S_{100} \\ 
+    \sum_{i=1}^{100} \gamma^i &= \gamma \cdot \left( \frac{1-\gamma^{100}}{1-\gamma} \right) = \frac{\gamma(1 - \gamma^{100})}{1 - \gamma}
+\end{align*}
+
+Now, substitute this closed-form expression back into the original equation:
+\begin{align*}
+50 &= \frac{\gamma(1 - \gamma^{100})}{1 - \gamma} \\ 
+50(1 - \gamma) &= \gamma(1 - \gamma^{100}) \\ 
+50 - 50\gamma &= \gamma - \gamma^{101} \\ 
+\gamma^{101} - 50\gamma - \gamma + 50 &= 0 \\ 
+\gamma^{101} - 51\gamma + 50 &= 0
+\end{align*}
+
+We are left with a polynomial equation of degree 101.
+
+\commandnote{
+\begin{itemize}
+    \item There is no general algebraic formula to solve polynomial equations of degree 5 or higher. \hfill (Abel-Ruffini Theorem)
+    \item We rely on \textbf{numerical methods} to \textit{approximate} the root.
+    \item To find the exact value, root-finding algorithms (like the Newton-Raphson method used by the Python script) convert the equation into a function: $f(\gamma) = \gamma^{101} - 51\gamma + 50$
+\end{itemize}
+}
+
+The algorithm looks for the value of $\gamma$ where $f(\gamma) = 0$. It does this by making a guess, evaluating the function, and using the calculus derivative of the function to systematically narrow down the error.
+
+The first guess comes from assuming we have the full infinite series and assuming $\abs{\gamma} < 1$. If the agent's horizon didn't stop at 100 steps but instead went on forever ($k \to \infty$), the definition states that because $\vert{}\gamma\vert{} < 1$, the term $\gamma^{k}$ would shrink toward $0$:
+
+$$\lim_{k \to \infty} \gamma^k = 0$$
+
+If $\gamma^{100} \approx 0$ is substituted into the formula, the equation simplifies to:
+\begin{align*}
+    50 &\approx \frac{\gamma(1 - 0)}{1 - \gamma} \\ 
+    50 &\approx \frac{\gamma}{1 - \gamma}
+\end{align*}
+
+This can be solved easily using standard algebra:
+\begin{align*}
+    50(1 - \gamma) &\approx \gamma \\ 
+    50 - 50\gamma &\approx \gamma \\ 
+    50 &\approx 51\gamma \\ 
+    \gamma &\approx \frac{50}{51} \approx 0.9804
+\end{align*}
+
+Using the derivative $f'(\gamma) = 101\gamma^{100} - 51$, the algorithm takes a starting guess (like $\gamma_0 = 0.98$) and refines it iteratively:
+
+$$\gamma_{new} = \gamma_{old} - \frac{f(\gamma_{old})}{f'(\gamma_{old})}$$
+
+Our update rule is:
+
+$$\gamma_{n+1} = \gamma_n - \frac{f(\gamma_n)}{f'(\gamma_n)}$$
+
+Iteration 1: Starting with $\gamma_0 = 0.98$
+
+\begin{align*}
+f(0.98) &= (0.98)^{101} - 51(0.98) + 50 \\ 
+f(0.98) &\approx 0.12933 - 49.98 + 50 = 0.14933 \qquad (0.98^{101} \approx 0.12933) \\
+\end{align*}
+
+Next, we calculate the value of the derivative at our initial guess. The derivative represents the slope of the tangent line at this point:
+
+\begin{align*}
+    f'(0.98) &= 101(0.98)^{100} - 51 \\ 
+    f'(0.98) &\approx 101(0.13197) - 51 = 13.32897 - 51 = -37.67103 \qquad (0.98^{100} \approx 0.13197)
+\end{align*}
+
+Now, we plug these two values into the update rule to find our next guess, $\gamma_1$
+\begin{align*}
+    \gamma_1 &= \gamma_0 - \frac{f(\gamma_0)}{f'(\gamma_0)} \\ 
+    \gamma_1 &= 0.98 - \frac{0.14933}{-37.67103} \\ 
+    \gamma_1 &\approx 0.98 - (-0.003964) = 0.983964
+\end{align*}
+
+\redbox{
+If we keep going, the values rapidly stabilize. We stop when the function value $f(\gamma_n)$ is zero (or close enough to it), which means we have found our root.
+}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c r@{.}l r@{.}l}
+\toprule
+\textbf{Iteration ($n$)} & \multicolumn{2}{c}{\textbf{Guess ($\gamma_n$)}} & \multicolumn{2}{c}{\textbf{Function Value $f(\gamma_n$)}} \\
+\midrule
+0 & 0&98     & 0&14933 \\
+1 & 0&983964 & 0&01423 \\
+2 & 0&984425 & 0&00014 \\
+3 & 0&984398 & 0&00000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Excursion}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
 \redbox{
 What if we do not have terminal states ?
 }
@@ -543,32 +756,7 @@ A better solution is to use \linkterm{discounted rewards}{discounted_rewards} wi
 \end{itemize}
 }
 
-\minititle{Remember - The Geometric Series}
 
-\anondefinition{
-A \textbf{geometric series} is the sum of an infinite sequence where each term is found by multiplying the previous one by a fixed, non-zero constant $r$, called the \textbf{common ratio}. Given an initial term $a \neq 0$, the series is expressed as:
-\[ \sum_{n=0}^{\infty} ar^n = a + ar + ar^2 + ar^3 + \dots \]
-}{}
-
-To determine if the infinite sum exists, we define the \textbf{$k$-th partial sum}, $S_k$, as the sum of the first $k$ terms:
-\[ S_k = \sum_{n=0}^{k-1} ar^n = a + ar + ar^2 + \dots + ar^{k-1} \]
-Through algebraic manipulation, this can be written in closed form as:
-\[ S_k = a \left( \frac{1-r^k}{1-r} \right) \quad \text{for } r \neq 1 \]
-
-
-The infinite series converges if the limit of the partial sums exists and is finite:
-\[ S = \lim_{k \to \infty} S_k \]
-
-If the magnitude of the ratio is less than one ($|r| < 1$), then the term $r^k$ vanishes as $k$ approaches infinity:
-\[ \lim_{k \to \infty} r^k = 0 \]
-
-Substituting this into the partial sum formula yields the \textbf{sum of the infinite geometric series}:
-\[ S = \lim_{k \to \infty} a \left( \frac{1-r^k}{1-r} \right) = a \left( \frac{1-0}{1-r} \right) = \frac{a}{1-r} \]
-
-\begin{itemize}
-    \item If \textbf{$|r| < 1$}, the series \textbf{converges} to $\frac{a}{1-r}$.
-    \item If \textbf{$|r| \geq 1$}, the series \textbf{diverges} (the sum does not approach a finite limit).
-\end{itemize}
 
 \anondefinition{
 Given a \linkterm{sequence}{sequence} of state $S=s_0, s_1, s_2, \cdots$ and a \linkterm{discount factor}{discounted_rewards} $0 \leq \gamma < 1$, the \defemph{utility} of the \linkterm{sequence}{sequence} is :
