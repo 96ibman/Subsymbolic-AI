@@ -1429,6 +1429,62 @@ Before, when our \linkterm{hypotheses space}{supervised_learning} was all Boolea
 }
 
 \redbox{
-Take home message: If you restirct your \linkterm{hypotheses space}{supervised_learning} structure, learning becomes feasible
+Take home message: If you restrict your \linkterm{hypotheses space}{supervised_learning} structure, learning becomes feasible
 }
 
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : Decision Lists}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+We have the following \linkterm{examples}{supervised_learning} where result values $V$ depend on 4 attributes $A,B,C,D$:
+
+\begin{tabular}{c|cccc|c}
+Example & $A$ & $B$ & $C$ & $D$ & $V$ \\ \hline
+\#1     & 1   & 0   & 0   & 0   & 1   \\
+\#2     & 1   & 0   & 1   & 1   & 1   \\
+\#3     & 0   & 1   & 0   & 0   & 1   \\
+\#4     & 1   & 1   & 0   & 1   & 1   \\
+\#5     & 0   & 0   & 1   & 1   & 1   \\
+\#6     & 0   & 1   & 1   & 0   & 0   \\
+\#7     & 0   & 1   & 0   & 1   & 0   \\
+\#8     & 0   & 0   & 1   & 0   & 0   
+\end{tabular}
+
+We want to construct a \linkterm{decision list}{decision_list} to classify these \linkterm{examples}{supervised_learning}.
+
+\questionbox{
+Assume your literals must be of the form $\textit{attribute} = \textit{number}$. Which values of $k$ allow for giving the \textbf{shortest} possible \linkterm{decision list}{decision_list} in $k$-DL (i.e., using at most $k$ literals per test)?
+}
+
+The shortest possible \linkterm{decision list}{decision_list} is of length $2$ and can be built with $k=3$:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/kdl3.png}
+\end{figure}
+
+The second-shortest \linkterm{decision list}{decision_list} is of length $3$ and can be built with $k=2$:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/kdl2.png}
+\end{figure}
+
+\questionbox{
+Now assume your literals may also be of the form $\textit{attribute} = \textit{attribute}$. Answer the same question above.
+}
+
+For $k=1$, we can build a list of length $2$:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/kdl1.png}
+\end{figure}
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
