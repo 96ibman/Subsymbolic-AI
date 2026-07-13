@@ -12,7 +12,7 @@ We call a \linkterm{word embedding}{word_embedding} \linkterm{one hot}{one_hot},
 }{one_hot_word_embedding}
 
 \commandnote{
-\linkterm{One hot word embeddings}{one_hot_word_embedding} are rarely used for actual tasks, but ofren used as a starting point for better \linkterm{word embeddings}{word_embedding}
+\linkterm{One hot word embeddings}{one_hot_word_embedding} are rarely used for actual tasks, but often used as a starting point for better \linkterm{word embeddings}{word_embedding}
 }
 
 
@@ -237,7 +237,7 @@ Sometimes, we want context from both left and right!
     \item \textit{Eduardo told me that Miguel was very sick, so I took him to see Miguel}
 \end{itemize}
 
-\textit{him} in the first sentence refers to \textit{Miguel} but in the second refers to \textit{Eduardo}. We infered that based on the "right context"
+\textit{him} in the first sentence refers to \textit{Miguel} but in the second refers to \textit{Eduardo}. We inferred that based on the "right context"
 }{}
 
 \anondefinition{
@@ -253,7 +253,7 @@ A \defemph{Bidirectional RNN (BRNN)} concatenates a right-to-left model onto a l
 }{}
 
 \problembox{
-When training a vanilla \linkterm{RNN}{RNN} using \linkterm{BPTT}{BPTT}, the long-term gradients which are back-propagated can "vanish" (tend to zero) ot "explode" (tend to infinity)
+When training a vanilla \linkterm{RNN}{RNN} using \linkterm{BPTT}{BPTT}, the long-term gradients which are back-propagated can "vanish" (tend to zero) or "explode" (tend to infinity)
 }
 
 \anondefinition{
@@ -285,7 +285,7 @@ The \textbf{addition} trick is what tackles the vanishing gradient problem
 }
 
 \problembox{
-\linkterm{RNNs}{RNN} are "many-to-one" models. For \textbf{Machine Translation (MT)}, we need a "many-to-many" model. Additionally, in translation, there is no "one-to-one" correspondence (e.g. \textit{Caballo de mar} $\leadsto$ \textit{seahorse}) and there is flipping of sentence strcuture (e.g. \textit{perro grande} $\leadsto$ \textit{big dog}). 
+\linkterm{RNNs}{RNN} are "many-to-one" models. For \textbf{Machine Translation (MT)}, we need a "many-to-many" model. Additionally, in translation, there is no "one-to-one" correspondence (e.g. \textit{Caballo de mar} $\leadsto$ \textit{seahorse}) and there is flipping of sentence structure (e.g. \textit{perro grande} $\leadsto$ \textit{big dog}). 
 }
 
 \ideabox{
@@ -297,7 +297,7 @@ We need a model so we can feed a bunch of words and generate one word at a time 
 }
 
 \observationbox{
-The "smells" like we need \linkterm{LSTMs}{LSTM}
+That \textit{"smells"} like we need \linkterm{LSTMs}{LSTM}
 }
 
 \ideabox{
@@ -316,7 +316,7 @@ A \defemph{sequence-to-sequence (seq2seq)} model is a \linkterm{neural}{ann} mod
 \Example{
 \textbf{A simple \linkterm{seq2seq}{seq2seq} model} (without \linkterm{embedding}{word_embedding} and \linkterm{output layers}{layers_neural_nets})
 
-Each block represents one \linkterm{LSTM}{LSTM} time step; input are fed successively followed by the token \texttt{<start>} to start the \linkterm{decoder}{seq2seq}
+Each block represents one \linkterm{LSTM}{LSTM} time step; inputs are fed successively followed by the token \texttt{<start>} to start the \linkterm{decoder}{seq2seq}
 
 \begin{figure}[H]
     \centering
@@ -325,7 +325,7 @@ Each block represents one \linkterm{LSTM}{LSTM} time step; input are fed success
 }{}
 
 \titledbox{Shortcomings}{
-\linkterm{Seq2seq}{seq2seq} models were a major breakthrouh in \linkterm{NLP}{NLP} but have the following shortcomings:
+\linkterm{Seq2seq}{seq2seq} models were a major breakthrough in \linkterm{NLP}{NLP} but have the following shortcomings:
 \begin{itemize}
     \item Nearby context bias: \linkterm{RNNs}{RNN} remember with their hidden state, these hidden states tend to have more detailed information about recent words (closer to current input) and less information about earlier words. (long-distance context can also be important)
     \item Fixed context size: The entire input sequence is encoded into a single fixed-size vector of 1024 dimensions. This vector serves as the context for the \linkterm{decoder}{seq2seq} to generate the target sequence. This is a problem because for very long texts compressing into a 1024-dim vector might lose critical details. If we use larger vectors then training becomes slow and we face \linkterm{overfitting}{overfitting}.
@@ -383,7 +383,7 @@ a_{ij} = \frac{e^{r_{ij}}}{\sum_{k} e^{r_{ik}}}
 \]
 
 
-$a_{ij}$ serves as a weight indicating how much \textbf{focus} the model should place on each part of $s_j$ of teh source sequence when generating the next word.
+$a_{ij}$ serves as a weight indicating how much \textbf{focus} the model should place on each part of $s_j$ of the source sequence when generating the next word.
 
 \textbf{3. Context vector}
 
@@ -404,7 +404,7 @@ The \linkterm{decoder}{seq2seq} then starts by accepting a start token concatena
 r_{1,1}  = h_0 \cdot s_1 \qquad r_{1,2}  = h_0 \cdot s_2
 \]
 
-these score are then converted to probabilities using the \linkterm{softmax function}{softmax}, say then we have $[0.73, 0.27]$ for $s_1, s_2$.
+These scores are then converted to probabilities using the \linkterm{softmax function}{softmax}, say then we have $[0.73, 0.27]$ for $s_1, s_2$.
 
 Now $c_1$ is computed as:
 \[
@@ -471,7 +471,7 @@ Dashed lines on the left figure represent \linkterm{attention}{attention}. On th
 }{}
 
 \observationbox{
-During training, a \linkterm{seq2seq}{seq2seq} model tries to maximize the probability of each word in the training sequence, ,conditioned on the source and the previous target words
+During training, a \linkterm{seq2seq}{seq2seq} model tries to maximize the probability of each word in the training sequence, conditioned on the source and the previous target words
 }
 
 \anondefinition{
@@ -487,7 +487,7 @@ Always selecting the highest probability word is called \defemph{greedy decoding
 }
 
 \problembox{
-\linkterm{Greedy decoding}{greedy_decoding} may not always maxmimize the probability of the whole sequence.
+\linkterm{Greedy decoding}{greedy_decoding} may not always maximize the probability of the whole sequence.
 }
 
 \solutionbox{
@@ -499,7 +499,7 @@ Use an optimizing search algorithm (i.e. search for an optimal decoding using a 
 }{local_beam_search}
 
 \titledbox{Local beam search}{
-\linkterm{Local beam search}{local_beam_search} is a common choice in machine translation. Conretely:
+\linkterm{Local beam search}{local_beam_search} is a common choice in machine translation. Concretely:
 \begin{itemize}
     \item keep the top $k$ hypotheses at each stage,
     \item extending each by one word using the top $k$ choices of words,
