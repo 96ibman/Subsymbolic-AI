@@ -641,3 +641,167 @@ Where $\gamma = \frac{1}{2\sigma^2}$ is a hyperparameter controlling the radius 
 \observationbox{
 By using Taylor series expansion on the exponential function, it can be proven that the RBF kernel implicitly maps our data into an \textbf{infinite-dimensional feature space}! It builds localized bump-like decision boundaries around individual clusters of data points, giving it the power to separate almost any complex pattern imaginable.
 }
+
+
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : Support Vectors}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the following $2$-D dataset:
+
+\begin{tabular}{l|l}
+    support vector & classification \\ \hline
+    $\mathbf{x}_1 = \langle 0, 0 \rangle$ & $y_1 = -1$ \\
+    $\mathbf{x}_2 = \langle 0, 0.5 \rangle$ & $y_2 = -1$ \\
+    $\mathbf{x}_3 = \langle 0.5, 0 \rangle$ & $y_3 = -1$ \\
+    $\mathbf{x}_4 = \langle 1, 1 \rangle$ & $y_4 = 1$ \\
+    $\mathbf{x}_5 = \langle 2, 2 \rangle$ & $y_5 = -1$ \\
+\end{tabular}
+
+\questionbox{
+Give a \linkterm{linear separator}{decision_boundary} in the form $h(\mathbf{x}) = \mathbf{w} \cdot \mathbf{x} + b$ for the dataset containing only the \linkterm{examples}{supervised_learning} from $\mathbf{x}_1$ to $\mathbf{x}_4$
+}
+
+If we drew, we get:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/svmex1.png}
+\end{figure}
+
+An obvious choice is the line that passes through $\tuple{1,0}$ and $\tuple{0,1}$. 
+
+The general $2$-d line equation is $y = mx + c$ where $m$ is the slope and $c$ is the $y$-intercept. Clearly the $y$-intercept is $1$. 
+
+If we plug, e.g. $\tuple{1,0}$ as $x,y$, we get $0 = m + 1$, leading to $m = -1$. So our line is $y = -x + 1$
+
+However, we want to write this in the form $ax + by + c = 0$. We get $x + y - 1 = 0$. To match we want, we write this as $\mathbf{w} \cdot \mathbf{x} + b$ where :
+\[
+w = \begin{pmatrix}
+    1 \\
+    1
+\end{pmatrix} \qquad \text{and } b = -1
+\]
+
+\questionbox{
+Explain informally why no linear separator exists for the full dataset of all 5
+vectors.
+}
+
+If we see the big picture:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/svmex2.png}
+\end{figure}
+
+The points $\mathbf{x}_1, \mathbf{x}_4, \mathbf{x}_5$ lie on a line and the middle one has a different
+classification than the others. No line can have $\mathbf{x}_1$ and $\mathbf{x}_5$ on one side and $\mathbf{x}_4$ on the other.
+
+\questionbox{
+Transform the dataset into a $3$-dimensional dataset by applying the function:
+\[
+F(\tuple{u,v}) = \tuple{u^2, v^2, u+v}
+\]
+}
+
+\begin{tabular}{ll|l}
+    support vector & $F(\text{x})$ & classification \\ \hline
+    $x_1$ & $\langle 0, 0, 0 \rangle$ & $y_1 = -1$ \\
+    $x_2$ & $\langle 0, 0.25, 0.5 \rangle$ & $y_2 = -1$ \\
+    $x_3$ & $\langle 0.25, 0, 0.5 \rangle$ & $y_3 = -1$ \\
+    $x_4$ & $\langle 1, 1, 2 \rangle$ & $y_4 = 1$ \\
+    $x_5$ & $\langle 4, 4, 4 \rangle$ & $y_5 = -1$ \\
+\end{tabular}
+
+\questionbox{
+Give a \linkterm{linear separator}{decision_boundary} for the transformed full dataset in the form of $h(\mathbf{x}) = \mathbf{w} \cdot \mathbf{x} + b$
+}
+
+\titledbox{Remember}{
+\begin{itemize}
+    \item $\mathbf{w} \cdot \mathbf{x^{+}} + b > 1$ for safe positive samples
+    \item $\mathbf{w} \cdot \mathbf{x^{-}} + b < -1$ for safe negative samples 
+    \item $\mathbf{w} \cdot \mathbf{x_{sv}^{+}} + b = 1$ for positive support vectors (upper boundary)
+    \item $\mathbf{w} \cdot \mathbf{x_{sv}^{-}} + b = -1$ for negative support vectors (lower boundary)
+\end{itemize}
+}
+
+\commandnote{
+The examples given are \linkterm{support vectors}{svm}.
+}
+
+\begin{enumerate}
+\item From $\mathbf{x}_1$, we have $b = -1$
+\item For $\mathbf{x}_2$, we have $0.25 w_2 + 0.5 w_3 - 1 = -1$
+\item For $\mathbf{x}_3$, we have $0.25 w_1 + 0.5 w_3 - 1 = -1$
+\item For $\mathbf{x}_4$, we have $w_1 + w_2 + 2 w_3 - 1 = 1$ \hfill (the only positive \linkterm{support vector}{svm})
+\item For $\mathbf{x}_5$, we have $4 w_1 + 4 w_2 + 4 w_3 -1 = -1$
+\end{enumerate}
+
+If we equate the equations of $\mathbf{x}_2$ and $\mathbf{x}_3$ (since they both evaluate to $-1$):
+\begin{align*}
+    0.25 w_2 + 0.5 w_3 - 1 &= 0.25 w_1 + 0.5 w_3 - 1 \\ 
+    0.25 w_2 + 0.5 w_3 &= 0.25 w_1 + 0.5 w_3 \\
+    0.25 w_2 &= 0.25 w_1 \\
+    w_2 &= w_1 \\
+\end{align*}
+
+Now that we know that $b = -1$ and $w_1 = w_2$. Let's simplify $\mathbf{x}_4$ equality:
+\begin{align}
+    w_1 + w_2 + 2 w_3 - 1 &= 1 \notag \\
+    w_1 + w_1 + 2 w_3 - 1 &= 1 \notag \\
+    2 w_1 + 2 w_3 - 1 &= 1 \notag \\
+    2 w_1 + 2 w_3  &= 2 \notag \\
+    w_1 + w_3  &= 1 \notag \\
+    w_3 &= 1 - w_1 
+\label{eq:svmex1}
+\end{align}
+
+Similarly, we simplify $\mathbf{x}_5$ equality
+
+\begin{align}
+    4 w_1 + 4 w_2 + 4 w_3 -1 &= -1 \notag \\
+    4 w_1 + 4 w_1 + 4 w_3 -1 &= -1 \notag \\
+    8 w_1 + 4 w_3 -1 &= -1 \notag \\
+    8 w_1 + 4 w_3 &= 0 \notag \\
+    2 w_1 + w_3 &= 0
+\label{eq:svmex2}
+\end{align}
+
+Substitute \Eqref{eq:svmex1} into \Eqref{eq:svmex2}:
+
+\begin{align*}
+  2 w_1 + w_3 &= 0  \\
+  2 w_1 + (1 - w_1) &= 0  \\
+    w_1 + 1 &= 0  \\
+    w_1 &= -1  \\
+\end{align*}
+
+Since $w_1=w_2$, then $w_2 = -1$ as well. 
+
+To find $w_3$, we plug $w_1$ back into \Eqref{eq:svmex2}:
+
+\begin{align*}
+    2 w_1 + w_3 &= 0 \\
+    2 (-1) + w_3 &= 0 \\
+    -2 + w_3 &= 0 \\
+    w_3 &= 2 \\
+\end{align*}
+
+So, the \linkterm{hyperplane}{hyperplane} is $\mathbf{w} \cdot \mathbf{x} + b$ where :
+\[
+w = \begin{pmatrix}
+    -1 \\
+    -1 \\ 
+    2
+\end{pmatrix} \qquad \text{and } b = -1
+\]
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
