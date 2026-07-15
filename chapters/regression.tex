@@ -427,15 +427,14 @@ Because the \linkterm{step function}{step_function} cannot be differentiated to 
 
 
 \anondefinition{
-Let $\alpha \in \mathbb{R}^{+}$ be the learning rate, $y_i \in \{0, 1\}$ be the true label, and $h_{\mathbf{w}}(\mathbf{x}^{(i)}) \in \{0, 1\}$ be the \linkterm{Perceptron's prediction}{perceptron_hypothesis}. The \defemph{Perceptron Learning Rule} updates a single individual weight component $w_j$ at iteration step $t$ according to:
+Let $\alpha \in \mathbb{R}^{+}$ be the learning rate, $y_i \in \{0, 1\}$ be the true label for the $i$-th training instance, and $h_{\mathbf{w}}(\mathbf{x}^{(i)}) \in \{0, 1\}$ be the \linkterm{Perceptron's prediction}{perceptron_hypothesis} on that instance. Let $x_j^{(i)}$ denote the $j$-th feature value of the $i$-th training instance. The \defemph{Perceptron Learning Rule} updates a single individual weight component $w_j$ (corresponding to the $j$-th feature) at iteration step $t$ according to:
 \[
 w_j^{(t+1)} := w_j^{(t)} + \alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) x_j^{(i)}
 \]
-where an update is only triggered if the model misclassifies the training instance $i$.
 }{perceptron_learning_rule}
 
 \observationbox{
-Let's analyze how this error-driven correction rule automatically fixes mistakes:
+This is an \textit{error-driven} correction rule. An update is only triggered if the model misclassifies the training instance $i$:
 \begin{itemize}
     \item \textbf{Correct Prediction:} If $y_i = h_{\mathbf{w}}(\mathbf{x}^{(i)})$, the error term $(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})) = 0$. The weight remains unchanged: $w_j^{(t+1)} := w_j^{(t)}$.
     \item \textbf{False Negative:} If $y_i = 1$ but $h_{\mathbf{w}}(\mathbf{x}^{(i)}) = 0$, the error term is $+1$. The rule adds $\alpha x_j^{(i)}$ to the weight, which increases $\mathbf{w}^T\mathbf{x}^{(i)}$ for the next iteration.
@@ -448,13 +447,11 @@ If a \linkterm{training set}{supervised_learning} $E$ is \linkterm{linearly sepa
 }{}
 
 \problembox{
-If the \linkterm{training data}{supervised_learning} is \textbf{not} \linkterm{linearly separable}{decision_boundary} (for example, the classic non-linear XOR function), the \linkterm{Perceptron Learning Rule}{perceptron_learning_rule} loop will run indefinitely, fluctuating back and forth between bad weight states without ever converging.
+If the \linkterm{training data}{supervised_learning} is \textbf{not} \linkterm{linearly separable}{decision_boundary} (for example, the classic non-linear XOR function), the \linkterm{Perceptron Learning Rule}{perceptron_learning_rule} will run indefinitely, fluctuating back and forth between bad weight states without ever converging.
 }
 
-
-
 \Theorem{
-If \linkterm{examples}{supervised_learning} $E$ is not \linkterm{linearly separable}{decision_boundary}, finding a weight configuration $\mathbf{w}$ that minimizes the classification error is \textbf{NP-hard}. However, an approximation of the minimal-error hypothesis can be reached by applying an iterative sequence where the learning rate $\alpha$ decays over time:
+If \linkterm{examples}{supervised_learning} $E$ are not \linkterm{linearly separable}{decision_boundary}, finding a weight configuration $\mathbf{w}$ that minimizes the classification error is \textbf{NP-hard}. However, an approximation of the minimal-error hypothesis can be reached by applying an iterative sequence where the learning rate $\alpha$ decays over time:
 \[
 \lim_{t \to \infty} \alpha^{(t)} = 0
 \qquad \text{and} \qquad
@@ -641,3 +638,178 @@ w_j^{(t+1)} := w_j^{(t)} + \alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\bi
 \]
 }
 
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : Weight Updates}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the following \linkterm{set}{def:set} of \linkterm{examples}{supervised_learning}:
+
+\begin{tabular}{l|cc|c}
+Example number & $\mathbf{x}_1$ & $\mathbf{x}_2$ & y \\
+\hline
+1 & 2 & 0 & 2 \\
+2 & 3 & 1 & 2
+\end{tabular}
+
+Our \linkterm{hypothesis space}{supervised_learning} contains the functions:
+\[
+h_{\mathbf{w}}(\mathbf{x}) = A (\mathbf{w} \cdot \mathbf{x})
+\]
+
+for $2+1$-dimensional vectors $\mathbf{w}, \mathbf{x}$ and some fixed \linkterm{function}{function} $A$.
+
+As the initial weights, we use $w_0 = w_1 = w_2 = 0$. For each of the following cases, iterate the respective weight update rule once for each example using learning rate $\alpha=1$.
+
+\textbf{1. } Using the \linkterm{threshold function}{step_function} $A(z) = \mathcal{T}(z)$ where $A(z) = 1$ if $z>0$ and $A(z) = 0$ otherwise. 
+
+Because we are using the \linkterm{threshold function}{step_function}, we cannot use \linkterm{gradient descent}{gradient_descent_update}, we have to use the \linkterm{perceptron learning rule}{perceptron_learning_rule}:
+
+\[
+w_j^{(t+1)} := w_j^{(t)} + \alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) x_j^{(i)}
+\]
+
+For example 1, we have $x^{(1)} = \tuple{1, 2, 0}$ and $y_1 = 2$. We calculate $h_{\mathbf{w}}(\mathbf{x}^{(1)})$:
+
+\[
+h_{\mathbf{w}}(\mathbf{x}^{(1)}) = A(\tuple{0,0,0} \cdot \tuple{1, 2, 0}) = A(0) = \mathcal{T}(0) = 0
+\]
+
+The error is $(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})) = (2 - 0) = 2$.
+
+We update $w_0$:
+
+\begin{align*}
+w_0^{(t+1)} &:= w_0^{(t)} + \alpha \big(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) x_0^{(1)} \\
+w_0^{(t+1)} &:= 0 + 2 = 2
+\end{align*}
+
+We update $w_1$:
+
+\begin{align*}
+w_1^{(t+1)} &:= w_1^{(t)} + \alpha \big(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) x_1^{(1)} \\
+w_1^{(t+1)} &:= 0 + 4 = 4 \\
+\end{align*}
+
+We update $w_2$:
+
+\begin{align*}
+w_2^{(t+1)} &:= w_2^{(t)} + \alpha \big(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) x_2^{(1)} \\
+w_2^{(t+1)} &:= 0 + 0 = 0 \\
+\end{align*}
+
+Hence, $\mathbf{w}$ becomes $\tuple{2,4,0}$
+
+Now we use the new $\mathbf{w}$ to calculate our prediction for the second example: $h_{\mathbf{w}}(\mathbf{x}^{(2)})$. Where we have $x^{(2)} = \tuple{1, 3, 1}$ and $y_2 = 2$.
+
+\[
+h_{\mathbf{w}}(\mathbf{x}^{(2)}) = A(\tuple{2,4,0} \cdot \tuple{1, 3, 1}) = A(14) = \mathcal{T}(14) = 1
+\]
+
+The error is $(y_2 - h_{\mathbf{w}}(\mathbf{x}^{(2)})) = (2 - 1) = 1$.
+
+We update $w_0$:
+\begin{align*}
+w_0^{(t+1)} &:= w_0^{(t)} + \alpha \big(y_2 - h_{\mathbf{w}}(\mathbf{x}^{(2)})\big) x_0^{(2)} \\
+w_0^{(t+1)} &:= 2 + 1 = 3 \\
+\end{align*}
+
+We update $w_1$:
+\begin{align*}
+w_1^{(t+1)} &:= w_1^{(t)} + \alpha \big(y_2 - h_{\mathbf{w}}(\mathbf{x}^{(2)})\big) x_1^{(2)} \\
+w_1^{(t+1)} &:= 4 + 3 = 7 \\
+\end{align*}
+
+We update $w_2$:
+\begin{align*}
+w_2^{(t+1)} &:= w_2^{(t)} + \alpha \big(y_2 - h_{\mathbf{w}}(\mathbf{x}^{(2)})\big) x_2^{(2)} \\
+w_2^{(t+1)} &:= 0 + 1 = 1 \\
+\end{align*}
+
+Hence, $\mathbf{w}$ becomes $\tuple{3,7,1}$
+
+
+\textbf{2. } Using the \linkterm{logistic function}{sigmoid_function} $A(z) = \sigma(z) = \frac{1}{1+e^{-z}}$.
+
+Here we can use \linkterm{gradient descent}{gradient_descent_update}, where the \linkterm{logistic update rule}{logistic_update_rule_scalar} is:
+
+\[
+w_j^{(t+1)} := w_j^{(t)} + \alpha \big(y_i - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(i)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(i)})\big) \cdot x_j^{(i)}
+\]
+
+For example 1, we have $x^{(1)} = \tuple{1, 2, 0}$ and $y_1 = 2$. We calculate $h_{\mathbf{w}}(\mathbf{x}^{(1)})$:
+
+\[
+h_{\mathbf{w}}(\mathbf{x}^{(1)}) = A(\tuple{0,0,0} \cdot \tuple{1, 2, 0}) = A(0) = \sigma(0) = \frac{1}{2}
+\]
+
+The error is $(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})) = (2 - 1/2) = 1.5$.
+
+We update $w_0$:
+
+\begin{align*}
+w_0^{(t+1)} &:= w_0^{(t)} + \alpha \big(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(1)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) \cdot x_0^{(1)} \\
+w_0^{(t+1)} &:= 0 + 1.5 \cdot 1/2 \big(1 - 1/2 \big) \cdot 1 \\
+w_0^{(t+1)} &:= 0 + 1.5 \cdot 1/2 \cdot  1/2 \\
+w_0^{(t+1)} &:= 0 + 0.375 =  0.375\\
+\end{align*}
+
+We update $w_1$:
+
+\begin{align*}
+w_1^{(t+1)} &:= w_1^{(t)} + \alpha \big(y_1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(1)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(1)})\big) \cdot x_1^{(1)} \\
+w_1^{(t+1)} &:= 0 + 1.5 \cdot 1/2 \cdot 1/2 \cdot 2 \\
+w_1^{(t+1)} &:= 0 + 0.75 = 0.75 \\
+\end{align*}
+
+We update $w_2$:
+
+\[
+w_2^{(t+1)} := 0 + 1.5 \cdot 1/2 \cdot 1/2 \cdot 0 = 0 \\
+\]
+
+
+Hence, $\mathbf{w}$ becomes $\tuple{0.375,0.75,0}$
+
+Now we use the new $\mathbf{w}$ to calculate our prediction for the second example: $h_{\mathbf{w}}(\mathbf{x}^{(2)})$. Where we have $x^{(2)} = \tuple{1, 3, 1}$ and $y_2 = 2$.
+
+\begin{align*}
+h_{\mathbf{w}}(\mathbf{x}^{(2)}) &= A(\tuple{0.375,0.75,0} \cdot \tuple{1, 3, 1}) \\
+&= A(0.375 \cdot 1 + 0.75 \cdot 3 + 0) \\
+&= \sigma(0.375 + 2.25) = \sigma(2.625) \\ 
+&= \frac{1}{1 + e^{-2.625}} \approx 0.93
+\end{align*}
+
+The error is $(y_2 - h_{\mathbf{w}}(\mathbf{x}^{(2)})) = (2 - 0.93) = 1.07$.
+
+We update $w_0$:
+
+\begin{align*}
+w_0^{(t+1)} &:= w_0^{(t)} + \alpha \big(y_2 - h_{\mathbf{w}}(\mathbf{x}^{(2)})\big) \cdot h_{\mathbf{w}}(\mathbf{x}^{(2)})\big(1 - h_{\mathbf{w}}(\mathbf{x}^{(2)})\big) \cdot x_0^{(2)} \\
+w_0^{(t+1)} &:= 0.375 +  1.07 \cdot 0.93 \cdot (1 - 0.93) \cdot 1 \\
+w_0^{(t+1)} &:= 0.375 +  1.07 \cdot 0.93 \cdot 0.07 \cdot 1 \\
+w_0^{(t+1)} &\approx 0.44 \\
+\end{align*}
+
+We update $w_1$:
+
+\begin{align*}
+w_1^{(t+1)} &:= 0.75 +  1.07 \cdot 0.93 \cdot 0.07 \cdot 3 \\
+w_1^{(t+1)} &\approx 0.96 \\
+\end{align*}
+
+We update $w_2$:
+
+\begin{align*}
+w_2^{(t+1)} &:= 0 +  1.07 \cdot 0.93 \cdot 0.07 \cdot 1 \\
+w_2^{(t+1)} &\approx 0.07 \\
+\end{align*}
+
+Therefore, $\mathbf{w}$ becomes $\tuple{0.44,0.96,0.07}$
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
