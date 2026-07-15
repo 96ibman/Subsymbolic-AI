@@ -109,6 +109,114 @@ can be built from a small \linkterm{McCulloch-Pitts Network}{mcculloch_pitts_net
 }{}
 
 
+\noindent\makebox[\textwidth]{%
+\rule{0.25\textwidth}{0.4pt}\hfill
+\textbf{Exercise : XOR Neural Network}\hfill
+\rule{0.25\textwidth}{0.4pt}%
+}
+
+Consider the following \linkterm{Neural Network}{ann} where weights $w_{ij}$ are given by the labels on the edges:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/neuralnetex1.png}
+\end{figure}
+
+We have two input nodes $a_1$ and $a_2$. Two hidden nodes $a_3$ and $a_4$. One output node $a_5$.
+
+We define the activation function $a_i$ for $i \in \set{3,4,5}$:
+\[
+a_i = \begin{cases}
+    1 \quad \text{if }\sum_{j}w_{ji}a_j > b_i  \qquad (b_i \text{ is bias term for node } i)\\ 
+    0 \quad \text{otherwise}  
+\end{cases}
+\]
+
+\commandnote{
+The node $i$ fires only if the input to it ($\text{net}_i$) is strictly greater than its bias term $b_i$
+}
+
+\questionbox{
+Assume $b_3 = b_4 = b_5 = 0$ and inputs $a_1 = a_2  = 1$. What are the resulting activations $a_3, a_4, 
+$ and $a_5$?
+}
+
+\begin{itemize}
+    \item $\text{net}_3$ will be $1 \cdot 1 + 1 \cdot 1 = 2$ which is $>0$, so $a_3 = 1$
+    \item $\text{net}_4$ will be $-1 \cdot 1 + -1 \cdot 1 = -2$ which is $<0$, so $a_4 = 0$
+    \item $\text{net}_5$ will be $1 \cdot 1 + 1 \cdot 0 = 1$ which is $>0$, so $a_5 = 1$
+\end{itemize}
+
+\questionbox{
+Now assume we want the network to implement the \texttt{XOR} function, what values for $b_3,b_4,b_5$ should we choose?
+}
+
+Since the weights remain the same, we can see what $net_i$ will be for all possible 4 combinations and compare that to the target output that we want.
+
+\begin{tabular}{|c|c|c|c|} \hline
+    Input & Target & $\text{net}_3$ & $\text{net}_4$  \\ \hline
+    $\tuple{0,0}$ & 0 & 0 & 0  \\ \hline
+    $\tuple{1,0}$ & 1 & 1 & -1  \\ \hline
+    $\tuple{0,1}$ & 1 & 1 & -1  \\ \hline
+    $\tuple{1,1}$ & 0 & 2 & -2  \\ \hline
+\end{tabular}
+
+We want $a_5$ to fire only for $\tuple{1,0}$ and $\tuple{0,1}$ in order to implement the \texttt{XOR}.
+
+If we plot the data:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/neuralnetex2.png}
+\end{figure}
+
+We can see that in order to isolate $\tuple{1,0}$ and $\tuple{0,1}$, we need two decision boundaries to (\textit{sandwich}) them. The two boundaries are our two hidden nodes. 
+
+We need one boundary ($a_3$) to isolate the upper three from the lower one. i.e. one that would fire for $\tuple{1,0}, \tuple{0,1}, \tuple{1,1}$ but not for $\tuple{0,0}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/neuralnetex3.png}
+\end{figure}
+
+And one boundary ($a_4$) to isolate the lower three from the top one. i.e. one that would fire for $\tuple{1,0}, \tuple{0,1}, \tuple{0,0}$ but not for $\tuple{1,1}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/neuralnetex4.png}
+\end{figure}
+
+Combining these two boundaries together gives us the desired behavior:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/neuralnetex5.png}
+\end{figure}
+
+Therefore, we want $a_3$ to simulate the \texttt{OR} function and $a_4$ to simulate the \texttt{NAND} function. 
+
+We want $a_3$ to fire when $\text{net}_3$ is equal to $1$ or $2$. Meaning we want $1 > b_3$ and $2 > b_3$. We do not want it to fire when $\text{net}_3 = 0$. Meaning we want $b_3 \geq 0$. So We can choose any $0 \leq b_3 < 1$.
+
+We want $a_4$ to fire when $\text{net}_4$ is $0$ or $-1$. Meaning we want $0 > b_4$ and $-1 > b_4$. We do not want it to fire when $\text{net}_4 = -2$. Meaning we want $b_4 \geq -2$. So We can choose any $-2 \leq b_4 < -1$.
+
+Now that we know $a_3, a_4$, we add them to our table and see what $\text{net}_5$ will evaluate to.
+
+\begin{tabular}{|c|c|c|c|c|c|c|} \hline
+    Input & Target & $\text{net}_3$ & $a_3$ & $\text{net}_4$ & $a_4$ & $\text{net}_5$ \\ \hline
+    $\tuple{0,0}$ & 0 & 0 & 0 & 0 & 1 & 1 \\ \hline
+    $\tuple{1,0}$ & 1 & 1 & 1 & -1 & 1 & 2 \\ \hline
+    $\tuple{0,1}$ & 1 & 1 & 1 & -1 & 1 & 2 \\ \hline
+    $\tuple{1,1}$ & 0 & 2 & 1 & -2 & 0 & 1 \\ \hline
+\end{tabular}
+
+We want $a_5$ to fire when $\text{net}_5 = 2$. Meaning we want $2 > b_5$. We do not want it to fire when $\text{net}_5 = 1$. Meaning we want $b_5 \geq 1$. So we can choose any $1 \leq b_5 < 2$.
+
+\noindent\makebox[\textwidth]{%
+\rule{0.3\textwidth}{0.4pt}\hfill
+\textbf{End of Exercise}\hfill
+\rule{0.3\textwidth}{0.4pt}%
+}
+
 \anondefinition{
 A \linkterm{Neural Network}{ann} is called a \defemph{Feed-Forward Neural Network}, if it is \linkterm{acyclic}{cyclic_graphs}
 }{ffnn}
