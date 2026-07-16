@@ -7,12 +7,12 @@ The capability of computational systems to perform tasks typically associated wi
 A subfield of \linkterm{Artificial Intelligence (AI)}{def:ai} based on the assumption that many aspects of intelligence can be achieved by the manipulation of symbols, combining them into meaningful structures (expressions) and manipulating them (using processes) to produce new expressions.
 }{symbolicai}
 
-\definition{Statisitical AI}{
+\definition{Statistical AI}{
 Remedies the two shortcomings of \linkterm{symbolic AI}{symbolicai} approaches: that all concepts represented by symbols are crisply defined, and that all aspects of the world are knowable/representable in principle. Statistical AI adopts sophisticated mathematical models of uncertainty and uses them to create more accurate world models and reason about them.
 }{statistical_ai}
 
 \definition{Subsymbolic AI (a.k.a connectionism/neural AI)}{
-A subfield of \linkterm{AI}{def:ai} that posits that intelligence is inherently tied to brains, where information is represented by a simple sequence pulses that are processed in parallel via simple calculations realized by neurons, and thus concentrates on neural computing.
+A subfield of \linkterm{AI}{def:ai} that posits that intelligence is inherently tied to brains, where information is represented by a simple sequence of pulses that are processed in parallel via simple calculations realized by neurons, and thus concentrates on neural computing.
 }{subsymbolic_ai}
 
 \definition{Embodied AI}{
@@ -68,7 +68,7 @@ For an \linkterm{agent}{def:agent} $a$ we classify the environment $e$ of $a$ by
 \item \textit{deterministic}, iff the next state of the environment is completely determined by the current state and $a$'s actions; otherwise, \textit{stochastic}.
 \item \textit{episodic}, iff $a$'s experience is divided into atomic episodes, where it perceives and then performs a single action, and the next episode does not depend on previous ones. Otherwise, \textit{sequential}.
 \item \textit{dynamic}, iff the environment can change without an action performed by $a$; otherwise, \textit{static}. If the environment does not change but $a$'s performance measure does, we call $e$ \textit{semidynamic}.
-\item \textit{discrete}, iff the \linkterm{sets}{def:set} of $e$'s state and $a$'s actions are couuntable; otherwise, \textit{continuous}.
+\item \textit{discrete}, iff the \linkterm{sets}{def:set} of $e$'s state and $a$'s actions are countable; otherwise, \textit{continuous}.
 \item \textit{single-agent}, iff only $a$ acts on $e$; otherwise \textit{multi-agent}.
 \end{enumerate}
 }{env_types}
@@ -118,5 +118,5 @@ A learning agent is an \linkterm{agent}{def:agent} that can improve its own beha
 }{learning_agent}
 
 \definition{State Representation}{
-We call a state representation \textbf{atomic}, iff it has no internal structure (black box). However, iff each state is characterized by attributes and their values then the representation is \textbf{factored}. A \textbf{structured} state representation is when include representations of objects, their properties and relationships. 
+We call a state representation \textbf{atomic}, iff it has no internal structure (black box). However, iff each state is characterized by attributes and their values then the representation is \textbf{factored}. A \textbf{structured} state representation is when we include representations of objects, their properties and relationships. 
 }{state_repr}
