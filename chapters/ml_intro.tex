@@ -40,7 +40,7 @@ Assume we have the following data:
 \begin{figure}[H]
     \includegraphics[width=0.25\linewidth]{images/curve_fitting_data.png}
 \end{figure}
-We can choose our \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$ to be the linear \linkterm{functions}{function}, then the best linear \linkterm{hypothesis}{supervised_learning} we can find might look like:
+We can choose our \linkterm{hypothesis space}{supervised_learning} $\mathcal{H}$ to be the linear \linkterm{functions}{function}, then the best linear \linkterm{hypothesis}{supervised_learning} we can find might look like:
 \begin{figure}[H]
     \includegraphics[width=0.25\linewidth]{images/curve_fitting_linear.png}
 \end{figure}
@@ -63,7 +63,7 @@ If we consider High-degree polynomials we get more (noisy) \linkterm{consistent}
 }{}
 
 \observationbox{
-Whether we can find a \linkterm{consistent}{consistent_hyp} \linkterm{hypothesis}{supervised_learning} for a given \linkterm{training set}{supervised_learning} depends on the chosen \linkterm{hypotheses space}{supervised_learning}
+Whether we can find a \linkterm{consistent}{consistent_hyp} \linkterm{hypothesis}{supervised_learning} for a given \linkterm{training set}{supervised_learning} depends on the chosen \linkterm{hypothesis space}{supervised_learning}
 }
 
 \titledbox{Recall}{
@@ -75,11 +75,11 @@ We say that a \linkterm{supervised learning problem}{supervised_learning} is \de
 }{realizable_supervised}
 
 \titledbox{Problem}{
-We do not always know whether a given learning problem is \linkterm{realizable}{realizable_supervised}, unless we have prior knowledge. A naive solution would be to make $\mathcal{H}$ as large as possible, e.g. all Turing Machines. However, the complexity of the \linkterm{supervised learning problem}{supervised_learning} is tied to the size of the \linkterm{hypotheses space}{supervised_learning} and \linkterm{consistency}{consistent_hyp} is not even decidable for general Turing Machines.
+We do not always know whether a given learning problem is \linkterm{realizable}{realizable_supervised}, unless we have prior knowledge. A naive solution would be to make $\mathcal{H}$ as large as possible, e.g. all Turing Machines. However, the complexity of the \linkterm{supervised learning problem}{supervised_learning} is tied to the size of the \linkterm{hypothesis space}{supervised_learning} and \linkterm{consistency}{consistent_hyp} is not even decidable for general Turing Machines.
 }
 
 \redbox{
-Much of the research in machine learning has concentrated on simple \linkterm{hypotheses spaces}{supervised_learning}
+Much of the research in machine learning has concentrated on simple \linkterm{hypothesis spaces}{supervised_learning}
 }
 
 \titledbox{Consistency vs. Simplicity}{
@@ -133,7 +133,7 @@ Thus, high variance means the learned model is highly sensitive to the particula
 }
 
 \titledbox{Why is it called Bias?}{
-Bias measures the systematic error introduced by restricting ourselves to an overly simple \linkterm{hypotheses space}{supervised_learning}.
+Bias measures the systematic error introduced by restricting ourselves to an overly simple \linkterm{hypothesis space}{supervised_learning}.
 
 If the considered \linkterm{hypotheses}{supervised_learning} are all ``far'' from the unknown \linkterm{target function}{supervised_learning}, then even the best possible learned model will make systematic errors.
 
@@ -891,7 +891,7 @@ The estimated best \linkterm{hypothesis}{supervised_learning} $\hat{h}^{*}$ is t
 }
 
 \titledbox{Intuition}{
-Our aim is not to only minimize the \linkterm{empirical loss}{emp_loss}, we also want a \textit{simple} \linkterm{hypothesis}{supervised_learning} (i.e. finding a good \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$) to avoid \linkterm{overfitting}{overfitting}
+Our aim is not to only minimize the \linkterm{empirical loss}{emp_loss}, we also want a \textit{simple} \linkterm{hypothesis}{supervised_learning} (i.e. finding a good \linkterm{hypothesis space}{supervised_learning} $\mathcal{H}$) to avoid \linkterm{overfitting}{overfitting}
 }
 
 \ideabox{
@@ -929,8 +929,8 @@ How can we be sure that our learning algorithm has produced a \linkterm{hypothes
 Some more questions:
 \begin{itemize}
     \item How many \linkterm{examples}{supervised_learning} do we need to get a good $h$ ?
-    \item What \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$ should we use?
-    \item If the \linkterm{hypotheses space}{supervised_learning} $\mathcal{H}$ is very complex, can we find the best $h \in \mathcal{H}$, or do we have to settle for a local maximum in $\mathcal{H}$?
+    \item What \linkterm{hypothesis space}{supervised_learning} $\mathcal{H}$ should we use?
+    \item If the \linkterm{hypothesis space}{supervised_learning} $\mathcal{H}$ is very complex, can we find the best $h \in \mathcal{H}$, or do we have to settle for a local maximum in $\mathcal{H}$?
     \item How complex $h$ should be?
     \item How do we avoid \linkterm{overfitting}{overfitting}?
     \item $\cdots$
@@ -1242,7 +1242,7 @@ If $\mathcal{H}$ is the \linkterm{set}{def:set} of $n$-ary Boolean \linkterm{fun
 
 
 \redbox{
-If your \linkterm{hypotheses space}{supervised_learning} is too expressive (like all Boolean \linkterm{functions}{function}), then \linkterm{sample complexity}{sample_complexity} becomes exponential.
+If your \linkterm{hypothesis space}{supervised_learning} is too expressive (like all Boolean \linkterm{functions}{function}), then \linkterm{sample complexity}{sample_complexity} becomes exponential.
 }
 
 \ideabox{
@@ -1347,7 +1347,7 @@ We can bound the number of possible tests as:
 }
 
 \questionbox{
-What is the size of this restricted learnable \linkterm{hypotheses space}{supervised_learning} ($k$-DL$(n)$)?
+What is the size of this restricted learnable \linkterm{hypothesis space}{supervised_learning} ($k$-DL$(n)$)?
 }
 
 We need to calculate the maximum number of unique \linkterm{decision lists}{decision_list} we can build. Let $C=\abs{\text{Conj}(k,n)}$ be the total number of available tests. To build  a \linkterm{decision list}{decision_list}, we must do two things:
@@ -1425,11 +1425,11 @@ N
 \]
 
 \titledbox{Intuition}{
-Before, when our \linkterm{hypotheses space}{supervised_learning} was all Boolean \linkterm{functions}{function} $\leadsto$ exponential \linkterm{sample complexity}{sample_complexity}. With $k-\text{DL}(n)$ as our \linkterm{hypotheses space}{supervised_learning}, we have polynomial \linkterm{sample complexity}{sample_complexity}
+Before, when our \linkterm{hypothesis space}{supervised_learning} was all Boolean \linkterm{functions}{function} $\leadsto$ exponential \linkterm{sample complexity}{sample_complexity}. With $k-\text{DL}(n)$ as our \linkterm{hypothesis space}{supervised_learning}, we have polynomial \linkterm{sample complexity}{sample_complexity}
 }
 
 \redbox{
-Take home message: If you restrict your \linkterm{hypotheses space}{supervised_learning} structure, learning becomes feasible
+Take home message: If you restrict your \linkterm{hypothesis space}{supervised_learning} structure, learning becomes feasible
 }
 
 \noindent\makebox[\textwidth]{%
