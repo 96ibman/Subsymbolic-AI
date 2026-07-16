@@ -13,11 +13,11 @@ How can we model this?
 }
 
 \anondefinition{
-Given a \linkterm{probability space}{def:prob_space} $\tuple{\Omega, \mathcal{F}, P}$, and a time structure $S$ with an order $\tuple{S, \preceq}$. Then a \linkterm{sequence}{sequence} of \linkterm{random variables}{def:random_variable} $(X_t)t \in S$ with $\text{dom}(X_t) = D$ is called \defemph{stochastic process} over the \defemph{time strcuture} $S$
+Given a \linkterm{probability space}{def:prob_space} $\tuple{\Omega, \mathcal{F}, P}$, and a time structure $S$ with an order $\tuple{S, \preceq}$. Then a \linkterm{sequence}{sequence} of \linkterm{random variables}{def:random_variable} $(X_t)t \in S$ with $\text{dom}(X_t) = D$ is called \defemph{stochastic process} over the \defemph{time structure} $S$
 }{stochastic_process}
 
 \commandnote{
-$X_t$ models the outcome of the \linkterm{random variable}{def:random_variable} $X$ at a given time step $t$. The sample sapce $\Omega$ corresponds to the \linkterm{set}{def:set} of all possible \linkterm{sequences}{sequence} of outcomes.
+$X_t$ models the outcome of the \linkterm{random variable}{def:random_variable} $X$ at a given time step $t$. The sample space $\Omega$ corresponds to the \linkterm{set}{def:set} of all possible \linkterm{sequences}{sequence} of outcomes.
 }
 
 \redbox{
@@ -259,7 +259,7 @@ We call a \linkterm{stochastic process}{stochastic_process} of \textit{hidden} v
 
 \Example{
 You are a security guard in a secret underground facility, want to know
-it if is raining outside. Your only source of information is whether the director comes in with an umbrella.
+if it is raining outside. Your only source of information is whether the director comes in with an umbrella.
 \begin{itemize}
     \item we have a \linkterm{stochastic process}{stochastic_process} $\text{Rain}_0, \text{Rain}_1, \text{Rain}_2, \cdots$ of \defemph{hidden} variables, and 
     \item a related \linkterm{stochastic process}{stochastic_process} $\text{Umbrella}_0, \text{Umbrella}_1, \text{Umbrella}_2, \cdots$ of \linkterm{evidence}{def:bayesian_terms} variables.
@@ -385,7 +385,7 @@ T = \begin{pmatrix}
 
 
 \definition{Markov Inference Tasks}{
-Gievn a \linkterm{Markov chain}{markov_chain} with state variables $X_t$ and \linkterm{evidence}{def:bayesian_terms} variables $E_t$, we are interested in the following \defemph{Markov inference tasks}:
+Given a \linkterm{Markov chain}{markov_chain} with state variables $X_t$ and \linkterm{evidence}{def:bayesian_terms} variables $E_t$, we are interested in the following \defemph{Markov inference tasks}:
 \begin{itemize}
 \item \defemph{Filtering (Monitoring)}: The task of tracking / updating the \linkterm{probability distribution}{def:prob_distribution} $B_t (X) = \probd{X_t \mid E_{1:t}^{=e}}$ (\defemph{belief state}) over time. i.e. given sequence $e_1, \cdots, e_t$ of observations up until time $t$, we compute the likely state of the world at current time $t$.
 \item \defemph{Prediction (State Estimation)}: Given sequence $e_1, \cdots, e_t$ of observations up until time $t$, compute the likely \textit{future} state of the world at time $t+k$ for $k > 0$. i.e. calculating the \linkterm{probability distribution}{def:prob_distribution} $\probd{X_{t+k} \mid E_{1:t}^{=e}}$.
@@ -1161,7 +1161,7 @@ What is the formula for the full \linkterm{JPD}{def:full_joint_prob_distribution
 Given that you know that he was happy at day $d_0$. What is the probability that he is happy and plays Jazz for the next two days?
 }
 
-We know that $M_0 = h$, hence $\probd{M_0} = \tuple{1, 0}$ for order $\tuple{h,s}$. Two days have past so $t=2$. Therefore, we want:
+We know that $M_0 = h$, hence $\probd{M_0} = \tuple{1, 0}$ for order $\tuple{h,s}$. Two days have passed so $t=2$. Therefore, we want:
 
 \begin{align*}
 &P(M_0 = h, M_1 = h, M_2 = h, L_1 = j, L_2 = j) = \\ 
