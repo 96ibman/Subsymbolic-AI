@@ -38,7 +38,7 @@ Let $\func{X_i}{\Omega}{D_i}$ \linkterm{random variables}{def:random_variable} o
 }
 
 \Example{
-Consider commuting to work as en example experiment where we have $\Omega = \set{\text{accident on the road}, \text{minor crash on the road}, \text{smooth commute}}$. 
+Consider commuting to work as an example experiment where we have $\Omega = \set{\text{accident on the road}, \text{minor crash on the road}, \text{smooth commute}}$. 
 
 We define a \linkterm{random variable}{def:random_variable} $X$ representing travel time in minutes:
 \begin{itemize}
@@ -46,7 +46,7 @@ We define a \linkterm{random variable}{def:random_variable} $X$ representing tra
     \item $X(\text{minor crash on the road})=45$
     \item $X(\text{smooth commute})=20$
 \end{itemize}
-These are the states our world can be in. We want to define a utility function $F$ representing our happiness. Because $X$ is a \textbf{random}, $F$ becomes \textbf{random} too, we do not get one happiness level, we get a distribution of possible hapiness levels based on the underlying reality $\Omega$.
+These are the states our world can be in. We want to define a utility function $F$ representing our happiness. Because $X$ is a \textbf{random}, $F$ becomes \textbf{random} too, we do not get one happiness level, we get a distribution of possible happiness levels based on the underlying reality $\Omega$.
 
 Say that $f(t) = 100 - t$ (the longer the trip, the less happy I am). Then we have: 
 
@@ -81,7 +81,7 @@ Continuing with the Commute Time example, assume we have the following probabili
 \mathbb{E}(X)&:=32 \text{ minutes}
 \end{align*}
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-This means, (while I might never actually spend exatly $32$ minutes on any single day), if I commute for, e.g. a year, my average travel time will be $32$ minutes.
+This means, (while I might never actually spend exactly $32$ minutes on any single day), if I commute for, e.g. a year, my average travel time will be $32$ minutes.
 \end{tcolorbox}
 }{}
 
@@ -543,7 +543,7 @@ We need to compute the maximum expected utility with perfect information and sub
 \text{VPI}(E) = \text{MEU}(A \mid E) - \text{MEU}(\emptyset)
 \]
 
-What is the masimum expected utility given that we know what the demand is? Well, the demand will be either $40$ or $60$, and if it is $40$ we will take the action $A=40$ and the same goes for if the demand is $60$. So we have:
+What is the maximum expected utility given that we know what the demand is? Well, the demand will be either $40$ or $60$, and if it is $40$ we will take the action $A=40$ and the same goes for if the demand is $60$. So we have:
 
 \begin{align*}
 \text{VPI}(E) &= \left(P(D=60) \cdot U(A=60, D=60) + P(D=40) \cdot U(A=40, D=40)\right) - 80 \\
